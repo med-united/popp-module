@@ -11,4 +11,16 @@ plugins {
 
 dependencies {
     kover(projects.poppSdk)
+    kover(projects.poppDemo.shared)
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes("*.generated.resources.*") // Res, fonts, drawables,...
+                classes("*ComposableSingletons*")
+            }
+        }
+    }
 }

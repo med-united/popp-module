@@ -26,7 +26,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests and generate Kover coverage report
-        run: ./gradlew :popp-sdk:testAndroidHostTest koverXmlReport koverHtmlReport
+        run: ./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport
 
       - name: Upload test results
         if: always()
@@ -36,6 +36,8 @@ jobs:
           path: |
             popp-sdk/build/reports/tests/
             popp-sdk/build/test-results/
+            popp-demo/shared/build/reports/tests/
+            popp-demo/shared/build/test-results/
 
       - name: Upload Kover HTML report
         if: always()

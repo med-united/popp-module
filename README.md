@@ -3,49 +3,68 @@ Implementation of the gematik PoPP-Module specification (https://gemspec.gematik
 
 This is a Kotlin Multiplatform project targeting Android and iOS. The PoPP business
 logic lives in a reusable SDK library that is exported as native artifacts (an
-Android `.aar` and an iOS `.xcframework`) and consumed by a Compose Multiplatform
-demo host app.
+Android `.aar` and an iOS `.xcframework`) and consumed by **two** Compose
+Multiplatform demo host apps, to show the SDK embedded in different host contexts.
 
 ## Modules
 
-* [`/popp-sdk`](./popp-sdk/src) — Kotlin Multiplatform **SDK library** with the PoPP
+* [`/popp-sdk`](./popp-sdk/src) -> Kotlin Multiplatform **SDK library** with the PoPP
   business logic and **no UI dependencies**, so it can be embedded into any host app.
   Exposes a public API (`PoppSdk`) and builds to an Android AAR and an iOS XCFramework
   (`PoppSdk`). Platform-specific code uses `expect`/`actual`: shared declarations live in
   [commonMain](./popp-sdk/src/commonMain/kotlin), and platform implementations live in
   [androidMain](./popp-sdk/src/androidMain/kotlin) / [iosMain](./popp-sdk/src/iosMain/kotlin).
 
-* [`/popp-demo-app`](./popp-demo-app/src) — Compose Multiplatform **library** holding the
-  demo host's shared UI ([commonMain/App.kt](./popp-demo-app/src/commonMain/kotlin)) and the
-  iOS entry point ([iosMain/MainViewController.kt](./popp-demo-app/src/iosMain/kotlin)). It
-  depends on `:popp-sdk` and produces the iOS framework `PoppDemoApp`.
+* `/popp-demo` -> Folder grouping the demo:
+  * [`/popp-demo/shared`](./popp-demo/shared/src) -> Compose Multiplatform **library** with the
+    common demo UI (service·health brand theme + `BrandShowcaseScreen`, which renders the
+    PoPP-SDK integration proof). Depends on `:popp-sdk`. Reused by both demo apps.
+  * `/popp-demo/popp-3rd-party-app-demo` -> the **3rd-party host app** demo:
+    * `shared3rdPartyApp` -> Compose-MP library (App UI + iOS entry point; depends on `popp-demo:shared`; iOS framework `Shared3rdPartyApp`)
+    * `android3rdPartyApp` -> runnable Android application (id `…demo.thirdparty`)
+    * `ios3rdPartyApp` -> iOS application (Xcode project)
+  * `/popp-demo/popp-insurance-app-demo` -> the **insurance host app** demo, same shape:
+    `sharedInsuranceApp` (framework `SharedInsuranceApp`), `androidInsuranceApp` (id `…demo.insurance`), `iosInsuranceApp`.
 
-* [`/androidApp`](./androidApp/src) — Thin Android **application** that hosts the shared UI
-  (`MainActivity` calls `App()` from `:popp-demo-app`). This is the runnable Android app.
-
-* [`/iosApp`](./iosApp/iosApp) — The iOS **application** (Xcode project). It is the iOS entry
-  point that embeds the `PoppDemoApp` framework, and where any SwiftUI code would go.
+Dependency flow per app: `androidXApp → sharedXApp → popp-demo:shared → :popp-sdk`;
+on iOS the `iosXApp` Xcode project embeds the `sharedXApp` framework.
 
 > **Note:** Since AGP 9, a single Gradle module cannot be both a Kotlin Multiplatform module
 > and an Android application (`com.android.application` is incompatible with the KMP plugin).
-> That is why the runnable Android app (`:androidApp`) is a separate module from the
-> multiplatform UI library (`:popp-demo-app`). On iOS the equivalent app shell is the
-> `:iosApp` Xcode project.
+> So each demo app splits into a KMP library (`sharedXApp`, also the iOS framework producer)
+> and a thin `com.android.application` (`androidXApp`); the iOS app shell is the Xcode project.
 
 ## Running the apps
 
-- Android app: `./gradlew :androidApp:installDebug` (build + install on a connected device/emulator),
-  then launch it from the device, or:
-  `adb shell monkey -p de.servicehealth.poppmodule -c android.intent.category.LAUNCHER 1`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it. (Running on a physical
-  device requires setting your signing `TEAM_ID` in
-  [iosApp/Configuration/Config.xcconfig](./iosApp/Configuration/Config.xcconfig); a simulator
-  needs no signing.)
+3rd-party demo:
+- Android: `./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installDebug`,
+  then `adb shell monkey -p de.servicehealth.poppmodule.demo.thirdparty -c android.intent.category.LAUNCHER 1`
+- iOS: open `popp-demo/popp-3rd-party-app-demo/ios3rdPartyApp/iosApp.xcodeproj` in Xcode and run.
+
+Insurance demo:
+- Android: `./gradlew :popp-demo:popp-insurance-app-demo:androidInsuranceApp:installDebug`,
+  then `adb shell monkey -p de.servicehealth.poppmodule.demo.insurance -c android.intent.category.LAUNCHER 1`
+- iOS: open `popp-demo/popp-insurance-app-demo/iosInsuranceApp/iosApp.xcodeproj` in Xcode and run.
+
+Running on a physical iOS device requires setting your signing `TEAM_ID` in the app's
+`Configuration/Config.xcconfig`; a simulator needs no signing.
 
 ## Running tests
 
-- Android (host JVM, fast): `./gradlew :popp-sdk:testAndroidHostTest`
-- iOS (simulator, requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`
+- SDK, Android host JVM (fast): `./gradlew :popp-sdk:testAndroidHostTest`
+- SDK, iOS simulator (requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`
+- Demo shared UI, Android host JVM: `./gradlew :popp-demo:shared:testAndroidHostTest` (`BrandColorsTest`)
+- All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest`
+
+## Code coverage (Kover) & CI
+
+- Local aggregated report: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport`
+  → XML `build/reports/kover/report.xml`, HTML `build/reports/kover/html/`.
+- Coverage aggregates `:popp-sdk` and `:popp-demo:shared` (the modules with host tests). Compose-generated
+  classes are excluded via root Kover filters.
+  `:popp-demo:shared` is mostly Compose UI
+- CI: `.github/workflows/code-coverage.yml` runs both modules' host tests, uploads artifacts, and pushes the
+  XML to Codecov. Dependabot (`.github/dependabot.yml`) watches Gradle dependencies weekly.
 
 ## Building the SDK artifacts
 

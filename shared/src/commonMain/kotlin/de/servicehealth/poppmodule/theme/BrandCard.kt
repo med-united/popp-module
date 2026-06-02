@@ -24,6 +24,7 @@ fun BrandCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     raised: Boolean = false,
+    selected: Boolean = false,
     padding: PaddingValues = PaddingValues(18.dp),
     content: @Composable () -> Unit,
 ) {
@@ -34,12 +35,16 @@ fun BrandCard(
     val scale by animateFloatAsState(if (pressed && onClick != null) 0.985f else 1f, label = "brand-card-scale")
     val elevation = if (raised) 12.dp else 3.dp
 
+    val background = if (selected) c.violet100 else c.white
+    val borderWidth = if (selected) 2.dp else 1.dp
+    val borderColor = if (selected) c.violet else c.mist
+
     val base = modifier
         .scale(scale)
         .shadow(elevation, shape, ambientColor = c.deep, spotColor = c.deep)
         .clip(shape)
-        .background(c.white)
-        .border(1.dp, c.mist, shape)
+        .background(background)
+        .border(borderWidth, borderColor, shape)
 
     val outer = if (onClick != null) base.clickable(
         interactionSource = interactionSource,

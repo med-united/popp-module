@@ -39,11 +39,16 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "de.servicehealth.poppmodule.demo.generated.resources"
 }
 
 dependencies {

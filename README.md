@@ -1,34 +1,53 @@
 # PoPP-Module
 Implementation of the gematik PoPP-Module specification (https://gemspec.gematik.de/prereleases/Draft_PoPP_26_1/)
 
-This is a Kotlin Multiplatform project targeting Android, iOS.
+This is a Kotlin Multiplatform project targeting Android and iOS. The PoPP business
+logic lives in a reusable SDK library that is exported as native artifacts (an
+Android `.aar` and an iOS `.xcframework`) and consumed by a Compose Multiplatform
+demo host app.
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Modules
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+* [`/popp-sdk`](./popp-sdk/src) — Kotlin Multiplatform **SDK library** with the PoPP
+  business logic and **no UI dependencies**, so it can be embedded into any host app.
+  Exposes a public API (`PoppSdk`) and builds to an Android AAR and an iOS XCFramework
+  (`PoppSdk`). Platform-specific code uses `expect`/`actual`: shared declarations live in
+  [commonMain](./popp-sdk/src/commonMain/kotlin), and platform implementations live in
+  [androidMain](./popp-sdk/src/androidMain/kotlin) / [iosMain](./popp-sdk/src/iosMain/kotlin).
 
-### Running the apps
+* [`/popp-demo-app`](./popp-demo-app/src) — Compose Multiplatform **library** holding the
+  demo host's shared UI ([commonMain/App.kt](./popp-demo-app/src/commonMain/kotlin)) and the
+  iOS entry point ([iosMain/MainViewController.kt](./popp-demo-app/src/iosMain/kotlin)). It
+  depends on `:popp-sdk` and produces the iOS framework `PoppDemoApp`.
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+* [`/androidApp`](./androidApp/src) — Thin Android **application** that hosts the shared UI
+  (`MainActivity` calls `App()` from `:popp-demo-app`). This is the runnable Android app.
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+* [`/iosApp`](./iosApp/iosApp) — The iOS **application** (Xcode project). It is the iOS entry
+  point that embeds the `PoppDemoApp` framework, and where any SwiftUI code would go.
 
-### Running tests
+> **Note:** Since AGP 9, a single Gradle module cannot be both a Kotlin Multiplatform module
+> and an Android application (`com.android.application` is incompatible with the KMP plugin).
+> That is why the runnable Android app (`:androidApp`) is a separate module from the
+> multiplatform UI library (`:popp-demo-app`). On iOS the equivalent app shell is the
+> `:iosApp` Xcode project.
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+## Running the apps
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+- Android app: `./gradlew :androidApp:installDebug` (build + install on a connected device/emulator),
+  then launch it from the device, or:
+  `adb shell monkey -p de.servicehealth.poppmodule -c android.intent.category.LAUNCHER 1`
+- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it. (Running on a physical
+  device requires setting your signing `TEAM_ID` in
+  [iosApp/Configuration/Config.xcconfig](./iosApp/Configuration/Config.xcconfig); a simulator
+  needs no signing.)
 
----
+## Running tests
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+- Android (host JVM, fast): `./gradlew :popp-sdk:testAndroidHostTest`
+- iOS (simulator, requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`
+
+## Building the SDK artifacts
+
+- Android AAR: `./gradlew :popp-sdk:assemble` → `popp-sdk/build/outputs/aar/`
+- iOS XCFramework: `./gradlew :popp-sdk:assemblePoppSdkXCFramework` → `popp-sdk/build/XCFrameworks/`

@@ -28,6 +28,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":androidApp")
-include(":shared")
 include(":popp-sdk")
+include(":popp-demo-app")
+include(":androidApp")

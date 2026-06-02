@@ -12,7 +12,7 @@ kotlin {
     }
 }
 dependencies {
-    implementation(projects.shared)
+    implementation(projects.poppDemoApp)
 
     implementation(libs.androidx.activity.compose)
 

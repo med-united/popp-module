@@ -24,10 +24,10 @@ import de.servicehealth.poppmodule.theme.BrandTagTone
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import popp_module.shared.generated.resources.Res
-import popp_module.shared.generated.resources.launcher_subline
-import popp_module.shared.generated.resources.launcher_title
-import popp_module.shared.generated.resources.servicehealth_logo
+import popp_module.popp_demo.shared.generated.resources.Res
+import popp_module.popp_demo.shared.generated.resources.launcher_subline
+import popp_module.popp_demo.shared.generated.resources.launcher_title
+import popp_module.popp_demo.shared.generated.resources.servicehealth_logo
 
 /** The deep navy brand header band: solid tag + white wordmark + title + subline. */
 @OptIn(ExperimentalFoundationApi::class)

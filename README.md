@@ -3,7 +3,7 @@ Implementation of the gematik PoPP-Module specification (https://gemspec.gematik
 
 This is a Kotlin Multiplatform project targeting Android, iOS.
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
+* [/iosApp](popp-demo/popp-3rd-party-app-demo/ios3rdPartyApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
 * [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
@@ -20,7 +20,7 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
 
 - Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+- iOS app: open the [/iosApp](popp-demo/popp-3rd-party-app-demo/ios3rdPartyApp) directory in Xcode and run it from there.
 
 ### Running tests
 

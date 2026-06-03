@@ -10,6 +10,6 @@ plugins {
 }
 
 dependencies {
-    kover(projects.shared)
     kover(projects.poppSdk)
+    kover(projects.poppDemo.shared)
 }

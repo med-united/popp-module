@@ -28,6 +28,9 @@ dependencyResolutionManagement {
     }
 }
 
-include(":androidApp")
-include(":shared")
 include(":popp-sdk")
+include(":popp-demo:shared")
+include(":popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp")
+include(":popp-demo:popp-3rd-party-app-demo:android3rdPartyApp")
+include(":popp-demo:popp-insurance-app-demo:sharedInsuranceApp")
+include(":popp-demo:popp-insurance-app-demo:androidInsuranceApp")

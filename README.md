@@ -1,34 +1,72 @@
 # PoPP-Module
 Implementation of the gematik PoPP-Module specification (https://gemspec.gematik.de/prereleases/Draft_PoPP_26_1/)
 
-This is a Kotlin Multiplatform project targeting Android, iOS.
+This is a Kotlin Multiplatform project targeting Android and iOS. The PoPP business
+logic lives in a reusable SDK library that is exported as native artifacts (an
+Android `.aar` and an iOS `.xcframework`) and consumed by **two** Compose
+Multiplatform demo host apps, to show the SDK embedded in different host contexts.
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Modules
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+* [`/popp-sdk`](./popp-sdk/src) -> Kotlin Multiplatform **SDK library** with the PoPP
+  business logic and **no UI dependencies**, so it can be embedded into any host app.
+  Exposes a public API (`PoppSdk`) and builds to an Android AAR and an iOS XCFramework
+  (`PoppSdk`). Platform-specific code uses `expect`/`actual`: shared declarations live in
+  [commonMain](./popp-sdk/src/commonMain/kotlin), and platform implementations live in
+  [androidMain](./popp-sdk/src/androidMain/kotlin) / [iosMain](./popp-sdk/src/iosMain/kotlin).
 
-### Running the apps
+* `/popp-demo` -> Folder grouping the demo:
+  * [`/popp-demo/shared`](./popp-demo/shared/src) -> Compose Multiplatform **library** with the
+    common demo UI (service·health brand theme + `BrandShowcaseScreen`, which renders the
+    PoPP-SDK integration proof). Depends on `:popp-sdk`. Reused by both demo apps.
+  * `/popp-demo/popp-3rd-party-app-demo` -> the **3rd-party host app** demo:
+    * `shared3rdPartyApp` -> Compose-MP library (App UI + iOS entry point; depends on `popp-demo:shared`; iOS framework `Shared3rdPartyApp`)
+    * `android3rdPartyApp` -> runnable Android application (id `…demo.thirdparty`)
+    * `ios3rdPartyApp` -> iOS application (Xcode project)
+  * `/popp-demo/popp-insurance-app-demo` -> the **insurance host app** demo, same shape:
+    `sharedInsuranceApp` (framework `SharedInsuranceApp`), `androidInsuranceApp` (id `…demo.insurance`), `iosInsuranceApp`.
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+Dependency flow per app: `androidXApp → sharedXApp → popp-demo:shared → :popp-sdk`;
+on iOS the `iosXApp` Xcode project embeds the `sharedXApp` framework.
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+> **Note:** Since AGP 9, a single Gradle module cannot be both a Kotlin Multiplatform module
+> and an Android application (`com.android.application` is incompatible with the KMP plugin).
+> So each demo app splits into a KMP library (`sharedXApp`, also the iOS framework producer)
+> and a thin `com.android.application` (`androidXApp`); the iOS app shell is the Xcode project.
 
-### Running tests
+## Running the apps
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+3rd-party demo:
+- Android: `./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installDebug`,
+  then `adb shell monkey -p de.servicehealth.poppmodule.demo.thirdparty -c android.intent.category.LAUNCHER 1`
+- iOS: open `popp-demo/popp-3rd-party-app-demo/ios3rdPartyApp/iosApp.xcodeproj` in Xcode and run.
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+Insurance demo:
+- Android: `./gradlew :popp-demo:popp-insurance-app-demo:androidInsuranceApp:installDebug`,
+  then `adb shell monkey -p de.servicehealth.poppmodule.demo.insurance -c android.intent.category.LAUNCHER 1`
+- iOS: open `popp-demo/popp-insurance-app-demo/iosInsuranceApp/iosApp.xcodeproj` in Xcode and run.
 
----
+Running on a physical iOS device requires setting your signing `TEAM_ID` in the app's
+`Configuration/Config.xcconfig`; a simulator needs no signing.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Running tests
+
+- SDK, Android host JVM (fast): `./gradlew :popp-sdk:testAndroidHostTest`
+- SDK, iOS simulator (requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`
+- Demo shared UI, Android host JVM: `./gradlew :popp-demo:shared:testAndroidHostTest` (`BrandColorsTest`)
+- All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest`
+
+## Code coverage (Kover) & CI
+
+- Local aggregated report: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport`
+  → XML `build/reports/kover/report.xml`, HTML `build/reports/kover/html/`.
+- Coverage aggregates `:popp-sdk` and `:popp-demo:shared` (the modules with host tests). Compose-generated
+  classes are excluded via root Kover filters.
+  `:popp-demo:shared` is mostly Compose UI
+- CI: `.github/workflows/code-coverage.yml` runs both modules' host tests, uploads artifacts, and pushes the
+  XML to Codecov. Dependabot (`.github/dependabot.yml`) watches Gradle dependencies weekly.
+
+## Building the SDK artifacts
+
+- Android AAR: `./gradlew :popp-sdk:assemble` → `popp-sdk/build/outputs/aar/`
+- iOS XCFramework: `./gradlew :popp-sdk:assemblePoppSdkXCFramework` → `popp-sdk/build/XCFrameworks/`

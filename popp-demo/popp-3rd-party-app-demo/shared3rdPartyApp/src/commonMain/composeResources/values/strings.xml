@@ -1,0 +1,15 @@
+<resources>
+    <string name="launcher_title">PoPP-Modul Demo</string>
+    <string name="launcher_subline">Wählen Sie den gewünschten Integrationspfad, um die Funktionalität des PoPP-Moduls zu testen.</string>
+    <string name="scenario_pharmacy_title">Online-Apotheke</string>
+    <string name="scenario_pharmacy_subtitle">E-Rezept einlösen</string>
+    <string name="scenario_telemedicine_title">Telemedizin</string>
+    <string name="scenario_telemedicine_subtitle">Online Sprechstunde</string>
+    <string name="scenario_therapy_title">Therapie</string>
+    <string name="scenario_therapy_subtitle">DiGA Therapiebegleitung</string>
+    <string name="mode_integrated_title">Voll integriert</string>
+    <string name="mode_integrated_desc">Das PoPP-Modul läuft nahtlos in der Host-App, kein App-Wechsel.</string>
+    <string name="mode_app2app_title">App-zu-App</string>
+    <string name="mode_app2app_desc">Die Demo-App überträgt die Authentifizierung an die Versicherungs-App.</string>
+    <string name="start_demo_button">Starte die Demo</string>
+</resources>

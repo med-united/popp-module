@@ -1,13 +1,13 @@
 package de.servicehealth.poppmodule.demo.model
 
-import de.servicehealth.poppmodule.demo.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import org.jetbrains.compose.resources.StringResource
-import de.servicehealth.poppmodule.demo.generated.resources.scenario_pharmacy_subtitle
-import de.servicehealth.poppmodule.demo.generated.resources.scenario_pharmacy_title
-import de.servicehealth.poppmodule.demo.generated.resources.scenario_telemedicine_subtitle
-import de.servicehealth.poppmodule.demo.generated.resources.scenario_telemedicine_title
-import de.servicehealth.poppmodule.demo.generated.resources.scenario_therapy_subtitle
-import de.servicehealth.poppmodule.demo.generated.resources.scenario_therapy_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.scenario_pharmacy_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.scenario_pharmacy_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.scenario_telemedicine_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.scenario_telemedicine_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.scenario_therapy_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.scenario_therapy_title
 
 /** A healthcare use case shown on the launcher. `id` is the stable nav argument value. */
 data class DemoScenario(

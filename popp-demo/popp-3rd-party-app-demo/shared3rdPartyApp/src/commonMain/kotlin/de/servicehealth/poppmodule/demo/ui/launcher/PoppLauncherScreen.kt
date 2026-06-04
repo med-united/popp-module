@@ -30,12 +30,12 @@ import de.servicehealth.poppmodule.theme.BrandSegmented
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.SegmentedOption
 import org.jetbrains.compose.resources.stringResource
-import de.servicehealth.poppmodule.demo.generated.resources.Res
-import de.servicehealth.poppmodule.demo.generated.resources.mode_app2app_desc
-import de.servicehealth.poppmodule.demo.generated.resources.mode_app2app_title
-import de.servicehealth.poppmodule.demo.generated.resources.mode_integrated_desc
-import de.servicehealth.poppmodule.demo.generated.resources.mode_integrated_title
-import de.servicehealth.poppmodule.demo.generated.resources.start_demo_button
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_app2app_desc
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_app2app_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_integrated_desc
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_integrated_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.start_demo_button
 
 /** Enum round-trips through its `name` so the segmented selection survives recreation. */
 val IntegrationModeSaver: Saver<IntegrationMode, String> = Saver(

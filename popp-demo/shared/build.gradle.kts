@@ -30,7 +30,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
         }
         commonMain.dependencies {
-            implementation(projects.poppSdk)
+            api(projects.poppSdk)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

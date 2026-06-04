@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-// import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
@@ -67,7 +66,7 @@ fun BrandShowcaseScreen() {
                     .padding(horizontal = 20.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
-                // SdkSection()
+                SdkSection()
                 ColorSection(c)
                 TypographySection()
                 ButtonSection()
@@ -125,11 +124,10 @@ private fun SectionHeading(eyebrow: String, title: String) {
     }
 }
 
-/*
 @Composable
 private fun SdkSection() {
     val c = BrandTheme.colors
-    val sdk = remember { PoppSdk() }
+    val sdk = LocalPoppSdk.current
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeading(eyebrow = "00 · SDK", title = "PoPP-SDK Integration")
         BrandCard {
@@ -140,7 +138,7 @@ private fun SdkSection() {
                     style = BrandTheme.typography.titleMedium,
                 )
                 Text(
-                    text = sdk.platformInfo(),
+                    text = "Running on ${sdk.platformInfo()}",
                     color = c.ink.copy(alpha = 0.7f),
                     style = BrandTheme.typography.bodyMedium,
                 )
@@ -148,7 +146,6 @@ private fun SdkSection() {
         }
     }
 }
- */
 
 @Composable
 private fun ColorSection(c: BrandColors) {

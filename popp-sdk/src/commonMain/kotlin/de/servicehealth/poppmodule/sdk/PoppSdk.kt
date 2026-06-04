@@ -8,7 +8,7 @@ class PoppSdk {
 
     fun version(): String = "popp-sdk $VERSION"
 
-    fun platformInfo(): String = "Running on ${getPlatform().name}"
+    fun platformInfo(): String = getPlatform().name
 
     companion object {
         const val VERSION: String = "0.0.1"

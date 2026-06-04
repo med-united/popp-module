@@ -13,12 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import de.servicehealth.poppmodule.getPlatform
+import de.servicehealth.poppmodule.demo.LocalPoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Placeholder for the Voll-integriert home. Replaced by the real screen in its own ticket. */
 @Composable
 fun IntegratedHomeScreen(scenarioId: String?) {
+    val sdk = LocalPoppSdk.current
     val c = BrandTheme.colors
     Box(
         modifier = Modifier.fillMaxSize().background(c.mist).padding(24.dp),
@@ -32,7 +33,7 @@ fun IntegratedHomeScreen(scenarioId: String?) {
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = getPlatform().name,
+                text = sdk.platformInfo(),
                 color = c.neutral700,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,

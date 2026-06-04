@@ -9,37 +9,29 @@ plugins {
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
+    iosArm64()
+    iosSimulatorArm64()
+
+    androidLibrary {
+        namespace = "de.servicehealth.poppmodule.demo"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+        withHostTest {
+            isIncludeAndroidResources = true
         }
     }
-    
-    androidLibrary {
-       namespace = "de.servicehealth.poppmodule.shared"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
-    
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
-       androidResources {
-           enable = true
-       }
-       withHostTest {
-           isIncludeAndroidResources = true
-       }
-    }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
         }
         commonMain.dependencies {
+            implementation(projects.poppSdk)
+
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -57,9 +49,12 @@ kotlin {
     }
 }
 
+compose.resources {
+    packageOfResClass = "de.servicehealth.poppmodule.demo.generated.resources"
+}
+
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
     add("androidHostTestImplementation", libs.robolectric)
     add("androidHostTestImplementation", libs.compose.ui.test.manifest)
 }
-

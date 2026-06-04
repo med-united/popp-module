@@ -12,7 +12,7 @@ kotlin {
     }
 }
 dependencies {
-    implementation(projects.poppDemo.shared)
+    implementation(projects.poppDemo.popp3rdPartyAppDemo.shared3rdPartyApp)
 
     implementation(libs.androidx.activity.compose)
 
@@ -21,11 +21,11 @@ dependencies {
 }
 
 android {
-    namespace = "de.servicehealth.poppmodule"
+    namespace = "de.servicehealth.poppmodule.demo.thirdparty"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "de.servicehealth.poppmodule"
+        applicationId = "de.servicehealth.poppmodule.demo.thirdparty"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

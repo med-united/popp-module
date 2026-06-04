@@ -1,4 +1,4 @@
-package de.servicehealth.poppmodule
+package de.servicehealth.poppmodule.demo.thirdparty
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

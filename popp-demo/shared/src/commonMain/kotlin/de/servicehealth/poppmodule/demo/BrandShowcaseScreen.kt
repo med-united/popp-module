@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+// import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
@@ -67,6 +67,7 @@ fun BrandShowcaseScreen() {
                     .padding(horizontal = 20.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
+                // SdkSection()
                 ColorSection(c)
                 TypographySection()
                 ButtonSection()
@@ -96,12 +97,12 @@ private fun ShowcaseHeader() {
             Text(
                 text = "service·health",
                 color = c.white,
-                style = MaterialTheme.typography.displaySmall,
+                style = BrandTheme.typography.displaySmall,
             )
             Text(
                 text = "Theme- und Komponenten-Showcase",
                 color = c.white.copy(alpha = 0.7f),
-                style = MaterialTheme.typography.bodyMedium,
+                style = BrandTheme.typography.bodyMedium,
             )
         }
     }
@@ -114,15 +115,40 @@ private fun SectionHeading(eyebrow: String, title: String) {
         Text(
             text = eyebrow.uppercase(),
             color = c.violet,
-            style = MaterialTheme.typography.labelSmall,
+            style = BrandTheme.typography.labelSmall,
         )
         Text(
             text = title,
             color = c.ink,
-            style = MaterialTheme.typography.headlineMedium,
+            style = BrandTheme.typography.headlineMedium,
         )
     }
 }
+
+/*
+@Composable
+private fun SdkSection() {
+    val c = BrandTheme.colors
+    val sdk = remember { PoppSdk() }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionHeading(eyebrow = "00 · SDK", title = "PoPP-SDK Integration")
+        BrandCard {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = sdk.version(),
+                    color = c.ink,
+                    style = BrandTheme.typography.titleMedium,
+                )
+                Text(
+                    text = sdk.platformInfo(),
+                    color = c.ink.copy(alpha = 0.7f),
+                    style = BrandTheme.typography.bodyMedium,
+                )
+            }
+        }
+    }
+}
+ */
 
 @Composable
 private fun ColorSection(c: BrandColors) {
@@ -168,7 +194,7 @@ private fun ColorRow(label: String, swatches: List<Pair<String, Color>>) {
         Text(
             text = label,
             color = c.neutral700,
-            style = MaterialTheme.typography.titleSmall,
+            style = BrandTheme.typography.titleSmall,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             swatches.forEach { (name, color) ->
@@ -185,7 +211,7 @@ private fun ColorRow(label: String, swatches: List<Pair<String, Color>>) {
                     Text(
                         text = name,
                         color = c.neutral700,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = BrandTheme.typography.labelSmall,
                     )
                 }
             }
@@ -200,24 +226,24 @@ private fun TypographySection() {
         SectionHeading(eyebrow = "02 · Typografie", title = "TWK Everett · Helvetica")
         BrandCard {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Display Large", color = c.ink, style = MaterialTheme.typography.displayLarge)
-                Text("Display Medium", color = c.ink, style = MaterialTheme.typography.displayMedium)
-                Text("Headline Medium", color = c.ink, style = MaterialTheme.typography.headlineMedium)
-                Text("Title Large · eGK bereit", color = c.ink, style = MaterialTheme.typography.titleLarge)
+                Text("Display Large", color = c.ink, style = BrandTheme.typography.displayLarge)
+                Text("Display Medium", color = c.ink, style = BrandTheme.typography.displayMedium)
+                Text("Headline Medium", color = c.ink, style = BrandTheme.typography.headlineMedium)
+                Text("Title Large · eGK bereit", color = c.ink, style = BrandTheme.typography.titleLarge)
                 Text(
                     text = "Body Large — die Versichertendaten werden sicher per NFC übertragen.",
                     color = c.neutral700,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = BrandTheme.typography.bodyLarge,
                 )
                 Text(
                     text = "Body Medium · 14 sp",
                     color = c.neutral700,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = BrandTheme.typography.bodyMedium,
                 )
                 Text(
                     text = "Label Small · 10 sp · uppercase".uppercase(),
                     color = c.violet,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = BrandTheme.typography.labelSmall,
                 )
             }
         }
@@ -310,8 +336,8 @@ private fun CardSection() {
         SectionHeading(eyebrow = "05 · Cards", title = "Standard & Raised")
         BrandCard {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Adler-Apotheke", color = c.ink, style = MaterialTheme.typography.titleMedium)
-                Text("Adalbertsteinweg 12, 52070 Aachen", color = c.neutral700, style = MaterialTheme.typography.bodyMedium)
+                Text("Adler-Apotheke", color = c.ink, style = BrandTheme.typography.titleMedium)
+                Text("Adalbertsteinweg 12, 52070 Aachen", color = c.neutral700, style = BrandTheme.typography.bodyMedium)
                 Spacer(Modifier.height(2.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     BrandTag(text = "Öffnet 08:00", tone = BrandTagTone.Success, dot = true)
@@ -331,11 +357,11 @@ private fun CardSection() {
                         .background(c.violet100),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("LH", color = c.violet700, style = MaterialTheme.typography.titleMedium)
+                    Text("LH", color = c.violet700, style = BrandTheme.typography.titleMedium)
                 }
                 Column {
-                    Text("Lena Hofmann", color = c.ink, style = MaterialTheme.typography.titleLarge)
-                    Text("eGK · A123 456 789", color = c.neutral700, style = MaterialTheme.typography.bodyMedium)
+                    Text("Lena Hofmann", color = c.ink, style = BrandTheme.typography.titleLarge)
+                    Text("eGK · A123 456 789", color = c.neutral700, style = BrandTheme.typography.bodyMedium)
                 }
             }
         }
@@ -352,7 +378,7 @@ private fun FieldSection() {
         SectionHeading(eyebrow = "06 · Inputs", title = "Field")
         BrandCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("LEI suchen", color = c.ink, style = MaterialTheme.typography.titleSmall)
+                Text("LEI suchen", color = c.ink, style = BrandTheme.typography.titleSmall)
                 BrandField(
                     value = search,
                     onValueChange = { search = it },
@@ -367,7 +393,7 @@ private fun FieldSection() {
                         )
                     },
                 )
-                Text("CAN", color = c.ink, style = MaterialTheme.typography.titleSmall)
+                Text("CAN", color = c.ink, style = BrandTheme.typography.titleSmall)
                 BrandField(
                     value = can,
                     onValueChange = { if (it.length <= 6 && it.all { ch -> ch.isDigit() }) can = it },
@@ -389,7 +415,7 @@ private fun SegmentedSection() {
         SectionHeading(eyebrow = "07 · Segmented", title = "Light & Dark")
         BrandCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Integrationsszenario", color = c.ink, style = MaterialTheme.typography.titleSmall)
+                Text("Integrationsszenario", color = c.ink, style = BrandTheme.typography.titleSmall)
                 BrandSegmented(
                     options = listOf(
                         SegmentedOption("integrated", "Voll integriert"),
@@ -437,8 +463,8 @@ private fun SpinnerSection() {
                 BrandSpinner(color = c.yellow, size = 36.dp, strokeWidth = 4.dp)
                 Spacer(Modifier.width(4.dp))
                 Column {
-                    Text("eGK wird gelesen…", color = c.ink, style = MaterialTheme.typography.titleSmall)
-                    Text("NFC aktiv", color = c.success, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("eGK wird gelesen…", color = c.ink, style = BrandTheme.typography.titleSmall)
+                    Text("NFC aktiv", color = c.success, style = BrandTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
                 }
             }
         }

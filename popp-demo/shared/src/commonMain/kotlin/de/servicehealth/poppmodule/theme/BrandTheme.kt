@@ -2,6 +2,7 @@ package de.servicehealth.poppmodule.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -34,6 +35,11 @@ object BrandTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalBrandColors.current
+
+    val typography: Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.typography
 }
 
 @Composable

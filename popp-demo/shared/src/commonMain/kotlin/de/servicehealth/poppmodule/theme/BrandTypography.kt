@@ -10,12 +10,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
-import popp_module.popp_demo.shared.generated.resources.Res
-import popp_module.popp_demo.shared.generated.resources.twk_everett_black
-import popp_module.popp_demo.shared.generated.resources.twk_everett_bold
-import popp_module.popp_demo.shared.generated.resources.twk_everett_extrabold
-import popp_module.popp_demo.shared.generated.resources.twk_everett_medium
-import popp_module.popp_demo.shared.generated.resources.twk_everett_regular
+import de.servicehealth.poppmodule.demo.generated.resources.Res
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_black
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_bold
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_extrabold
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_medium
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_regular
 
 /**
  * TWK Everett is the display face on the service·health system. We expose two

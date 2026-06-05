@@ -43,6 +43,7 @@ fun App() {
                 ) { entry ->
                     IntegratedHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
+                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) }
                     )
                 }
                 composable(
@@ -58,6 +59,9 @@ fun App() {
                 }
                 composable(Routes.BRAND_SHOWCASE) {
                     BrandShowcaseScreen()
+                }
+                composable(Routes.INSTITUTION_SEARCH) {
+                    InstitutionSearchScreen()
                 }
             }
         }

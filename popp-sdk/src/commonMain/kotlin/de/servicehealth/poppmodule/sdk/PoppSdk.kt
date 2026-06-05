@@ -26,7 +26,7 @@ class PoppSdk private constructor(
 
     fun version(): String = "popp-sdk $VERSION"
 
-    fun platformInfo(): String = "Running on ${getPlatform().name}"
+    fun platformInfo(): String = getPlatform().name
 
     companion object {
         private const val STORAGE_NAMESPACE = "popp-sdk"

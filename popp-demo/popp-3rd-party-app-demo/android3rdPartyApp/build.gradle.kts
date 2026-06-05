@@ -12,6 +12,7 @@ kotlin {
     }
 }
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(projects.poppDemo.popp3rdPartyAppDemo.shared3rdPartyApp)
 
     implementation(libs.androidx.activity.compose)

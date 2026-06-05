@@ -12,6 +12,7 @@ kotlin {
     }
 }
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(projects.poppDemo.poppInsuranceAppDemo.sharedInsuranceApp)
 
     implementation(libs.androidx.activity.compose)
@@ -42,6 +43,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }

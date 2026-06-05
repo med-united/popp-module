@@ -18,6 +18,7 @@ dependencies {
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+    coreLibraryDesugaring(libs.desugar.jdk.libs.get())
 }
 
 android {
@@ -26,7 +27,7 @@ android {
 
     defaultConfig {
         applicationId = "de.servicehealth.poppmodule.demo.thirdparty"
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk = 28
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
@@ -42,6 +43,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }

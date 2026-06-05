@@ -8,6 +8,13 @@ plugins {
 }
 
 kotlin {
+    // Silence the beta warning for expect/actual classes — we use them
+    // deliberately (PoppSdkContext) and the API is stable enough for our use.
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     val xcf = XCFramework("PoppSdk")
     listOf(
         iosArm64(),
@@ -34,6 +41,16 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        androidMain.dependencies {
+            // zeta-sdk 1.0.1 currently publishes only JVM + Android variants on Maven Central,
+            // so the wiring lives in androidMain. The iOS source set ships a stub until an
+            // iOS native variant becomes available.
+            implementation(libs.gematik.zetaSdk)
+            implementation(libs.androidx.security.crypto)
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }

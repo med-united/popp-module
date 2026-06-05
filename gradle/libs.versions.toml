@@ -21,11 +21,8 @@ navigationCompose = "2.9.0-beta03"
 zetaSdk = "1.0.1"
 ktor = "3.1.3"
 kotlinx-serialization = "1.8.1"
-<<<<<<< HEAD
 desugar = "2.1.5"
-=======
 desugar-jdk-libs = "2.1.5"
->>>>>>> 83e278ca110dc70631a690bcc5012c213fe35ea1
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -59,11 +56,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 gematik-zetaSdk = { module = "de.gematik.zeta:zeta-sdk", version.ref = "zetaSdk" }
-<<<<<<< HEAD
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
-=======
-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
->>>>>>> 83e278ca110dc70631a690bcc5012c213fe35ea1
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

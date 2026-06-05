@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
@@ -17,14 +18,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,16 +41,7 @@ import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandField
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.delay
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import androidx.compose.foundation.layout.imePadding
 
 // ── Data model ──────────────────────────────────────────────────────────────
 
@@ -62,99 +54,6 @@ data class Institution(
     val type: InstitutionType,
     val telematicsId: String,
 )
-
-// ── FHIR-VZD search ─────────────────────────────────────────────────────────
-
-@Serializable
-private data class FhirBundle(
-    val entry: List<FhirEntry>? = null,
-    val total: Int? = null,
-)
-
-@Serializable
-private data class FhirEntry(
-    val resource: FhirResource? = null,
-)
-
-@Serializable
-private data class FhirResource(
-    val id: String? = null,
-    val name: List<FhirName>? = null,
-    val address: List<FhirAddress>? = null,
-    val identifier: List<FhirIdentifier>? = null,
-    val type: List<FhirType>? = null,
-)
-
-@Serializable
-private data class FhirName(val text: String? = null)
-
-@Serializable
-private data class FhirAddress(
-    val line: List<String>? = null,
-    val city: String? = null,
-    val postalCode: String? = null,
-)
-
-@Serializable
-private data class FhirIdentifier(
-    val system: String? = null,
-    val value: String? = null,
-)
-
-@Serializable
-private data class FhirType(
-    val coding: List<FhirCoding>? = null,
-)
-
-@Serializable
-private data class FhirCoding(
-    val code: String? = null,
-)
-
-private val httpClient = HttpClient {
-    install(ContentNegotiation) {
-        json(Json { ignoreUnknownKeys = true })
-    }
-}
-
-private suspend fun searchInstitutions(query: String): List<Institution> {
-    if (query.isBlank()) return emptyList()
-    return try {
-        val bundle: FhirBundle = httpClient.get(
-            "https://fhir-directory-tu.app.ti-dienste.de/tim-provider-services"
-        ) {
-            parameter("name", query)
-            parameter("_count", 20)
-        }.body()
-
-        bundle.entry.orEmpty().mapNotNull { entry ->
-            val res = entry.resource ?: return@mapNotNull null
-            val name = res.name?.firstOrNull()?.text ?: return@mapNotNull null
-            val addr = res.address?.firstOrNull()
-            val line = addr?.line?.firstOrNull() ?: ""
-            val city = listOfNotNull(addr?.postalCode, addr?.city).joinToString(" ")
-            val address = listOf(line, city).filter { it.isNotBlank() }.joinToString(", ")
-            val telematicsId = res.identifier
-                ?.firstOrNull { it.system?.contains("telematik") == true }
-                ?.value ?: res.id ?: ""
-            val typeCode = res.type?.firstOrNull()?.coding?.firstOrNull()?.code ?: ""
-            val type = when {
-                typeCode.contains("APO", ignoreCase = true) || name.contains("Apotheke", ignoreCase = true) -> InstitutionType.PHARMACY
-                typeCode.contains("online", ignoreCase = true) || address.contains("bundesweit", ignoreCase = true) -> InstitutionType.ONLINE
-                else -> InstitutionType.PRACTICE
-            }
-            Institution(
-                id = res.id ?: "",
-                name = name,
-                address = address.ifBlank { "Adresse nicht verfügbar" },
-                type = type,
-                telematicsId = telematicsId,
-            )
-        }
-    } catch (e: Exception) {
-        emptyList()
-    }
-}
 
 // ── Screen ───────────────────────────────────────────────────────────────────
 
@@ -181,7 +80,7 @@ fun InstitutionSearchScreen(
         delay(400)
         isLoading = true
         errorMessage = null
-        results = searchInstitutions(query)
+        results = emptyList() // TODO: call PoppSdk.searchInstitutions(query) — POPPM-116
         isLoading = false
         hasSearched = true
     }
@@ -219,7 +118,6 @@ fun InstitutionSearchScreen(
                         modifier = Modifier.clickable { onBack() }
                     )
                     Spacer(Modifier.weight(1f))
-                    // Step indicator dots
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         Box(Modifier.size(width = 20.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.violet))
                         Box(Modifier.size(width = 12.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.silver))
@@ -245,7 +143,6 @@ fun InstitutionSearchScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Search field
                 BrandField(
                     value = query,
                     onValueChange = { query = it },
@@ -275,7 +172,6 @@ fun InstitutionSearchScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // ── States ───────────────────────────────────────────────
                 when {
                     isLoading -> {
                         Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
@@ -284,7 +180,6 @@ fun InstitutionSearchScreen(
                     }
 
                     query.isBlank() -> {
-                        // Empty state
                         Column(
                             modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -326,15 +221,12 @@ fun InstitutionSearchScreen(
                     }
 
                     results.isNotEmpty() -> {
-                        // Result count
                         Text(
                             text = "${results.size} Ergebnis${if (results.size != 1) "se" else ""}",
                             color = c.neutral700,
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Spacer(Modifier.height(10.dp))
-
-                        // Results list
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(results) { institution ->
                                 InstitutionRow(
@@ -364,7 +256,6 @@ private fun InstitutionRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Icon circle
             Box(
                 modifier = Modifier
                     .size(44.dp)
@@ -374,9 +265,9 @@ private fun InstitutionRow(
             ) {
                 Text(
                     text = when (institution.type) {
-                        InstitutionType.PHARMACY -> "\uD83C\uDFE0"  // 🏠 placeholder, replace with real icon
-                        InstitutionType.PRACTICE -> "\uD83E\uDE7A"  // 🩺
-                        InstitutionType.ONLINE -> "\uD83D\uDCF9"    // 📹
+                        InstitutionType.PHARMACY -> "\uD83C\uDFE0"
+                        InstitutionType.PRACTICE -> "\uD83E\uDE7A"
+                        InstitutionType.ONLINE -> "\uD83D\uDCF9"
                     },
                     style = MaterialTheme.typography.titleMedium,
                 )

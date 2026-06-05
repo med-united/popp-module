@@ -23,7 +23,7 @@ class PoppLauncherScreenTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun rendersHeaderScenariosModesAndStart() = runComposeUiTest {
-        setContent { BrandTheme { PoppLauncherScreen(onStartDemo = { _, _ -> }, onOpenShowcase = {}) } }
+        setContent { BrandTheme { PoppLauncherScreen(onStartDemo = { _, _ -> }) } }
         onNodeWithText("PoPP-Modul Demo").assertExists()
         onNodeWithText("Online-Apotheke").assertExists()
         onNodeWithText("Telemedizin").assertExists()
@@ -38,7 +38,7 @@ class PoppLauncherScreenTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun startIsGatedOnScenarioSelection() = runComposeUiTest {
-        setContent { BrandTheme { PoppLauncherScreen(onStartDemo = { _, _ -> }, onOpenShowcase = {}) } }
+        setContent { BrandTheme { PoppLauncherScreen(onStartDemo = { _, _ -> }) } }
         onNodeWithText("Starte die Demo").assertIsNotEnabled()
         // Scenario cards live inside a verticalScroll; scroll into view so the touch lands.
         onNodeWithText("Online-Apotheke").performScrollTo().performClick()
@@ -54,7 +54,6 @@ class PoppLauncherScreenTest {
             BrandTheme {
                 PoppLauncherScreen(
                     onStartDemo = { s, m -> lastScenario = s; lastMode = m },
-                    onOpenShowcase = {},
                 )
             }
         }

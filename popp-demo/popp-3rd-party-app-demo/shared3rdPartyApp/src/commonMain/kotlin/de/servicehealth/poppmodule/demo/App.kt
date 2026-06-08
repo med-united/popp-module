@@ -13,6 +13,7 @@ import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
@@ -54,7 +55,13 @@ fun App() {
                     OnsiteCheckInEntryScreen(
                         onClose = { nav.popBackStack() },
                         onSearchClick = {},
-                        onQrScanClick = {},
+                        onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
+                    )
+                }
+                composable(Routes.CHECK_IN_QR) {
+                    OnsiteCheckInQrScannerScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack() },
                     )
                 }
             }

@@ -142,15 +142,15 @@ fun BrandButton(
     }
 }
 
-@Preview @Composable fun smallBrandButtonPreview() {
+@Preview @Composable private fun SmallBrandButtonPreview() {
     BrandButton(text = "Small Button", size = BrandButtonSize.Sm, onClick = {})
 }
 
-@Preview @Composable fun mediumBrandButtonPreview() {
+@Preview @Composable private fun MediumBrandButtonPreview() {
     BrandButton(text = "Medium Button", onClick = {})
 }
 
-@Preview @Composable fun largeBrandButtonPreview() {
-    BrandButton(text = "Small Button", size = BrandButtonSize.Lg, onClick = {})
+@Preview @Composable private fun LargeBrandButtonPreview() {
+    BrandButton(text = "Large Button", size = BrandButtonSize.Lg, onClick = {})
 }
 

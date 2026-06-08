@@ -80,7 +80,7 @@ fun BrandTag(
     }
 }
 
-@Preview @Composable fun tonesBrandTagPreview() {
+@Preview @Composable private fun TonesBrandTagPreview() {
     Column(
         modifier = Modifier.padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -94,13 +94,13 @@ fun BrandTag(
     }
 }
 
-@Preview @Composable fun onDarkBrandTagPreview() {
+@Preview @Composable private fun OnDarkBrandTagPreview() {
     Box(Modifier.background(BrandColors().deep).padding(12.dp)) {
         BrandTag(text = "On Dark", tone = BrandTagTone.OnDark)
     }
 }
 
-@Preview @Composable fun dotBrandTagPreview() {
+@Preview @Composable private fun DotBrandTagPreview() {
     Column(
         modifier = Modifier.padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),

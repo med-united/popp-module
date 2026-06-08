@@ -26,10 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * service·health brand tokens, ported from the Claude Design handoff (`brand.jsx`).
+ * Service·health brand tokens, ported from the design handoff.
  *
- * The palette is built around three signal colours — Electric Violet, Deep Space and
- * Signal Yellow — plus a neutral ramp and semantic accent colours.
+ * The palette is built around three signal colors — Electric Violet, Deep Space, and
+ * Signal Yellow — plus a neutral ramp and semantic accent colors.
  */
 @Immutable
 data class BrandColors(
@@ -84,7 +84,7 @@ private fun PaletteGroup(label: String, swatches: List<Pair<String, Color>>) {
 
 @Preview
 @Composable
-fun brandColorPalettePreview() {
+private fun BrandColorPalettePreview() {
     val c = BrandColors()
     Column(
         modifier = Modifier.background(c.white).padding(16.dp),

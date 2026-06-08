@@ -57,18 +57,18 @@ fun BrandCard(
     Box(modifier = outer.padding(padding), content = { content() })
 }
 
-@Preview @Composable fun defaultBrandCardPreview() {
+@Preview @Composable private fun DefaultBrandCardPreview() {
     BrandCard { Text("Default card") }
 }
 
-@Preview @Composable fun raisedBrandCardPreview() {
+@Preview @Composable private fun RaisedBrandCardPreview() {
     BrandCard(raised = true) { Text("Raised card") }
 }
 
-@Preview @Composable fun selectedBrandCardPreview() {
+@Preview @Composable private fun SelectedBrandCardPreview() {
     BrandCard(selected = true) { Text("Selected card") }
 }
 
-@Preview @Composable fun clickableBrandCardPreview() {
+@Preview @Composable private fun ClickableBrandCardPreview() {
     BrandCard(onClick = {}) { Text("Clickable card") }
 }

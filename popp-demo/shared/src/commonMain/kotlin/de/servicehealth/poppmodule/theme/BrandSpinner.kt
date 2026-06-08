@@ -27,17 +27,17 @@ fun BrandSpinner(
     )
 }
 
-@Preview @Composable fun defaultBrandSpinnerPreview() {
+@Preview @Composable private fun DefaultBrandSpinnerPreview() {
     val c = BrandColors()
     Box(Modifier.background(c.deep).padding(16.dp)) {
         BrandSpinner()
     }
 }
 
-@Preview @Composable fun violetBrandSpinnerPreview() {
+@Preview @Composable private fun VioletBrandSpinnerPreview() {
     BrandSpinner(color = BrandColors().violet)
 }
 
-@Preview @Composable fun largeBrandSpinnerPreview() {
+@Preview @Composable private fun LargeBrandSpinnerPreview() {
     BrandSpinner(size = 48.dp, strokeWidth = 5.dp, color = BrandColors().violet)
 }

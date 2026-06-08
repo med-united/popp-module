@@ -49,14 +49,14 @@ fun BrandProgressDots(
     }
 }
 
-@Preview @Composable fun firstStepProgressDotsPreview() {
+@Preview @Composable private fun FirstStepProgressDotsPreview() {
     BrandProgressDots(stepCount = 4, currentStep = 0)
 }
 
-@Preview @Composable fun midStepProgressDotsPreview() {
+@Preview @Composable private fun MidStepProgressDotsPreview() {
     BrandProgressDots(stepCount = 4, currentStep = 2)
 }
 
-@Preview @Composable fun lastStepProgressDotsPreview() {
+@Preview @Composable private fun LastStepProgressDotsPreview() {
     BrandProgressDots(stepCount = 4, currentStep = 3)
 }

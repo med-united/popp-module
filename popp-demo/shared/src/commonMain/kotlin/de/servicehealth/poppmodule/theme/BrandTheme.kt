@@ -64,7 +64,7 @@ fun BrandTheme(
     }
 }
 
-@Preview @Composable fun brandThemePreview() {
+@Preview @Composable private fun BrandThemePreview() {
     BrandTheme {
         Column(
             modifier = Modifier.background(BrandColors().white).padding(20.dp),
@@ -77,7 +77,7 @@ fun BrandTheme(
     }
 }
 
-@Preview @Composable fun brandThemeCustomColorsPreview() {
+@Preview @Composable private fun BrandThemeCustomColorsPreview() {
     val tinted = BrandColors(violet = BrandColors().violet700)
     BrandTheme(colors = tinted) {
         Column(

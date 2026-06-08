@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -36,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.theme.BrandCard
+import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
 
@@ -63,7 +63,12 @@ fun OnsiteCheckInEntryScreen(
                     .padding(horizontal = 12.dp)
                     .padding(top = 18.dp),
             ) {
-                ProgressDots()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    BrandProgressDots(stepCount = 4, currentStep = 0)
+                }
 
                 Spacer(Modifier.height(22.dp))
 
@@ -108,35 +113,6 @@ fun OnsiteCheckInEntryScreen(
 
                 FavoritesSection(onFavoriteClick = onFavoriteClick)
             }
-        }
-    }
-}
-
-@Composable
-private fun ProgressDots() {
-    val c = BrandTheme.colors
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier
-                .width(32.dp)
-                .height(5.dp)
-                .clip(CircleShape)
-                .background(c.violet)
-        )
-
-        repeat(3) {
-            Spacer(Modifier.width(7.dp))
-            Box(
-                Modifier
-                    .size(width = 10.dp, height = 5.dp)
-                    .clip(CircleShape)
-                    .background(c.silver)
-            )
         }
     }
 }

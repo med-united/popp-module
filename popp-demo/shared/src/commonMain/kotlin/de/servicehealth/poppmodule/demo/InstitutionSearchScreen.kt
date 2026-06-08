@@ -37,8 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandField
+import de.servicehealth.poppmodule.theme.BrandProgressDots
+import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
 import kotlinx.coroutines.delay
@@ -59,6 +62,7 @@ data class Institution(
 
 @Composable
 fun InstitutionSearchScreen(
+    onClose: () -> Unit,
     onBack: () -> Unit = {},
     onInstitutionSelected: (Institution) -> Unit = {},
 ) {
@@ -88,16 +92,20 @@ fun InstitutionSearchScreen(
     BrandTheme {
         Column(
             modifier = Modifier
-                .background(c.mist)
                 .fillMaxSize()
+                .background(c.white)
+                .safeContentPadding()
         ) {
-            // ── Top bar ──────────────────────────────────────────────────
-            Box(
+
+            // ── Header -──────────────────────────────────────────────────
+            BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
+
+            // ── Navigation ───────────────────────────────────────────────
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(c.white)
-                    .safeContentPadding()
-                    .padding(horizontal = 16.dp, vertical = 14.dp)
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -118,11 +126,7 @@ fun InstitutionSearchScreen(
                         modifier = Modifier.clickable { onBack() }
                     )
                     Spacer(Modifier.weight(1f))
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Box(Modifier.size(width = 20.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.violet))
-                        Box(Modifier.size(width = 12.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.silver))
-                        Box(Modifier.size(width = 12.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.silver))
-                    }
+                    BrandProgressDots(stepCount = 4, currentStep = 1)
                 }
             }
 
@@ -298,5 +302,87 @@ private fun InstitutionRow(
                 modifier = Modifier.size(20.dp)
             )
         }
+    }
+}
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+private val previewInstitutions = listOf(
+    Institution(
+        id = "1",
+        name = "Apotheke am Markt",
+        address = "Marktplatz 1, 10117 Berlin",
+        type = InstitutionType.PHARMACY,
+        telematicsId = "3-SMC-B-Testkarte-883110000117894",
+    ),
+    Institution(
+        id = "2",
+        name = "Hausarztpraxis Dr. Müller",
+        address = "Hauptstraße 42, 80331 München",
+        type = InstitutionType.PRACTICE,
+        telematicsId = "3-SMC-B-Testkarte-883110000229865",
+    ),
+    Institution(
+        id = "3",
+        name = "Online-Arzt Digital GmbH",
+        address = "digital",
+        type = InstitutionType.ONLINE,
+        telematicsId = "3-SMC-B-Testkarte-883110000334521",
+    ),
+)
+
+@Preview
+@Composable
+private fun InstitutionSearchScreen_EmptyPreview() {
+    InstitutionSearchScreen(onClose = {})
+}
+
+@Preview
+@Composable
+private fun InstitutionSearchScreen_ResultsPreview() {
+    val c = BrandTheme.colors
+    BrandTheme {
+        Column(
+            modifier = Modifier
+                .background(c.mist)
+                .fillMaxSize()
+                .padding(horizontal = 20.dp)
+                .padding(top = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = "${previewInstitutions.size} Ergebnisse",
+                color = c.neutral700,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Spacer(Modifier.height(2.dp))
+            previewInstitutions.forEach { institution ->
+                InstitutionRow(institution = institution, onClick = {})
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun InstitutionRow_PharmacyPreview() {
+    BrandTheme {
+        InstitutionRow(institution = previewInstitutions[0], onClick = {})
+    }
+}
+
+@Preview
+@Composable
+private fun InstitutionRow_PracticePreview() {
+    BrandTheme {
+        InstitutionRow(institution = previewInstitutions[1], onClick = {})
+    }
+}
+
+@Preview
+@Composable
+private fun InstitutionRow_OnlinePreview() {
+    BrandTheme {
+        InstitutionRow(institution = previewInstitutions[2], onClick = {})
     }
 }

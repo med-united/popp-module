@@ -15,11 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.LocalHospital
 import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.QrCodeScanner
@@ -33,12 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandProgressDots
+import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
 
 @Composable
@@ -57,7 +55,7 @@ fun OnsiteCheckInEntryScreen(
                 .background(c.white)
                 .safeContentPadding()
         ) {
-            Header(onClose = onClose)
+            BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
 
             Column(
                 modifier = Modifier
@@ -117,69 +115,6 @@ fun OnsiteCheckInEntryScreen(
             }
         }
     }
-}
-
-@Composable
-private fun Header(onClose: () -> Unit) {
-    val c = BrandTheme.colors
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(58.dp)
-            .padding(horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "service·health",
-            color = c.violet,
-            style = BrandTheme.typography.labelMedium.copy(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-            ),
-        )
-
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 14.dp)
-                .width(1.dp)
-                .height(22.dp)
-                .background(c.silver)
-        )
-
-        Text(
-            text = "VOR-ORT-CHECK-IN",
-            color = c.neutral700,
-            style = BrandTheme.typography.labelLarge.copy(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
-
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(c.mist)
-                .clickable(onClick = onClose),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Close,
-                contentDescription = "Schließen",
-                tint = c.neutral700,
-                modifier = Modifier.size(22.dp),
-            )
-        }
-    }
-
-    HorizontalDivider(
-        color = c.mist,
-        thickness = 1.dp,
-    )
 }
 
 @Composable

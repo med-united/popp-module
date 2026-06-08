@@ -8,11 +8,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
-import de.servicehealth.poppmodule.demo.model.IntegrationMode
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
@@ -25,13 +25,7 @@ fun App() {
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {
                     PoppLauncherScreen(
-                        onStartDemo = { scenarioId, mode ->
-                            when (mode) {
-                                IntegrationMode.INTEGRATED -> nav.navigate(Routes.integratedHome(scenarioId))
-                                IntegrationMode.APP_TO_APP -> nav.navigate(Routes.appToAppHome(scenarioId))
-                            }
-                        },
-                        onOpenShowcase = { nav.navigate(Routes.BRAND_SHOWCASE) },
+                        onStartDemo = { _, _ -> nav.navigate(Routes.CHECK_IN_ENTRY) },
                     )
                 }
                 composable(
@@ -57,8 +51,12 @@ fun App() {
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
                     )
                 }
-                composable(Routes.BRAND_SHOWCASE) {
-                    BrandShowcaseScreen()
+                composable(Routes.CHECK_IN_ENTRY) {
+                    OnsiteCheckInEntryScreen(
+                        onClose = { nav.popBackStack() },
+                        onSearchClick = {},
+                        onQrScanClick = {},
+                    )
                 }
                 composable(Routes.INSTITUTION_SEARCH) {
                     InstitutionSearchScreen()

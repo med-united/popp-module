@@ -49,7 +49,7 @@ import de.servicehealth.poppmodule.theme.SegmentedOption
  * page that demonstrates the theme end-to-end.
  */
 @Composable
-fun BrandShowcaseScreen() {
+fun BrandShowcaseScreen(onOpenCheckIn: (() -> Unit)? = null) {
     BrandTheme {
         val c = BrandTheme.colors
         Column(
@@ -66,6 +66,15 @@ fun BrandShowcaseScreen() {
                     .padding(horizontal = 20.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
+                if (onOpenCheckIn != null) {
+                    BrandButton(
+                        text = "Vor-Ort-Check-In öffnen",
+                        onClick = onOpenCheckIn,
+                        variant = BrandButtonVariant.Primary,
+                        size = BrandButtonSize.Lg,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 SdkSection()
                 ColorSection(c)
                 TypographySection()

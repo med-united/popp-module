@@ -51,7 +51,6 @@ val IntegrationModeSaver: Saver<IntegrationMode, String> = Saver(
 @Composable
 fun PoppLauncherScreen(
     onStartDemo: (scenarioId: String, mode: IntegrationMode) -> Unit,
-    onOpenShowcase: () -> Unit,
 ) {
     var selectedScenario by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedMode by rememberSaveable(stateSaver = IntegrationModeSaver) {
@@ -60,7 +59,7 @@ fun PoppLauncherScreen(
     val c = BrandTheme.colors
 
     Scaffold(
-        topBar = { BrandHeader(onWordmarkLongPress = onOpenShowcase) },
+        topBar = { BrandHeader() },
         containerColor = c.mist,
         bottomBar = {
             BrandButton(

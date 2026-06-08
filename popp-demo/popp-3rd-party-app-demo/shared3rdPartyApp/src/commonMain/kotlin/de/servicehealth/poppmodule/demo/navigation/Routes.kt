@@ -8,7 +8,7 @@ object Routes {
     const val LAUNCHER = "popp_launcher"
     const val INTEGRATED_HOME = "integrated_home"
     const val APP_TO_APP_HOME = "app_to_app_home"
-    const val BRAND_SHOWCASE = "brand_showcase" // hidden dev/QA route
+    const val CHECK_IN_ENTRY = "check_in_entry"
     const val ARG_SCENARIO = "scenario"
     const val INSTITUTION_SEARCH = "institution_search"
 

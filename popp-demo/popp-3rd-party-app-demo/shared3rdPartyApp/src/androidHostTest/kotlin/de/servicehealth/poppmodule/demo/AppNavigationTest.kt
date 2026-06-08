@@ -16,21 +16,21 @@ class AppNavigationTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun integratedModeNavigatesToIntegratedHomeCarryingScenario() = runComposeUiTest {
+    fun integratedModeStartOpensCheckInEntry() = runComposeUiTest {
         setContent { App() }
         // Select scenario; mode defaults to INTEGRATED.
         onNodeWithText("Online-Apotheke").performScrollTo().performClick()
         onNodeWithText("Starte die Demo").performClick()
-        onNodeWithText("Integrated — online_pharmacy (placeholder)").assertExists()
+        onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun appToAppModeNavigatesToAppToAppHomeCarryingScenario() = runComposeUiTest {
+    fun appToAppModeStartOpensCheckInEntry() = runComposeUiTest {
         setContent { App() }
         onNodeWithText("Online-Apotheke").performScrollTo().performClick()
         onNodeWithText("App-zu-App").performScrollTo().performClick() // switch mode
         onNodeWithText("Starte die Demo").performClick()
-        onNodeWithText("App-to-App — online_pharmacy (placeholder)").assertExists()
+        onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
     }
 }

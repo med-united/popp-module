@@ -9,10 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
-import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
@@ -55,11 +56,17 @@ fun App() {
                     OnsiteCheckInEntryScreen(
                         onClose = { nav.popBackStack() },
                         onSearchClick = { nav.navigate(Routes.INSTITUTION_SEARCH) },
-                        onQrScanClick = {},
+                        onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
                     )
                 }
                 composable(Routes.INSTITUTION_SEARCH) {
                     InstitutionSearchScreen({ nav.popBackStack() }, onBack = { nav.popBackStack() })
+                }
+                composable(Routes.CHECK_IN_QR) {
+                    OnsiteCheckInQrScannerScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                    )
                 }
             }
         }

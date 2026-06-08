@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,7 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Placeholder for the Voll-integriert home. Replaced by the real screen in its own ticket. */
 @Composable
-fun IntegratedHomeScreen(scenarioId: String?) {
+fun IntegratedHomeScreen(scenarioId: String?, onNavigateToSearch: () -> Unit = {}) {
     val sdk = LocalPoppSdk.current
     val c = BrandTheme.colors
     Box(
@@ -38,6 +39,9 @@ fun IntegratedHomeScreen(scenarioId: String?) {
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
             )
+            Button(onClick = onNavigateToSearch) {
+                Text("Search Institutions")
+            }
         }
     }
 }

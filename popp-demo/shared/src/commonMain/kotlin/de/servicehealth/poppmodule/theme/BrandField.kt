@@ -31,9 +31,10 @@ fun BrandField(
     modifier: Modifier = Modifier,
     placeholder: String = "",
     leadingIcon: (@Composable (focused: Boolean) -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
     readOnly: Boolean = false,
     singleLine: Boolean = true,
-) {
+){
     val c = BrandTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -80,5 +81,6 @@ fun BrandField(
                 ),
             )
         }
+        trailingIcon?.invoke()
     }
 }

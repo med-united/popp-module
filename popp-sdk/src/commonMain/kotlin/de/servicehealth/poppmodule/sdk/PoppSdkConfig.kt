@@ -21,6 +21,17 @@ data class PoppSdkConfig(
     val aslProdEnvironment: Boolean = true,
     val attestation: AttestationStrategy = AttestationStrategy.Software,
     val tokenProvider: TokenProviderConfig,
+    /**
+     * PoPP-Service WebSocket "scenario" endpoint (e.g. `wss://popp.dev.poppservice.de:443/popp/...`
+     * for RISE, or `wss://localhost:443/ws` for the local docker stack). Required for
+     * [PoppSdk.checkInWithEgk]; may be null for hosts that only use the ZETA status flow.
+     */
+    val poppServiceUrl: String? = null,
+    /**
+     * DEV/TEST ONLY: when true, the eGK transport trusts any server TLS certificate so it can reach
+     * the self-signed local docker ingress. Must be false in production.
+     */
+    val devDisableTlsValidation: Boolean = false,
 ) {
     init {
         require(fqdn.isNotBlank()) { "fqdn must not be blank" }

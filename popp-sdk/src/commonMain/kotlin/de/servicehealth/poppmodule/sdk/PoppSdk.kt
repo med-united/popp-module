@@ -1,24 +1,43 @@
 package de.servicehealth.poppmodule.sdk
 
+import de.servicehealth.poppmodule.sdk.egk.EgkApduChannel
+import de.servicehealth.poppmodule.sdk.egk.EgkCheckInResult
+import de.servicehealth.poppmodule.sdk.egk.EgkProgress
+import de.servicehealth.poppmodule.sdk.egk.EgkReadDriver
+import de.servicehealth.poppmodule.sdk.egk.PoppServiceTransport
+import de.servicehealth.poppmodule.sdk.egk.transport.WebSocketScenarioTransport
+import de.servicehealth.poppmodule.sdk.egk.transport.createPoppWebSocketClient
 import de.servicehealth.poppmodule.sdk.internal.ZetaEngine
 import de.servicehealth.poppmodule.sdk.internal.createZetaEngine
 import de.servicehealth.poppmodule.sdk.storage.createSecureStorage
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Public entry point of the PoPP SDK exposed to host apps.
  *
- * All HTTP requests required by the TI 2.0 / PoPP flow (VZD search, eGK / GID
+ * All HTTP/WebSocket requests required by the TI 2.0 / PoPP flow (VZD search, eGK / GID
  * check-in, token retrieval, …) must go through the ZETA Guard proxy on the
  * device. This façade owns the lifecycle of the underlying ZETA client and
  * exposes a small surface to host apps; under the hood it delegates to the
  * platform-specific [ZetaEngine] (real on Android, stubbed on iOS until
  * gematik publishes a native variant).
  */
-class PoppSdk private constructor(
+class PoppSdk internal constructor(
     private val engine: ZetaEngine?,
+    private val poppServiceUrl: String?,
+    private val devDisableTlsValidation: Boolean,
+    private val transportFactory: (url: String, disableTlsValidation: Boolean) -> PoppServiceTransport,
+    private val newSessionId: () -> String,
 ) {
 
-    constructor() : this(null)
+    constructor() : this(
+        engine = null,
+        poppServiceUrl = null,
+        devDisableTlsValidation = false,
+        transportFactory = ::defaultTransportFactory,
+        newSessionId = ::defaultSessionId,
+    )
 
     /** Current ZETA client status, as reported by the underlying SDK. */
     suspend fun status(): String = engine?.status()
@@ -27,6 +46,29 @@ class PoppSdk private constructor(
     fun version(): String = "popp-sdk $VERSION"
 
     fun platformInfo(): String = getPlatform().name
+
+    /**
+     * Runs the eGK scenario read loop (POPPM-118, gemSpec_PoPP_Modul §3.3.7) against the
+     * PoPP-Service and returns a PoPP token. Requires a started SDK and a configured
+     * [PoppSdkConfig.poppServiceUrl]. Drives [channel] for each command APDU; reports [onProgress].
+     *
+     * Business failure (server `Error`) → [EgkCheckInResult.Failed]. Infrastructure failure (socket,
+     * TLS, serialization, status-word mismatch, timeout) → [PoppSdkError].
+     *
+     * @throws PoppSdkError.Configuration if the SDK is not started or no `poppServiceUrl` is set.
+     */
+    suspend fun checkInWithEgk(
+        channel: EgkApduChannel,
+        onProgress: (EgkProgress) -> Unit = {},
+    ): EgkCheckInResult {
+        if (engine == null) {
+            throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
+        }
+        val url = poppServiceUrl
+            ?: throw PoppSdkError.Configuration("poppServiceUrl not configured in PoppSdkConfig")
+        val transport = transportFactory(url, devDisableTlsValidation)
+        return EgkReadDriver(transport, channel, newSessionId).run(onProgress)
+    }
 
     companion object {
         private const val STORAGE_NAMESPACE = "popp-sdk"
@@ -57,7 +99,19 @@ class PoppSdk private constructor(
             } catch (e: Throwable) {
                 throw PoppSdkError.Unknown("Failed to start ZETA client", e)
             }
-            return PoppSdk(engine)
+            return PoppSdk(
+                engine = engine,
+                poppServiceUrl = config.poppServiceUrl,
+                devDisableTlsValidation = config.devDisableTlsValidation,
+                transportFactory = ::defaultTransportFactory,
+                newSessionId = ::defaultSessionId,
+            )
         }
     }
 }
+
+private fun defaultTransportFactory(url: String, disableTlsValidation: Boolean): PoppServiceTransport =
+    WebSocketScenarioTransport(createPoppWebSocketClient(disableTlsValidation), url)
+
+@OptIn(ExperimentalUuidApi::class)
+private fun defaultSessionId(): String = Uuid.random().toString()

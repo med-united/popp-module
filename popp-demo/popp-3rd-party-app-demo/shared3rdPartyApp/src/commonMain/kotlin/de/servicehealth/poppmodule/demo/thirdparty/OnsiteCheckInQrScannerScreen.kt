@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
 import androidx.compose.ui.text.style.TextAlign
@@ -150,7 +151,12 @@ private fun QrScannerHeader(
 
         Spacer(Modifier.weight(1f))
 
-        QrScannerProgressDots()
+        BrandProgressDots(
+            stepCount = 4,
+            currentStep = 0,
+            activeColor = c.white,
+            inactiveColor = c.white.copy(alpha = 0.28f),
+        )
 
         Spacer(Modifier.weight(1f))
 
@@ -167,31 +173,6 @@ private fun QrScannerHeader(
                 contentDescription = "Schließen",
                 tint = c.white,
                 modifier = Modifier.size(22.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun QrScannerProgressDots() {
-    val c = BrandTheme.colors
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .width(30.dp)
-                .height(5.dp)
-                .clip(CircleShape)
-                .background(c.white)
-        )
-
-        repeat(3) {
-            Spacer(Modifier.width(6.dp))
-            Box(
-                modifier = Modifier
-                    .size(width = 10.dp, height = 5.dp)
-                    .clip(CircleShape)
-                    .background(c.white.copy(alpha = 0.28f))
             )
         }
     }

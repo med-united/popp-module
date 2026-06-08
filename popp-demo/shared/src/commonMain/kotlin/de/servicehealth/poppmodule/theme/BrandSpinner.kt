@@ -1,10 +1,14 @@
 package de.servicehealth.poppmodule.theme
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -21,4 +25,19 @@ fun BrandSpinner(
         trackColor = color.copy(alpha = 0.25f),
         strokeWidth = strokeWidth,
     )
+}
+
+@Preview @Composable fun defaultBrandSpinnerPreview() {
+    val c = BrandColors()
+    Box(Modifier.background(c.deep).padding(16.dp)) {
+        BrandSpinner()
+    }
+}
+
+@Preview @Composable fun violetBrandSpinnerPreview() {
+    BrandSpinner(color = BrandColors().violet)
+}
+
+@Preview @Composable fun largeBrandSpinnerPreview() {
+    BrandSpinner(size = 48.dp, strokeWidth = 5.dp, color = BrandColors().violet)
 }

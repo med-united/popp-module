@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -46,4 +47,16 @@ fun BrandProgressDots(
             }
         }
     }
+}
+
+@Preview @Composable fun firstStepProgressDotsPreview() {
+    BrandProgressDots(stepCount = 4, currentStep = 0)
+}
+
+@Preview @Composable fun midStepProgressDotsPreview() {
+    BrandProgressDots(stepCount = 4, currentStep = 2)
+}
+
+@Preview @Composable fun lastStepProgressDotsPreview() {
+    BrandProgressDots(stepCount = 4, currentStep = 3)
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -78,4 +79,22 @@ fun <T> BrandSegmented(
             }
         }
     }
+}
+
+private val previewOptions = listOf(
+    SegmentedOption("a", "Option A"),
+    SegmentedOption("b", "Option B"),
+    SegmentedOption("c", "Option C"),
+)
+
+@Preview @Composable fun firstSelectedBrandSegmentedPreview() {
+    BrandSegmented(options = previewOptions, selected = "a", onSelect = {})
+}
+
+@Preview @Composable fun midSelectedBrandSegmentedPreview() {
+    BrandSegmented(options = previewOptions, selected = "b", onSelect = {})
+}
+
+@Preview @Composable fun darkBrandSegmentedPreview() {
+    BrandSegmented(options = previewOptions, selected = "a", onSelect = {}, dark = true)
 }

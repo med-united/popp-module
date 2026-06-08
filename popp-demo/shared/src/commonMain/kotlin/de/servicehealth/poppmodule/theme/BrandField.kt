@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
@@ -81,4 +82,25 @@ fun BrandField(
             )
         }
     }
+}
+
+@Preview @Composable fun emptyBrandFieldPreview() {
+    BrandField(value = "", onValueChange = {}, placeholder = "Enter your name")
+}
+
+@Preview @Composable fun filledBrandFieldPreview() {
+    BrandField(value = "Max Mustermann", onValueChange = {})
+}
+
+@Preview @Composable fun leadingIconBrandFieldPreview() {
+    BrandField(
+        value = "",
+        onValueChange = {},
+        placeholder = "Search…",
+        leadingIcon = { Text("🔍") },
+    )
+}
+
+@Preview @Composable fun readOnlyBrandFieldPreview() {
+    BrandField(value = "Read-only value", onValueChange = {}, readOnly = true)
 }

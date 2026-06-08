@@ -38,6 +38,7 @@ fun App() {
                 ) { entry ->
                     IntegratedHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
+                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) }
                     )
                 }
                 composable(
@@ -54,9 +55,12 @@ fun App() {
                 composable(Routes.CHECK_IN_ENTRY) {
                     OnsiteCheckInEntryScreen(
                         onClose = { nav.popBackStack() },
-                        onSearchClick = {},
+                        onSearchClick = { nav.navigate(Routes.INSTITUTION_SEARCH) },
                         onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
                     )
+                }
+                composable(Routes.INSTITUTION_SEARCH) {
+                    InstitutionSearchScreen({ nav.popBackStack() }, onBack = { nav.popBackStack() })
                 }
                 composable(Routes.CHECK_IN_QR) {
                     OnsiteCheckInQrScannerScreen(

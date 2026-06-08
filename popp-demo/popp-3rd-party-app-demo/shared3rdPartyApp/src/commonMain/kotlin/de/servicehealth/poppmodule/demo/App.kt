@@ -61,7 +61,7 @@ fun App() {
                 composable(Routes.CHECK_IN_QR) {
                     OnsiteCheckInQrScannerScreen(
                         onBack = { nav.popBackStack() },
-                        onClose = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }
             }

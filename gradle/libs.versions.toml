@@ -1,6 +1,6 @@
 [versions]
 agp = "9.0.1"
-robolectric = "4.14.1"
+robolectric = "4.16.1"
 android-compileSdk = "36"
 android-minSdk = "28"
 android-targetSdk = "36"

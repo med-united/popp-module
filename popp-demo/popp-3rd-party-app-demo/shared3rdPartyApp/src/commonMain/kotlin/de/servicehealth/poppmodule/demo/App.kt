@@ -13,6 +13,7 @@ import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
@@ -37,6 +38,7 @@ fun App() {
                 ) { entry ->
                     IntegratedHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
+                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) }
                     )
                 }
                 composable(
@@ -53,8 +55,17 @@ fun App() {
                 composable(Routes.CHECK_IN_ENTRY) {
                     OnsiteCheckInEntryScreen(
                         onClose = { nav.popBackStack() },
-                        onSearchClick = {},
-                        onQrScanClick = {},
+                        onSearchClick = { nav.navigate(Routes.INSTITUTION_SEARCH) },
+                        onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
+                    )
+                }
+                composable(Routes.INSTITUTION_SEARCH) {
+                    InstitutionSearchScreen({ nav.popBackStack() }, onBack = { nav.popBackStack() })
+                }
+                composable(Routes.CHECK_IN_QR) {
+                    OnsiteCheckInQrScannerScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }
             }

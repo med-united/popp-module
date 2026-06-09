@@ -2,6 +2,8 @@ package de.servicehealth.poppmodule.theme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,9 +16,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.Box
 
 enum class BrandTagTone { Violet, Solid, Yellow, Success, Warning, Neutral, OnDark }
 
@@ -75,5 +77,36 @@ fun BrandTag(
                 letterSpacing = 0.7.sp,
             ),
         )
+    }
+}
+
+@Preview @Composable private fun TonesBrandTagPreview() {
+    Column(
+        modifier = Modifier.padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        BrandTag(text = "Violet", tone = BrandTagTone.Violet)
+        BrandTag(text = "Solid", tone = BrandTagTone.Solid)
+        BrandTag(text = "Yellow", tone = BrandTagTone.Yellow)
+        BrandTag(text = "Success", tone = BrandTagTone.Success)
+        BrandTag(text = "Warning", tone = BrandTagTone.Warning)
+        BrandTag(text = "Neutral", tone = BrandTagTone.Neutral)
+    }
+}
+
+@Preview @Composable private fun OnDarkBrandTagPreview() {
+    Box(Modifier.background(BrandColors().deep).padding(12.dp)) {
+        BrandTag(text = "On Dark", tone = BrandTagTone.OnDark)
+    }
+}
+
+@Preview @Composable private fun DotBrandTagPreview() {
+    Column(
+        modifier = Modifier.padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        BrandTag(text = "Active", tone = BrandTagTone.Success, dot = true)
+        BrandTag(text = "Warning", tone = BrandTagTone.Warning, dot = true)
+        BrandTag(text = "Label", tone = BrandTagTone.Violet, dot = true)
     }
 }

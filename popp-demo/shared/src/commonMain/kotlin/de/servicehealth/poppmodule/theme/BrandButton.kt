@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -140,3 +141,16 @@ fun BrandButton(
         }
     }
 }
+
+@Preview @Composable private fun SmallBrandButtonPreview() {
+    BrandButton(text = "Small Button", size = BrandButtonSize.Sm, onClick = {})
+}
+
+@Preview @Composable private fun MediumBrandButtonPreview() {
+    BrandButton(text = "Medium Button", onClick = {})
+}
+
+@Preview @Composable private fun LargeBrandButtonPreview() {
+    BrandButton(text = "Large Button", size = BrandButtonSize.Lg, onClick = {})
+}
+

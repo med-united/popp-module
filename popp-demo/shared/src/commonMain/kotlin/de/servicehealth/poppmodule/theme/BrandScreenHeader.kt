@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -94,4 +95,16 @@ fun BrandScreenHeader(
             thickness = 1.dp,
         )
     }
+}
+
+@Preview @Composable private fun BrandScreenHeaderPreview() {
+    BrandScreenHeader(title = "Versicherungsnachweis")
+}
+
+@Preview @Composable private fun BrandScreenHeaderWithClosePreview() {
+    BrandScreenHeader(title = "Versicherungsnachweis", onClose = {})
+}
+
+@Preview @Composable private fun BrandScreenHeaderLongTitlePreview() {
+    BrandScreenHeader(title = "Ein sehr langer Titel der garantiert abgeschnitten wird", onClose = {})
 }

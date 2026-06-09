@@ -21,8 +21,6 @@ kover = "0.9.8"
 material3 = "1.11.0-alpha07"
 navigationCompose = "2.9.0-beta03"
 zetaSdk = "1.0.1"
-ktor = "3.1.3"
-kotlinx-serialization = "1.8.1"
 desugar = "2.1.5"
 
 [libraries]
@@ -57,10 +55,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 gematik-zetaSdk = { module = "de.gematik.zeta:zeta-sdk", version.ref = "zetaSdk" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }

@@ -11,7 +11,7 @@ Implementation of the gematik PoPP-Module specification (https://gemspec.gematik
 The Gradle daemon auto-provisions JDK 21 (Amazon Corretto) via `gradle/gradle-daemon-jvm.properties`, but Kotlin/JVM compilation targets JVM 11. Configuration cache and build cache are enabled in `gradle.properties`.
 
 - Build everything: `./gradlew build`
-- 3rd-party demo Android app: `./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installDebug` then `adb shell monkey -p de.servicehealth.poppmodule.demo.thirdparty -c android.intent.category.LAUNCHER 1`
+- 3rd-party demo Android app: `./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installRiseDebug` then `adb shell monkey -p de.servicehealth.poppmodule.demo.thirdparty -c android.intent.category.LAUNCHER 1` (flavors: `local`, `rise` [default], `ru`, `pu` — substitute in task name as `install{Flavor}Debug`)
 - Insurance demo Android app: `./gradlew :popp-demo:popp-insurance-app-demo:androidInsuranceApp:installDebug` then `adb shell monkey -p de.servicehealth.poppmodule.demo.insurance -c android.intent.category.LAUNCHER 1`
 - Run SDK tests (Android host JVM, fast): `./gradlew :popp-sdk:testAndroidHostTest`
 - Run SDK tests (iOS simulator, requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`

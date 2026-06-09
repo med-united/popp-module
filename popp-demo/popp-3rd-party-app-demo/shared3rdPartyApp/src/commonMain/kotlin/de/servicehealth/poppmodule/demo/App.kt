@@ -9,19 +9,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
-import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
-import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
 @Composable
-fun App() {
+fun App(poppSdk: PoppSdk) {
     BrandTheme {
-        CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
+        CompositionLocalProvider(LocalPoppSdk provides poppSdk) {
             val nav = rememberNavController()
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {

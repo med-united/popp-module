@@ -1,53 +1,59 @@
 package de.servicehealth.poppmodule.sdk.internal
 
-import de.gematik.zeta.sdk.BuildConfig as ZetaBuildConfig
 import de.gematik.zeta.sdk.TpmConfig
 import de.gematik.zeta.sdk.ZetaSdk
 import de.gematik.zeta.sdk.ZetaSdkClient
-import de.gematik.zeta.sdk.attestation.model.AttestationConfig as ZetaAttestationConfig
 import de.gematik.zeta.sdk.attestation.model.PlatformProductId
 import de.gematik.zeta.sdk.authentication.AuthConfig
-import de.gematik.zeta.sdk.authentication.smb.SmbTokenProvider
+import de.gematik.zeta.sdk.authentication.SubjectTokenProvider
+import de.gematik.zeta.sdk.network.http.client.ZetaHttpClientBuilder
 import de.gematik.zeta.sdk.storage.StorageConfig
-import de.servicehealth.poppmodule.sdk.AttestationStrategy
-import de.servicehealth.poppmodule.sdk.PlatformIdentity
-import de.servicehealth.poppmodule.sdk.PoppSdkConfig
-import de.servicehealth.poppmodule.sdk.PoppSdkContext
-import de.servicehealth.poppmodule.sdk.PoppSdkError
-import de.servicehealth.poppmodule.sdk.TokenProviderConfig
+import de.gematik.zeta.sdk.tpm.TpmProvider
+import de.servicehealth.poppmodule.sdk.*
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
+import de.gematik.zeta.sdk.BuildConfig as ZetaBuildConfig
+import de.gematik.zeta.sdk.attestation.model.AttestationConfig as ZetaAttestationConfig
 
 internal class AndroidZetaEngine(
     private val config: PoppSdkConfig,
     storage: SecureStorage,
 ) : ZetaEngine {
 
-    private val client: ZetaSdkClient = ZetaSdk.build(
+    private val zetaClient: ZetaSdkClient = ZetaSdk.build(
         resource = config.fqdn,
         config = config.toZetaBuildConfig(SdkStorageAdapter(storage)),
     )
 
     override suspend fun start() {
-        client.discover().getOrElse { throw it.toPoppSdkError("ZETA discover() failed") }
-        client.register().getOrElse { throw it.toPoppSdkError("ZETA register() failed") }
-        client.authenticate().getOrElse { throw it.toPoppSdkError("ZETA authenticate() failed") }
+        zetaClient.discover().getOrElse { throw it.toPoppSdkError("ZETA discover() failed") }
+        zetaClient.register().getOrElse { throw it.toPoppSdkError("ZETA register() failed") }
+        zetaClient.authenticate().getOrElse { throw it.toPoppSdkError("ZETA authenticate() failed") }
     }
 
     override suspend fun status(): String =
-        client.status().fold(
+        zetaClient.status().fold(
             onSuccess = { it.name },
             onFailure = { throw it.toPoppSdkError("ZETA status() failed") },
         )
+
+    override suspend fun hello(): String {
+        val httpClient = zetaClient.httpClient {}
+        return httpClient.get("/hellozeta").bodyAsText()
+    }
 }
 
 internal actual fun createZetaEngine(
-    context: PoppSdkContext,
     config: PoppSdkConfig,
     storage: SecureStorage,
 ): ZetaEngine = AndroidZetaEngine(config, storage)
 
-private fun PoppSdkConfig.toZetaBuildConfig(storage: SdkStorageAdapter): ZetaBuildConfig =
-    ZetaBuildConfig(
+private fun PoppSdkConfig.toZetaBuildConfig(storage: SdkStorageAdapter): ZetaBuildConfig {
+    // ZetaHttpClient.android.kt only reads additionalCaPem (PEM strings), not additionalCaFile.
+    // disableServerValidation is also only honoured by the JVM target, not Android.
+    // So for self-signed test CAs we read the file here and call addCaPem() directly.
+    val httpClientBuilder = System.getProperty("popp.integration.ca.pem.file")
+        ?.let { path -> ZetaHttpClientBuilder().addCaPem(java.io.File(path).readText()) }
+    return ZetaBuildConfig(
         productId = productId,
         productVersion = productVersion,
         clientName = clientName,
@@ -62,7 +68,9 @@ private fun PoppSdkConfig.toZetaBuildConfig(storage: SdkStorageAdapter): ZetaBui
             requiredRoleOid = requiredRoleOid,
         ),
         platformProductId = platformIdentity.toZetaPlatformProductId(),
+        httpClientBuilder = httpClientBuilder,
     )
+}
 
 private fun PlatformIdentity.toZetaPlatformProductId(): PlatformProductId = when (this) {
     is PlatformIdentity.Android -> PlatformProductId.AndroidProductId(
@@ -85,15 +93,24 @@ private fun AttestationStrategy.toZetaAttestationConfig(): ZetaAttestationConfig
     )
 }
 
-private fun TokenProviderConfig.toZetaSubjectTokenProvider() = when (this) {
-    is TokenProviderConfig.Smb -> SmbTokenProvider(
-        SmbTokenProvider.Credentials(
-            keystoreFile = keystoreFile,
-            alias = alias,
-            password = password,
-            keystoreB64 = keystoreB64,
-        ),
-    )
+private fun TokenProviderConfig.toZetaSubjectTokenProvider(): SubjectTokenProvider = when (this) {
+    is TokenProviderConfig.Egk -> PoppSubjectTokenProviderAdapter(provider)
+    is TokenProviderConfig.GesundheitsId -> PoppSubjectTokenProviderAdapter(provider)
+    is DeviceOnly -> DeviceOnlyTokenProvider()
+}
+
+private class PoppSubjectTokenProviderAdapter(
+    private val poppProvider: PoppSubjectTokenProvider,
+) : SubjectTokenProvider {
+    override suspend fun createSubjectToken(
+        clientId: String,
+        dpopKey: String,
+        nonceBytes: ByteArray,
+        audience: String,
+        now: Long,
+        expiration: Long,
+        tpmProvider: TpmProvider,
+    ): String = poppProvider.createSubjectToken()
 }
 
 private fun Throwable.toPoppSdkError(message: String): PoppSdkError {
@@ -106,7 +123,7 @@ private fun Throwable.toPoppSdkError(message: String): PoppSdkError {
             PoppSdkError.Attestation(text, this)
 
         lower.contains("network") || lower.contains("connect") || lower.contains("timeout") ||
-            lower.contains("unreachable") || lower.contains("ssl") || lower.contains("tls") ->
+                lower.contains("unreachable") || lower.contains("ssl") || lower.contains("tls") ->
             PoppSdkError.Network(text, this)
 
         else -> PoppSdkError.Unknown(text, this)

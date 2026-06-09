@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
 
 class PoppSdkConfigTest {
 
@@ -24,10 +25,8 @@ class PoppSdkConfigTest {
         scopes = scopes,
         requiredRoleOid = requiredRoleOid,
         tokenLifetimeSeconds = tokenLifetimeSeconds,
-        tokenProvider = TokenProviderConfig.Smb(
-            alias = "smb-alias",
-            password = "secret",
-            keystoreB64 = "AAAA",
+        tokenProvider = TokenProviderConfig.Egk(
+            provider = PoppSubjectTokenProvider { "stub-token" }
         ),
     )
 
@@ -59,13 +58,6 @@ class PoppSdkConfigTest {
     }
 
     @Test
-    fun smb_token_provider_requires_keystore_source() {
-        assertFailsWith<IllegalArgumentException> {
-            TokenProviderConfig.Smb(alias = "a", password = "p")
-        }
-    }
-
-    @Test
     fun version_isNotBlank() {
         assertTrue(PoppSdk().version().isNotBlank())
     }
@@ -73,6 +65,24 @@ class PoppSdkConfigTest {
     @Test
     fun platformInfo_reportsPlatformName() {
         assertTrue(PoppSdk().platformInfo().contains(getPlatform().name))
+    }
+
+    @Test
+    fun init_accepts_valid_fqdn() {
+        val poppSdk = PoppSdk()
+        poppSdk.init("wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc")
+    }
+
+    @Test
+    fun init_rejects_blank_fqdn() {
+        val poppSdk = PoppSdk()
+        assertFailsWith<IllegalArgumentException> { poppSdk.init("") }
+    }
+
+    @Test
+    fun init_rejects_whitespace_only_fqdn() {
+        val poppSdk = PoppSdk()
+        assertFailsWith<IllegalArgumentException> { poppSdk.init("   ") }
     }
 }
 
@@ -89,5 +99,100 @@ class PoppSdkErrorTest {
             PoppSdkError.Unknown("u", cause),
         )
         assertEquals(listOf("net", "att", "cfg", "pf", "u"), errs.map { it.message })
+    }
+}
+
+class PoppSdkEnsureEngineTest {
+
+    @Test
+    fun status_before_init_throws_Configuration() = runTest {
+        assertFailsWith<PoppSdkError.Configuration> { PoppSdk().status() }
+    }
+
+    @Test
+    fun hello_before_init_throws_Configuration() = runTest {
+        assertFailsWith<PoppSdkError.Configuration> { PoppSdk().hello() }
+    }
+
+    @Test
+    fun status_with_fqdn_but_no_appConfig_reports_missing_appConfig() = runTest {
+        val sdk = PoppSdk()
+        sdk.init("wss://popp.example.test")
+        val error = assertFailsWith<PoppSdkError.Configuration> { sdk.status() }
+        assertTrue(
+            error.message!!.contains("PoppSdkAppConfig"),
+            "Expected appConfig error but got: ${error.message}",
+        )
+    }
+
+    @Test
+    fun status_with_fqdn_and_appConfig_but_no_context_reports_missing_context() = runTest {
+        val sdk = PoppSdk(
+            appConfig = PoppSdkAppConfig(
+                clientName = "test",
+                platformIdentity = PlatformIdentity.Android("pkg", listOf("AA")),
+                tokenProvider = TokenProviderConfig.Egk(PoppSubjectTokenProvider { "stub" }),
+            )
+        )
+        sdk.init("wss://popp.example.test")
+        val error = assertFailsWith<PoppSdkError.Configuration> { sdk.status() }
+        assertTrue(
+            error.message!!.contains("PoppSdk(context)"),
+            "Expected context error but got: ${error.message}",
+        )
+    }
+}
+
+class TokenProviderConfigTest {
+
+    @Test
+    fun egk_provider_constructs() {
+        val provider = TokenProviderConfig.Egk(
+            provider = PoppSubjectTokenProvider { "stub" }
+        )
+        assertTrue(provider is TokenProviderConfig.Egk)
+    }
+
+    @Test
+    fun gesundheitsId_provider_constructs() {
+        val provider = TokenProviderConfig.GesundheitsId(
+            provider = PoppSubjectTokenProvider { "stub" }
+        )
+        assertTrue(provider is TokenProviderConfig.GesundheitsId)
+    }
+}
+
+class PoppSdkAppConfigTest {
+
+    private fun validAppConfig(
+        clientName: String = "popp-test-client",
+        tokenLifetimeSeconds: Long = 300,
+    ) = PoppSdkAppConfig(
+        clientName = clientName,
+        platformIdentity = PlatformIdentity.Android(
+            packageName = "de.servicehealth.poppmodule",
+            sha256CertFingerprints = listOf("AA:BB:CC"),
+        ),
+        tokenProvider = TokenProviderConfig.Egk(
+            provider = PoppSubjectTokenProvider { "stub-token" }
+        ),
+        tokenLifetimeSeconds = tokenLifetimeSeconds,
+    )
+
+    @Test
+    fun valid_appConfig_constructs() {
+        val cfg = validAppConfig()
+        assertEquals("popp-test-client", cfg.clientName)
+        assertEquals(AttestationStrategy.Software, cfg.attestation)
+    }
+
+    @Test
+    fun blank_clientName_is_rejected() {
+        assertFailsWith<IllegalArgumentException> { validAppConfig(clientName = "") }
+    }
+
+    @Test
+    fun zero_token_lifetime_is_rejected() {
+        assertFailsWith<IllegalArgumentException> { validAppConfig(tokenLifetimeSeconds = 0) }
     }
 }

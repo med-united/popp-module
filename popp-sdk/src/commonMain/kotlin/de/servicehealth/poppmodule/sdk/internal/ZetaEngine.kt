@@ -13,12 +13,14 @@ internal interface ZetaEngine {
     /** Performs ZETA client registration and attestation at the ZETA Guard. */
     suspend fun start()
 
-    /** Reports current ZETA client status, or a human-readable diagnostic. */
+    /** Reports current ZETA client status or a human-readable diagnostic. */
     suspend fun status(): String
+
+    /** Tests domain service access via ZETA client. */
+    suspend fun hello(): String
 }
 
 internal expect fun createZetaEngine(
-    context: PoppSdkContext,
     config: PoppSdkConfig,
     storage: SecureStorage,
 ): ZetaEngine

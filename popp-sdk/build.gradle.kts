@@ -34,7 +34,7 @@ kotlin {
         minSdk = libs.versions.android.minSdk.get().toInt()
 
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
+            jvmTarget = JvmTarget.JVM_21
         }
         withHostTest {
             isIncludeAndroidResources = true
@@ -51,10 +51,26 @@ kotlin {
             // so the wiring lives in androidMain. The iOS source set ships a stub until an
             // iOS native variant becomes available.
             implementation(libs.gematik.zetaSdk)
-            implementation(libs.androidx.security.crypto)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
+    }
+}
+
+dependencies {
+    add("androidHostTestImplementation", libs.robolectric)
+}
+
+tasks.matching { it.name == "testAndroidHostTest" }.configureEach {
+    (this as? Test)?.apply {
+        if (project.hasProperty("integration")) {
+            include("**/*IntegrationTest*")
+            System.getProperty("popp.integration.fqdn")?.let { systemProperty("popp.integration.fqdn", it) }
+            System.getProperty("popp.integration.ca.pem.file")?.let { systemProperty("popp.integration.ca.pem.file", it) }
+        } else {
+            exclude("**/*IntegrationTest*")
         }
     }
 }

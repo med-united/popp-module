@@ -72,8 +72,17 @@ internal data class ErrorMessage(
     val errorDetail: String? = null,
 ) : PoppMessage
 
-/** How the card is connected. Mobile NFC only uses [CONTACTLESS]. */
+/**
+ * How the card is connected. Mobile NFC only uses [CONTACTLESS].
+ *
+ * The wire values are the spec / `popp-commons` `CardConnectionType` strings (e.g.
+ * `contactless-standard`), not the Kotlin names — the PoPP-Server rejects anything else with a
+ * JSON-processing error. The `-standard` suffix is the standalone (no-connector) case.
+ */
 @Serializable
-internal enum class CardConnectionType { CONTACTLESS, CONTACT }
+internal enum class CardConnectionType {
+    @SerialName("contactless-standard") CONTACTLESS,
+    @SerialName("contact-standard") CONTACT,
+}
 
 internal const val PROTOCOL_VERSION: String = "1.0.0"

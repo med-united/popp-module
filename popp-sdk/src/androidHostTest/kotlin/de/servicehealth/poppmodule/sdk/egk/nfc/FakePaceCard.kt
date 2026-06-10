@@ -10,6 +10,7 @@ import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.ResponseApdu
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.KeyDerivationFunction
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.KeyDerivationFunction.getAES128Key
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.paceAuthTokenMac
+import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.paceSharedSecret
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.tagobjects.DataObject
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.tagobjects.MacObject
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.tagobjects.StatusObject
@@ -41,8 +42,8 @@ internal class FakePaceCard(
     var logicalResponder: (ByteArray) -> ByteArray = { plain -> plain + STATUS_OK },
 ) : ICardChannel {
 
-    override val maxTransceiveLength = 65535
-    override val isExtendedLengthSupported = true
+    override var maxTransceiveLength = 65535
+    override var isExtendedLengthSupported = true
 
     /** Test hooks. */
     var throwOnNextTransmit: IOException? = null
@@ -101,7 +102,8 @@ internal class FakePaceCard(
                 val sk2 = randomScalar()
                 cardPk2 = mappedGenerator.multiply(sk2).getEncoded(false)
                 val k = CardUtilities.byteArrayToECPoint(pcdPk2, curve.curve).multiply(sk2)
-                val kBytes = Bytes.bigIntToByteArray(k.normalize().xCoord.toBigInteger())
+                // Fixed-length FE2OS like a conformant card, matching the PCD side.
+                val kBytes = paceSharedSecret(k)
                 negotiatedKey = PaceKey(
                     getAES128Key(kBytes, KeyDerivationFunction.Mode.ENC),
                     getAES128Key(kBytes, KeyDerivationFunction.Mode.MAC),
@@ -158,21 +160,38 @@ internal class FakePaceCard(
         return wrapResponse(plainResponse, key)
     }
 
-    /** Decrypts DO87 if present; reconstructs `header + lc + data` (command MAC not re-verified —
+    /** Decrypts DO87 if present and restores the Le from DO97; reconstructs the short-form
+     *  plain command `header [+ lc + data] [+ le]` (command MAC not re-verified —
      *  the PCD-side wrapping is pinned by the ported SecureMessagingTest vectors). */
     private fun unwrapCommand(apdu: ByteArray, key: PaceKey): ByteArray {
         val cmd = parseCommandApdu(apdu)
         val body = cmd.bytes.copyOfRange(cmd.dataOffset, cmd.dataOffset + cmd.rawNc)
         var data: ByteArray? = null
-        if (body.isNotEmpty() && (body[0].toInt() and 0xFF) == 0x87) {
-            val (len, lenSize) = readDerLength(body, 1)
-            val encrypted = body.copyOfRange(1 + lenSize + 1, 1 + lenSize + len) // skip 0x01 pad indicator
-            data = Bytes.unPadData(aesCbcWithSscIv(Cipher.DECRYPT_MODE, key.enc, encrypted))
+        var le: ByteArray? = null
+        var offset = 0
+        while (offset < body.size) {
+            val tag = body[offset].toInt() and 0xFF
+            val (len, lenSize) = readDerLength(body, offset + 1)
+            val content = body.copyOfRange(offset + 1 + lenSize, offset + 1 + lenSize + len)
+            when (tag) {
+                0x87 -> data = Bytes.unPadData( // content[0] is the 0x01 padding indicator
+                    aesCbcWithSscIv(Cipher.DECRYPT_MODE, key.enc, content.copyOfRange(1, content.size)),
+                )
+                0x97 -> le = content
+                0x8E -> {} // command MAC, not re-verified (see KDoc)
+                else -> error("FakePaceCard: unexpected SM data object 0x${tag.toString(16)}")
+            }
+            offset += 1 + lenSize + len
         }
         val headerPlain = byteArrayOf(
             (apdu[0].toInt() and 0x0C.inv()).toByte(), apdu[1], apdu[2], apdu[3],
         )
-        return if (data != null) headerPlain + byteArrayOf(data.size.toByte()) + data else headerPlain
+        val lcAndData = data?.let {
+            require(it.size <= 255) { "FakePaceCard reconstructs short-form commands only (${it.size} data bytes)" }
+            byteArrayOf(it.size.toByte()) + it
+        } ?: ByteArray(0)
+        le?.let { require(it.size == 1) { "FakePaceCard reconstructs short-form Le only (DO97 of ${it.size} bytes)" } }
+        return headerPlain + lcAndData + (le ?: ByteArray(0))
     }
 
     private fun wrapResponse(plainResponse: ByteArray, key: PaceKey): ByteArray {

@@ -25,7 +25,6 @@
 
 package de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange
 
-import de.servicehealth.poppmodule.sdk.egk.nfc.internal.Bytes
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.CardUtilities.byteArrayToECPoint
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.CardUtilities.extractKeyObjectEncoded
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.card.ICardChannel
@@ -45,6 +44,7 @@ import org.bouncycastle.asn1.DERTaggedObject
 import org.bouncycastle.crypto.engines.AESEngine
 import org.bouncycastle.crypto.macs.CMac
 import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.math.ec.ECPoint
 import java.math.BigInteger
 
 private const val AES_BLOCK_SIZE = 16
@@ -165,8 +165,7 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
         val piccPk2ECPoint = byteArrayToECPoint(piccPk2, paceInfo.ecCurve)
         val sharedSecretK = piccPk2ECPoint.multiply(pcdSkX2)
 
-        val sharedSecretKBytes: ByteArray =
-            Bytes.bigIntToByteArray(sharedSecretK.normalize().xCoord.toBigInteger())
+        val sharedSecretKBytes: ByteArray = paceSharedSecret(sharedSecretK)
 
         val paceKey = PaceKey(
             getAES128Key(sharedSecretKBytes, KeyDerivationFunction.Mode.ENC),
@@ -212,6 +211,16 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
         }
     }
 }
+
+/**
+ * The PACE shared secret K: the x-coordinate of the shared point as a FIXED-LENGTH octet
+ * string of the curve's field size (FE2OS, BSI TR-03110-3) — the encoding the card hashes
+ * in the KDF. Deliberately diverges from upstream E-Rezept, which used
+ * `Bytes.bigIntToByteArray` and silently dropped leading zero bytes, so ~1 in 256
+ * handshakes derived keys the card does not (spurious wrong-CAN failures).
+ */
+internal fun paceSharedSecret(sharedSecretPoint: ECPoint): ByteArray =
+    sharedSecretPoint.normalize().xCoord.encoded
 
 internal fun paceAuthToken(ecPoint: ByteArray, protocolID: String): ByteArray {
     val asn1EncodableVector = ASN1EncodableVector()

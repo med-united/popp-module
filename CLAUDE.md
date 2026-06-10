@@ -28,6 +28,9 @@ The iOS test task name is `iosSimulatorArm64Test` (not the older `iosTest`) beca
 One SDK module plus a `popp-demo/` group (common lib + two host-app demos):
 
 - **`:popp-sdk`** — Kotlin Multiplatform library holding the PoPP business logic, with **no Compose/UI dependencies** so any host app (Compose, SwiftUI/UIKit, View-based, backend) can consume it. New AGP 9 KMP plugin (`com.android.kotlin.multiplatform.library`). Public API `PoppSdk`; produces an Android AAR + static iOS XCFramework `PoppSdk`. Namespace `de.servicehealth.poppmodule.sdk`.
+  The Android NFC eGK channel (`…sdk.egk.nfc.EgkNfcChannel`, POPPM-119) implements `EgkApduChannel`
+  via PACE + secure messaging; the card stack under `…egk.nfc.internal` is ported from gematik's
+  E-Rezept-App-Android (EUPL-1.2 → GPLv2, see `NOTICE.md`) and depends on BouncyCastle (androidMain only).
 - **`:popp-demo:shared`** — Compose Multiplatform **library**: common demo UI (service·health brand theme in `…/theme`, `BrandShowcaseScreen` in `…/demo`, which renders the SDK-integration proof) + TWK Everett fonts via Compose resources (`packageOfResClass = de.servicehealth.poppmodule.demo.generated.resources`). Depends on `:popp-sdk`. No iOS framework of its own (consumed by the per-app modules). Namespace `de.servicehealth.poppmodule.demo`.
 - **3rd-party demo** under `popp-demo/popp-3rd-party-app-demo/`:
   - `:popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp` -> Compose-MP library; `App.kt` (commonMain) + `MainViewController.kt` (iosMain) in package `…demo.thirdparty`; depends on `projects.poppDemo.shared`; static iOS framework `Shared3rdPartyApp`. Namespace `…demo.thirdparty.shared`.

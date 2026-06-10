@@ -30,6 +30,29 @@ sealed class PoppSdkError(
      */
     class Protocol(message: String, cause: Throwable? = null) : PoppSdkError(message, cause)
 
+    /**
+     * Card-level failure while talking to the eGK over NFC: PACE establishment, secure
+     * messaging, or the tag connection itself. [reason] lets UIs (POPPM-135) distinguish
+     * "CAN doesn't match this card" from "card moved away" without parsing messages.
+     */
+    class Card(
+        val reason: CardErrorReason,
+        message: String,
+        cause: Throwable? = null,
+    ) : PoppSdkError(message, cause)
+
     /** Catch-all for unexpected failures so they still come through the SDK's error type. */
     class Unknown(message: String, cause: Throwable? = null) : PoppSdkError(message, cause)
+}
+
+/** Why the eGK card channel failed. */
+enum class CardErrorReason {
+    /** PACE mutual authentication failed — the CAN does not belong to the presented card. */
+    WRONG_CAN,
+
+    /** The tag connection dropped mid-exchange (card moved away, NFC I/O error). */
+    CARD_LOST,
+
+    /** PACE/secure-messaging protocol failure: bad MAC, unexpected status word, malformed SM APDU. */
+    SECURE_CHANNEL_FAILED,
 }

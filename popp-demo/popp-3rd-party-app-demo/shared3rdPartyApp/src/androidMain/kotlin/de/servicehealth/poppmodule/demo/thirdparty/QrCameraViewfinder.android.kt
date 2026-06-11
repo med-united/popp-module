@@ -31,6 +31,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.servicehealth.poppmodule.sdk.qr.ScanResult
 import de.servicehealth.poppmodule.theme.BrandTheme
+import org.jetbrains.compose.resources.stringResource
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_rationale
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_allow
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_denied
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_open_settings
 
 @Composable
 actual fun QrCameraViewfinder(
@@ -87,15 +93,15 @@ actual fun QrCameraViewfinder(
 
         CameraPermissionStatus.Denied -> PermissionPanel(
             modifier = modifier,
-            message = "Kamerazugriff wird benötigt, um den Check-in-Code zu scannen.",
-            actionLabel = "Erlauben",
+            message = stringResource(Res.string.camera_permission_rationale),
+            actionLabel = stringResource(Res.string.camera_permission_allow),
             onAction = { permissionLauncher.launch(Manifest.permission.CAMERA) },
         )
 
         CameraPermissionStatus.PermanentlyDenied -> PermissionPanel(
             modifier = modifier,
-            message = "Kamerazugriff ist deaktiviert. Bitte erlauben Sie ihn in den Einstellungen.",
-            actionLabel = "Einstellungen öffnen",
+            message = stringResource(Res.string.camera_permission_denied),
+            actionLabel = stringResource(Res.string.camera_permission_open_settings),
             onAction = { context.findActivity()?.let { openAppSettings(it) } },
         )
     }

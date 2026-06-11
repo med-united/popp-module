@@ -12,6 +12,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.sdk.qr.ScanResult
 import de.servicehealth.poppmodule.theme.BrandTheme
+import org.jetbrains.compose.resources.stringResource
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.qr_scanner_ios_placeholder
 
 @Composable
 actual fun QrCameraViewfinder(
@@ -23,7 +26,7 @@ actual fun QrCameraViewfinder(
     LaunchedEffect(Unit) { onActiveChange(false) }
     Box(modifier.background(c.deep), contentAlignment = Alignment.Center) {
         Text(
-            text = "Kamera-Scanner folgt auf iOS",
+            text = stringResource(Res.string.qr_scanner_ios_placeholder),
             color = c.white,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(16.dp),

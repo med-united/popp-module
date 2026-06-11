@@ -37,6 +37,15 @@ import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
 import androidx.compose.ui.text.style.TextAlign
+import org.jetbrains.compose.resources.stringResource
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_instruction
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_searching
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_code_detected
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_invalid
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_back
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_close
 
 @Composable
 fun OnsiteCheckInQrScannerScreen(
@@ -74,7 +83,7 @@ fun OnsiteCheckInQrScannerScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "QR-Code scannen",
+                    text = stringResource(Res.string.checkin_scanner_title),
                     color = c.white,
                     style = BrandTheme.typography.headlineLarge,
                 )
@@ -82,7 +91,7 @@ fun OnsiteCheckInQrScannerScreen(
                 Spacer(Modifier.height(10.dp))
 
                 Text(
-                    text = "Richten Sie die Kamera auf den Check-in-\nCode der Einrichtung.",
+                    text = stringResource(Res.string.checkin_scanner_instruction),
                     color = c.white.copy(alpha = 0.76f),
                     style = BrandTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
@@ -128,7 +137,7 @@ private fun QrScannerHeader(
         ) {
             Icon(
                 imageVector = Icons.Rounded.ArrowBackIosNew,
-                contentDescription = "Zurück",
+                contentDescription = stringResource(Res.string.checkin_scanner_back),
                 tint = c.white,
                 modifier = Modifier.size(16.dp),
             )
@@ -136,7 +145,7 @@ private fun QrScannerHeader(
             Spacer(Modifier.width(7.dp))
 
             Text(
-                text = "Zurück",
+                text = stringResource(Res.string.checkin_scanner_back),
                 color = c.white,
                 style = BrandTheme.typography.labelLarge,
             )
@@ -163,7 +172,7 @@ private fun QrScannerHeader(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Close,
-                contentDescription = "Schließen",
+                contentDescription = stringResource(Res.string.checkin_scanner_close),
                 tint = c.white,
                 modifier = Modifier.size(22.dp),
             )
@@ -182,7 +191,7 @@ private fun ScanStatus(result: ScanResult?) {
             BrandSpinner(size = 18.dp, color = c.yellow, strokeWidth = 2.5.dp)
             Spacer(Modifier.width(12.dp))
             Text(
-                text = "Suche nach Code...",
+                text = stringResource(Res.string.checkin_scanner_searching),
                 color = c.white.copy(alpha = 0.76f),
                 style = BrandTheme.typography.bodyMedium,
             )
@@ -198,7 +207,7 @@ private fun ScanStatus(result: ScanResult?) {
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Code erkannt",
+                    text = stringResource(Res.string.checkin_scanner_code_detected),
                     color = c.success,
                     style = BrandTheme.typography.titleMedium,
                 )
@@ -213,8 +222,7 @@ private fun ScanStatus(result: ScanResult?) {
         }
 
         is ScanResult.Invalid -> Text(
-            text = "Der gescannte QR-Code ist nicht lesbar, da er fehlerhafte Daten enthält. " +
-                "Bitte informieren Sie umgehend die Einrichtung bei der Sie sich einchecken wollten.",
+            text = stringResource(Res.string.checkin_scanner_invalid),
             color = c.yellow,
             style = BrandTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,

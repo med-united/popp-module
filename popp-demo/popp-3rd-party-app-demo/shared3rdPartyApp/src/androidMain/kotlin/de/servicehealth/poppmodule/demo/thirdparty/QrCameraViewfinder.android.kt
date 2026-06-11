@@ -1,0 +1,137 @@
+package de.servicehealth.poppmodule.demo.thirdparty
+
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.compose.CameraXViewfinder
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import de.servicehealth.poppmodule.sdk.qr.ScanResult
+
+@Composable
+actual fun QrCameraViewfinder(
+    onResult: (ScanResult) -> Unit,
+    onActiveChange: (Boolean) -> Unit,
+    modifier: Modifier,
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val viewModel = viewModel { QrScannerViewModel(context.applicationContext) }
+
+    val currentOnResult by rememberUpdatedState(onResult)
+    val currentOnActiveChange by rememberUpdatedState(onActiveChange)
+
+    val surfaceRequest by viewModel.surfaceRequests.collectAsState()
+    val active = viewModel.permissionStatus == CameraPermissionStatus.Granted && surfaceRequest != null
+    LaunchedEffect(active) { currentOnActiveChange(active) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val canAskAgain = granted ||
+            (context.findActivity()?.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ?: false)
+        viewModel.onPermissionResult(granted, canAskAgain)
+    }
+
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refreshPermission()
+        onPauseOrDispose { }
+    }
+
+    LaunchedEffect(viewModel.permissionStatus) {
+        when (viewModel.permissionStatus) {
+            CameraPermissionStatus.Granted -> viewModel.bindCamera(lifecycleOwner)
+            CameraPermissionStatus.Denied -> permissionLauncher.launch(Manifest.permission.CAMERA)
+            CameraPermissionStatus.PermanentlyDenied -> Unit
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.results.collect { currentOnResult(it) }
+    }
+
+    when (viewModel.permissionStatus) {
+        CameraPermissionStatus.Granted -> {
+            val request = surfaceRequest
+            if (request != null) {
+                CameraXViewfinder(surfaceRequest = request, modifier = modifier)
+            } else {
+                Box(modifier.background(Color.Black))
+            }
+        }
+
+        CameraPermissionStatus.Denied -> PermissionPanel(
+            modifier = modifier,
+            message = "Kamerazugriff wird benötigt, um den Check-in-Code zu scannen.",
+            actionLabel = "Erlauben",
+            onAction = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+        )
+
+        CameraPermissionStatus.PermanentlyDenied -> PermissionPanel(
+            modifier = modifier,
+            message = "Kamerazugriff ist deaktiviert. Bitte erlauben Sie ihn in den Einstellungen.",
+            actionLabel = "Einstellungen öffnen",
+            onAction = { context.findActivity()?.let { openAppSettings(it) } },
+        )
+    }
+}
+
+@Composable
+private fun PermissionPanel(
+    modifier: Modifier,
+    message: String,
+    actionLabel: String,
+    onAction: () -> Unit,
+) {
+    Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Text(text = message, color = Color.White, textAlign = TextAlign.Center)
+            TextButton(onClick = onAction) { Text(actionLabel, color = Color.White) }
+        }
+    }
+}
+
+private fun Context.findActivity(): Activity? {
+    var ctx: Context? = this
+    while (ctx is android.content.ContextWrapper) {
+        if (ctx is Activity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
+}
+
+private fun openAppSettings(activity: Activity) {
+    val intent = Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", activity.packageName, null),
+    )
+    activity.startActivity(intent)
+}

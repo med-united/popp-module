@@ -13,12 +13,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +32,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.sdk.qr.ScanResult
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
@@ -39,6 +45,7 @@ fun OnsiteCheckInQrScannerScreen(
 ) {
     BrandTheme {
         val c = BrandTheme.colors
+        var scanResult by remember { mutableStateOf<ScanResult?>(null) }
 
         Box(
             modifier = Modifier
@@ -84,28 +91,14 @@ fun OnsiteCheckInQrScannerScreen(
 
                 Spacer(Modifier.height(36.dp))
 
-                QrScanFrame()
+                QrScanFrame(
+                    succeeded = scanResult is ScanResult.Valid,
+                    onResult = { scanResult = it },
+                )
 
                 Spacer(Modifier.height(28.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    BrandSpinner(
-                        size = 18.dp,
-                        color = c.yellow,
-                        strokeWidth = 2.5.dp,
-                    )
-
-                    Spacer(Modifier.width(12.dp))
-
-                    Text(
-                        text = "Suche nach Code...",
-                        color = c.white.copy(alpha = 0.76f),
-                        style = BrandTheme.typography.bodyMedium,
-                    )
-                }
+                ScanStatus(result = scanResult)
             }
         }
     }
@@ -179,8 +172,65 @@ private fun QrScannerHeader(
 }
 
 @Composable
-private fun QrScanFrame() {
+private fun ScanStatus(result: ScanResult?) {
     val c = BrandTheme.colors
+    when (result) {
+        null -> Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            BrandSpinner(size = 18.dp, color = c.yellow, strokeWidth = 2.5.dp)
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = "Suche nach Code...",
+                color = c.white.copy(alpha = 0.76f),
+                style = BrandTheme.typography.bodyMedium,
+            )
+        }
+
+        is ScanResult.Valid -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Outlined.CheckCircle,
+                    contentDescription = null,
+                    tint = c.success,
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "Code erkannt",
+                    color = c.success,
+                    style = BrandTheme.typography.titleMedium,
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = result.payload.telematikId +
+                    (result.payload.workplaceId?.let { " · $it" } ?: ""),
+                color = c.white.copy(alpha = 0.76f),
+                style = BrandTheme.typography.bodyMedium,
+            )
+        }
+
+        is ScanResult.Invalid -> Text(
+            text = "Der gescannte QR-Code ist nicht lesbar, da er fehlerhafte Daten enthält. " +
+                "Bitte informieren Sie umgehend die Einrichtung bei der Sie sich einchecken wollten.",
+            color = c.yellow,
+            style = BrandTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun QrScanFrame(
+    succeeded: Boolean,
+    onResult: (ScanResult) -> Unit,
+) {
+    val c = BrandTheme.colors
+
+    var cameraActive by remember { mutableStateOf(false) }
 
     val transition = rememberInfiniteTransition(label = "qr-scan-line")
     val scanY = transition.animateFloat(
@@ -200,12 +250,22 @@ private fun QrScanFrame() {
             .background(c.white.copy(alpha = 0.10f)),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = Icons.Rounded.QrCode2,
-            contentDescription = null,
-            tint = c.white.copy(alpha = 0.36f),
-            modifier = Modifier.size(150.dp),
+        QrCameraViewfinder(
+            onResult = onResult,
+            onActiveChange = { cameraActive = it },
+            modifier = Modifier.matchParentSize(),
         )
+
+        if (cameraActive) {
+            Icon(
+                imageVector = Icons.Rounded.QrCode2,
+                contentDescription = null,
+                tint = c.white.copy(alpha = 0.36f),
+                modifier = Modifier.size(150.dp),
+            )
+        }
+
+        val cornerColor = if (succeeded) c.success else c.yellow
 
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 4.dp.toPx()
@@ -214,40 +274,42 @@ private fun QrScanFrame() {
             val w = size.width
             val h = size.height
 
-            drawLine(c.yellow, Offset(inset, inset), Offset(cornerLength, inset), strokeWidth, StrokeCap.Square)
-            drawLine(c.yellow, Offset(inset, inset), Offset(inset, cornerLength), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(inset, inset), Offset(cornerLength, inset), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(inset, inset), Offset(inset, cornerLength), strokeWidth, StrokeCap.Square)
 
-            drawLine(c.yellow, Offset(w - cornerLength, inset), Offset(w - inset, inset), strokeWidth, StrokeCap.Square)
-            drawLine(c.yellow, Offset(w - inset, inset), Offset(w - inset, cornerLength), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(w - cornerLength, inset), Offset(w - inset, inset), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(w - inset, inset), Offset(w - inset, cornerLength), strokeWidth, StrokeCap.Square)
 
-            drawLine(c.yellow, Offset(inset, h - inset), Offset(cornerLength, h - inset), strokeWidth, StrokeCap.Square)
-            drawLine(c.yellow, Offset(inset, h - cornerLength), Offset(inset, h - inset), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(inset, h - inset), Offset(cornerLength, h - inset), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(inset, h - cornerLength), Offset(inset, h - inset), strokeWidth, StrokeCap.Square)
 
-            drawLine(c.yellow, Offset(w - cornerLength, h - inset), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
-            drawLine(c.yellow, Offset(w - inset, h - cornerLength), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(w - cornerLength, h - inset), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
+            drawLine(cornerColor, Offset(w - inset, h - cornerLength), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
 
-            val y = h * scanY.value
-            drawLine(
-                color = c.yellow.copy(alpha = 0.85f),
-                start = Offset(16.dp.toPx(), y),
-                end = Offset(w - 16.dp.toPx(), y),
-                strokeWidth = 2.dp.toPx(),
-                cap = StrokeCap.Round,
-            )
+            if (cameraActive && !succeeded) {
+                val y = h * scanY.value
+                drawLine(
+                    color = c.yellow.copy(alpha = 0.85f),
+                    start = Offset(16.dp.toPx(), y),
+                    end = Offset(w - 16.dp.toPx(), y),
+                    strokeWidth = 2.dp.toPx(),
+                    cap = StrokeCap.Round,
+                )
 
-            drawRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        c.yellow.copy(alpha = 0f),
-                        c.yellow.copy(alpha = 0.24f),
-                        c.yellow.copy(alpha = 0f),
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            c.yellow.copy(alpha = 0f),
+                            c.yellow.copy(alpha = 0.24f),
+                            c.yellow.copy(alpha = 0f),
+                        ),
+                        startY = y - 24.dp.toPx(),
+                        endY = y + 24.dp.toPx(),
                     ),
-                    startY = y - 24.dp.toPx(),
-                    endY = y + 24.dp.toPx(),
-                ),
-                topLeft = Offset(0f, y - 24.dp.toPx()),
-                size = Size(w, 48.dp.toPx()),
-            )
+                    topLeft = Offset(0f, y - 24.dp.toPx()),
+                    size = Size(w, 48.dp.toPx()),
+                )
+            }
         }
     }
 }

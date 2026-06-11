@@ -9,6 +9,7 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.compose.CameraXViewfinder
+import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,7 +86,11 @@ actual fun QrCameraViewfinder(
         CameraPermissionStatus.Granted -> {
             val request = surfaceRequest
             if (request != null) {
-                CameraXViewfinder(surfaceRequest = request, modifier = modifier)
+                CameraXViewfinder(
+                    surfaceRequest = request,
+                    modifier = modifier,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                )
             } else {
                 Box(modifier.background(c.deep))
             }

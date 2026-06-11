@@ -67,7 +67,7 @@ class PoppSdk(
     /** Smoke-tests connectivity to the PoPP service via the device ZETA engine. */
     suspend fun hello() {
         val result = ensureDeviceEngine().hello()
-        println("Hello Zeta: $result")
+        println("Hello Zeta: $result") // TODO replace with real logging
     }
 
     private suspend fun ensureDeviceEngine(): ZetaEngine {
@@ -137,7 +137,7 @@ class PoppSdk(
             ),
             scopes = listOf("openid"),
             requiredRoleOid = REQUIRED_ROLE_OID,
-            tokenProvider = TokenProviderConfig.Egk(PoppSubjectTokenProvider { error("eGK not yet implemented") }),
+            tokenProvider = TokenProviderConfig.Egk { error("eGK not yet implemented") },
         )
         val e = createZetaEngine(engineConfig, storage)
         try {

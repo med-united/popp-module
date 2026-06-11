@@ -26,7 +26,7 @@ class PoppSdkConfigTest {
         requiredRoleOid = requiredRoleOid,
         tokenLifetimeSeconds = tokenLifetimeSeconds,
         tokenProvider = TokenProviderConfig.Egk(
-            provider = PoppSubjectTokenProvider { "stub-token" }
+            provider = { "stub-token" }
         ),
     )
 
@@ -131,7 +131,7 @@ class TokenProviderConfigTest {
     @Test
     fun egk_provider_constructs() {
         val provider = TokenProviderConfig.Egk(
-            provider = PoppSubjectTokenProvider { "stub" }
+            provider = { "stub" }
         )
         assertTrue(provider is TokenProviderConfig.Egk)
     }
@@ -139,7 +139,7 @@ class TokenProviderConfigTest {
     @Test
     fun gesundheitsId_provider_constructs() {
         val provider = TokenProviderConfig.GesundheitsId(
-            provider = PoppSubjectTokenProvider { "stub" }
+            provider = { "stub" }
         )
         assertTrue(provider is TokenProviderConfig.GesundheitsId)
     }

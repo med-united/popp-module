@@ -4,7 +4,7 @@ package de.servicehealth.poppmodule.sdk
  * Configuration passed to the underlying ZETA engines. Carries everything the
  * ZETA client needs to register, attest, and authenticate at the ZETA Guard.
  *
- * This is an internal type. Host apps configure the SDK via [PoppSdkAppConfig].
+ * This is an internal type.
  */
 internal data class PoppSdkConfig(
     val fqdn: String,

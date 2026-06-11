@@ -115,25 +115,8 @@ class PoppSdkEnsureEngineTest {
     }
 
     @Test
-    fun status_with_fqdn_but_no_appConfig_reports_missing_appConfig() = runTest {
+    fun status_with_fqdn_but_no_context_reports_missing_context() = runTest {
         val sdk = PoppSdk()
-        sdk.init("wss://popp.example.test")
-        val error = assertFailsWith<PoppSdkError.Configuration> { sdk.status() }
-        assertTrue(
-            error.message!!.contains("PoppSdkAppConfig"),
-            "Expected appConfig error but got: ${error.message}",
-        )
-    }
-
-    @Test
-    fun status_with_fqdn_and_appConfig_but_no_context_reports_missing_context() = runTest {
-        val sdk = PoppSdk(
-            appConfig = PoppSdkAppConfig(
-                clientName = "test",
-                platformIdentity = PlatformIdentity.Android("pkg", listOf("AA")),
-                tokenProvider = TokenProviderConfig.Egk(PoppSubjectTokenProvider { "stub" }),
-            )
-        )
         sdk.init("wss://popp.example.test")
         val error = assertFailsWith<PoppSdkError.Configuration> { sdk.status() }
         assertTrue(
@@ -159,40 +142,5 @@ class TokenProviderConfigTest {
             provider = PoppSubjectTokenProvider { "stub" }
         )
         assertTrue(provider is TokenProviderConfig.GesundheitsId)
-    }
-}
-
-class PoppSdkAppConfigTest {
-
-    private fun validAppConfig(
-        clientName: String = "popp-test-client",
-        tokenLifetimeSeconds: Long = 300,
-    ) = PoppSdkAppConfig(
-        clientName = clientName,
-        platformIdentity = PlatformIdentity.Android(
-            packageName = "de.servicehealth.poppmodule",
-            sha256CertFingerprints = listOf("AA:BB:CC"),
-        ),
-        tokenProvider = TokenProviderConfig.Egk(
-            provider = PoppSubjectTokenProvider { "stub-token" }
-        ),
-        tokenLifetimeSeconds = tokenLifetimeSeconds,
-    )
-
-    @Test
-    fun valid_appConfig_constructs() {
-        val cfg = validAppConfig()
-        assertEquals("popp-test-client", cfg.clientName)
-        assertEquals(AttestationStrategy.Software, cfg.attestation)
-    }
-
-    @Test
-    fun blank_clientName_is_rejected() {
-        assertFailsWith<IllegalArgumentException> { validAppConfig(clientName = "") }
-    }
-
-    @Test
-    fun zero_token_lifetime_is_rejected() {
-        assertFailsWith<IllegalArgumentException> { validAppConfig(tokenLifetimeSeconds = 0) }
     }
 }

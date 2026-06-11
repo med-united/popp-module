@@ -107,9 +107,6 @@ class PoppSdk(
             ),
             scopes = listOf("openid"),
             requiredRoleOid = REQUIRED_ROLE_OID,
-            tokenLifetimeSeconds = 300,
-            aslProdEnvironment = config.aslProdEnvironment,
-            attestation = config.attestation,
             tokenProvider = DeviceOnly,
         )
         
@@ -140,9 +137,6 @@ class PoppSdk(
             ),
             scopes = listOf("openid"),
             requiredRoleOid = REQUIRED_ROLE_OID,
-            tokenLifetimeSeconds = 300,
-            aslProdEnvironment = config.aslProdEnvironment,
-            attestation = config.attestation,
             tokenProvider = TokenProviderConfig.Egk(PoppSubjectTokenProvider { error("eGK not yet implemented") }),
         )
         val e = createZetaEngine(engineConfig, storage)

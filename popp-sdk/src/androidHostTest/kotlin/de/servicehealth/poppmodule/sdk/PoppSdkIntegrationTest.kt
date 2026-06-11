@@ -44,20 +44,8 @@ class PoppSdkIntegrationTest {
         val fqdn = System.getProperty(FQDN_PROPERTY)
         assertNotNull(fqdn, "Must pass -D$FQDN_PROPERTY=<wss://...> to run the test.")
 
-        val appConfig = PoppSdkAppConfig(
-            clientName = "popp-sdk-integration-test",
-            platformIdentity = PlatformIdentity.Android(
-                packageName = "de.servicehealth.poppmodule",
-                sha256CertFingerprints = listOf("AA:BB:CC"),
-            ),
-            tokenProvider = TokenProviderConfig.Egk(
-                provider = PoppSubjectTokenProvider { error("user engine not exercised in this test") }
-            ),
-        )
-
         val sdk = PoppSdk(
             context = PoppSdkContext(RuntimeEnvironment.getApplication()),
-            appConfig = appConfig,
             storageOverride = InMemorySecureStorage(),
         )
         sdk.init(fqdn)

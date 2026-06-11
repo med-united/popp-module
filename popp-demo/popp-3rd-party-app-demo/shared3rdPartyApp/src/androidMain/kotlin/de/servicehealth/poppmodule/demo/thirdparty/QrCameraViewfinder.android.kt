@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,6 +30,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.servicehealth.poppmodule.sdk.qr.ScanResult
+import de.servicehealth.poppmodule.theme.BrandTheme
 
 @Composable
 actual fun QrCameraViewfinder(
@@ -41,6 +41,7 @@ actual fun QrCameraViewfinder(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModel = viewModel { QrScannerViewModel(context.applicationContext) }
+    val c = BrandTheme.colors
 
     val currentOnResult by rememberUpdatedState(onResult)
     val currentOnActiveChange by rememberUpdatedState(onActiveChange)
@@ -80,7 +81,7 @@ actual fun QrCameraViewfinder(
             if (request != null) {
                 CameraXViewfinder(surfaceRequest = request, modifier = modifier)
             } else {
-                Box(modifier.background(Color.Black))
+                Box(modifier.background(c.deep))
             }
         }
 
@@ -107,14 +108,26 @@ private fun PermissionPanel(
     actionLabel: String,
     onAction: () -> Unit,
 ) {
-    Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
+    val c = BrandTheme.colors
+    Box(modifier.background(c.deep), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(16.dp),
         ) {
-            Text(text = message, color = Color.White, textAlign = TextAlign.Center)
-            TextButton(onClick = onAction) { Text(actionLabel, color = Color.White) }
+            Text(
+                text = message,
+                color = c.white.copy(alpha = 0.76f),
+                style = BrandTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
+            TextButton(onClick = onAction) {
+                Text(
+                    text = actionLabel,
+                    color = c.yellow,
+                    style = BrandTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }

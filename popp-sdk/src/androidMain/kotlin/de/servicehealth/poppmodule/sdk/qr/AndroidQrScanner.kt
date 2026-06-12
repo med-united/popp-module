@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
 
 class AndroidQrScanner(private val context: Context) : PoppQrScanner {
 
@@ -49,6 +50,8 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
     private var cameraProvider: ProcessCameraProvider? = null
 
     private var boundUseCases: Array<UseCase> = emptyArray()
+
+    private val inFlightProxy = AtomicReference<ImageProxy?>(null)
 
     suspend fun bindToCamera(lifecycleOwner: LifecycleOwner) {
         val provider = ProcessCameraProvider.awaitInstance(context)
@@ -81,6 +84,7 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
             imageProxy.close()
             return
         }
+        inFlightProxy.set(imageProxy)
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
         barcodeScanner.process(image)
             .addOnSuccessListener { barcodes ->
@@ -94,13 +98,18 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
                 }
                 _results.tryEmit(result)
             }
-            .addOnCompleteListener { imageProxy.close() }
+            .addOnCompleteListener {
+                if (inFlightProxy.compareAndSet(imageProxy, null)) {
+                    imageProxy.close()
+                }
+            }
     }
 
     override fun close() {
         cameraProvider?.unbind(*boundUseCases)
         boundUseCases = emptyArray()
         cameraProvider = null
+        inFlightProxy.getAndSet(null)?.close()
         barcodeScanner.close()
         analysisExecutor.shutdown()
     }

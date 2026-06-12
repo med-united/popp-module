@@ -9,7 +9,7 @@ import io.ktor.client.HttpClient
  * posture (see `UnsupportedZetaEngine`). `checkInWithEgk` never reaches here on iOS — `PoppSdk.start`
  * already throws `PlatformUnsupported` there — but the `actual` is required for the module to link.
  */
-internal actual fun createPoppWebSocketClient(disableTlsValidation: Boolean): HttpClient =
+internal actual fun createPoppWebSocketClient(trustedCaPem: String?): HttpClient =
     throw PoppSdkError.PlatformUnsupported(
         "WebSocketScenarioTransport has no iOS engine yet (Ktor Darwin engine deferred).",
     )

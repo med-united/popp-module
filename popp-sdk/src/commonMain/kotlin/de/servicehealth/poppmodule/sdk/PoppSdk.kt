@@ -25,16 +25,16 @@ import kotlin.uuid.Uuid
  */
 class PoppSdk internal constructor(
     private val engine: ZetaEngine?,
-    private val poppServiceUrl: String?,
-    private val devDisableTlsValidation: Boolean,
-    private val transportFactory: (url: String, disableTlsValidation: Boolean) -> PoppServiceTransport,
+    private val fqdn: String?,
+    private val trustedCaPem: String?,
+    private val transportFactory: (url: String, trustedCaPem: String?) -> PoppServiceTransport,
     private val newSessionId: () -> String,
 ) {
 
     constructor() : this(
         engine = null,
-        poppServiceUrl = null,
-        devDisableTlsValidation = false,
+        fqdn = null,
+        trustedCaPem = null,
         transportFactory = ::defaultTransportFactory,
         newSessionId = ::defaultSessionId,
     )
@@ -49,24 +49,22 @@ class PoppSdk internal constructor(
 
     /**
      * Runs the eGK scenario read loop (POPPM-118, gemSpec_PoPP_Modul §3.3.7) against the
-     * PoPP-Service and returns a PoPP token. Requires a started SDK and a configured
-     * [PoppSdkConfig.poppServiceUrl]. Drives [channel] for each command APDU; reports [onProgress].
+     * PoPP-Service at [PoppSdkConfig.fqdn] and returns a PoPP token. Requires a started SDK.
+     * Drives [channel] for each command APDU; reports [onProgress].
      *
      * Business failure (server `Error`) → [EgkCheckInResult.Failed]. Infrastructure failure (socket,
      * TLS, serialization, status-word mismatch, timeout) → [PoppSdkError].
      *
-     * @throws PoppSdkError.Configuration if the SDK is not started or no `poppServiceUrl` is set.
+     * @throws PoppSdkError.Configuration if the SDK is not started.
      */
     suspend fun checkInWithEgk(
         channel: EgkApduChannel,
         onProgress: (EgkProgress) -> Unit = {},
     ): EgkCheckInResult {
-        if (engine == null) {
+        if (engine == null || fqdn == null) {
             throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
         }
-        val url = poppServiceUrl
-            ?: throw PoppSdkError.Configuration("poppServiceUrl not configured in PoppSdkConfig")
-        val transport = transportFactory(url, devDisableTlsValidation)
+        val transport = transportFactory(fqdn, trustedCaPem)
         return EgkReadDriver(transport, channel, newSessionId).run(onProgress)
     }
 
@@ -101,8 +99,8 @@ class PoppSdk internal constructor(
             }
             return PoppSdk(
                 engine = engine,
-                poppServiceUrl = config.poppServiceUrl,
-                devDisableTlsValidation = config.devDisableTlsValidation,
+                fqdn = config.fqdn,
+                trustedCaPem = config.trustedCaPem,
                 transportFactory = ::defaultTransportFactory,
                 newSessionId = ::defaultSessionId,
             )
@@ -110,8 +108,8 @@ class PoppSdk internal constructor(
     }
 }
 
-private fun defaultTransportFactory(url: String, disableTlsValidation: Boolean): PoppServiceTransport =
-    WebSocketScenarioTransport(createPoppWebSocketClient(disableTlsValidation), url)
+private fun defaultTransportFactory(url: String, trustedCaPem: String?): PoppServiceTransport =
+    WebSocketScenarioTransport(createPoppWebSocketClient(trustedCaPem), url)
 
 @OptIn(ExperimentalUuidApi::class)
 private fun defaultSessionId(): String = Uuid.random().toString()

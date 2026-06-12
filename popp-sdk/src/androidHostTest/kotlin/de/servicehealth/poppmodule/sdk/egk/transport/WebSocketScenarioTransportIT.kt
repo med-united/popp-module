@@ -44,8 +44,11 @@ class WebSocketScenarioTransportIT {
         val url = System.getenv("POPP_WS_URL")
         assumeTrue("POPP_WS_URL not set — skipping local docker IT", url != null && url.isNotBlank())
 
+        // POPP_CA_PEM_FILE (optional): CA certificate to trust when pointing at the wss:// ingress;
+        // unnecessary for the default plain ws://localhost:8443 path.
+        val caPem = System.getenv("POPP_CA_PEM_FILE")?.let { java.io.File(it).readText() }
         val transport = WebSocketScenarioTransport(
-            client = createPoppWebSocketClient(disableTlsValidation = true),
+            client = createPoppWebSocketClient(trustedCaPem = caPem),
             url = url!!,
         )
         runBlocking {

@@ -10,6 +10,12 @@ package de.servicehealth.poppmodule.sdk
  * internally by the platform engine.
  */
 data class PoppSdkConfig(
+    /**
+     * Fully Qualified Domain Name (including scheme and path) of the PoPP service, e.g.
+     * `wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc`.
+     * Used both as the ZETA resource and as the WebSocket "scenario" endpoint for
+     * [PoppSdk.checkInWithEgk].
+     */
     val fqdn: String,
     val productId: String,
     val productVersion: String,
@@ -22,16 +28,11 @@ data class PoppSdkConfig(
     val attestation: AttestationStrategy = AttestationStrategy.Software,
     val tokenProvider: TokenProviderConfig,
     /**
-     * PoPP-Service WebSocket "scenario" endpoint (e.g. `wss://popp.dev.poppservice.de:443/popp/...`
-     * for RISE, or `wss://localhost:443/ws` for the local docker stack). Required for
-     * [PoppSdk.checkInWithEgk]; may be null for hosts that only use the ZETA status flow.
+     * DEV/TEST ONLY: PEM-encoded CA certificate the eGK WebSocket transport trusts instead of the
+     * platform trust store, so it can reach the self-signed local docker ingress without disabling
+     * TLS validation. Must be null in production (platform trust store applies).
      */
-    val poppServiceUrl: String? = null,
-    /**
-     * DEV/TEST ONLY: when true, the eGK transport trusts any server TLS certificate so it can reach
-     * the self-signed local docker ingress. Must be false in production.
-     */
-    val devDisableTlsValidation: Boolean = false,
+    val trustedCaPem: String? = null,
 ) {
     init {
         require(fqdn.isNotBlank()) { "fqdn must not be blank" }

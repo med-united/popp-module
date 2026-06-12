@@ -45,6 +45,9 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.websockets)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
         androidMain.dependencies {
             // zeta-sdk 1.0.1 currently publishes only JVM + Android variants on Maven Central,
@@ -52,7 +55,8 @@ kotlin {
             // iOS native variant becomes available.
             implementation(libs.gematik.zetaSdk)
             implementation(libs.androidx.security.crypto)
-
+            // Ktor JVM/Android engine for the WebSocket scenario transport.
+            implementation(libs.ktor.client.cio)
             api(libs.androidx.camera.core) // because AndroidQrScanner exposes SurfaceRequest publicly
             implementation(libs.androidx.camera.camera2)
             implementation(libs.androidx.camera.lifecycle)
@@ -60,6 +64,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

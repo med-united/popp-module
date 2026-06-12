@@ -70,7 +70,7 @@ actual fun QrCameraViewfinder(
         onPauseOrDispose { }
     }
 
-    LaunchedEffect(viewModel.permissionStatus) {
+    LaunchedEffect(viewModel.permissionStatus, lifecycleOwner) {
         when (viewModel.permissionStatus) {
             CameraPermissionStatus.Granted -> viewModel.bindCamera(lifecycleOwner)
             CameraPermissionStatus.Denied -> permissionLauncher.launch(Manifest.permission.CAMERA)

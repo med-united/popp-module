@@ -12,6 +12,7 @@ object Routes {
     const val CHECK_IN_QR = "check_in_qr"
     const val ARG_SCENARIO = "scenario"
     const val INSTITUTION_SEARCH = "institution_search"
+    const val CONFIRM_INSTITUTION = "confirm_institution"
 
     fun integratedHome(scenario: String) = "$INTEGRATED_HOME?$ARG_SCENARIO=$scenario"
     fun appToAppHome(scenario: String) = "$APP_TO_APP_HOME?$ARG_SCENARIO=$scenario"

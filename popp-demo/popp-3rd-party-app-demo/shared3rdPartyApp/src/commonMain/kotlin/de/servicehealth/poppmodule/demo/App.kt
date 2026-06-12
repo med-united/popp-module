@@ -16,6 +16,7 @@ import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
 @Composable
@@ -68,6 +69,13 @@ fun App() {
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }
+                composable(Routes.CONFIRM_INSTITUTION) {
+                    ConfirmInstitutionScreen(
+                        onConfirm = { /* TODO: navigate to auth flow */ },
+                        onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+    )
+}
             }
         }
     }

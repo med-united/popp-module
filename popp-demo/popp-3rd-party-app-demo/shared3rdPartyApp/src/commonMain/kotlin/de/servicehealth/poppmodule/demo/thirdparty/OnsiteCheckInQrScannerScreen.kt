@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.sdk.qr.ScanResult
@@ -240,17 +241,6 @@ private fun QrScanFrame(
 
     var cameraActive by remember { mutableStateOf(false) }
 
-    val transition = rememberInfiniteTransition(label = "qr-scan-line")
-    val scanY = transition.animateFloat(
-        initialValue = 0.28f,
-        targetValue = 0.72f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1700, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "qr-scan-line-y",
-    )
-
     Box(
         modifier = Modifier
             .size(260.dp)
@@ -273,51 +263,75 @@ private fun QrScanFrame(
             )
         }
 
-        val cornerColor = if (succeeded) c.success else c.yellow
+        ScanCorners(color = if (succeeded) c.success else c.yellow)
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 4.dp.toPx()
-            val cornerLength = 40.dp.toPx()
-            val inset = 2.dp.toPx()
-            val w = size.width
-            val h = size.height
-
-            drawLine(cornerColor, Offset(inset, inset), Offset(cornerLength, inset), strokeWidth, StrokeCap.Square)
-            drawLine(cornerColor, Offset(inset, inset), Offset(inset, cornerLength), strokeWidth, StrokeCap.Square)
-
-            drawLine(cornerColor, Offset(w - cornerLength, inset), Offset(w - inset, inset), strokeWidth, StrokeCap.Square)
-            drawLine(cornerColor, Offset(w - inset, inset), Offset(w - inset, cornerLength), strokeWidth, StrokeCap.Square)
-
-            drawLine(cornerColor, Offset(inset, h - inset), Offset(cornerLength, h - inset), strokeWidth, StrokeCap.Square)
-            drawLine(cornerColor, Offset(inset, h - cornerLength), Offset(inset, h - inset), strokeWidth, StrokeCap.Square)
-
-            drawLine(cornerColor, Offset(w - cornerLength, h - inset), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
-            drawLine(cornerColor, Offset(w - inset, h - cornerLength), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
-
-            if (cameraActive && !succeeded) {
-                val y = h * scanY.value
-                drawLine(
-                    color = c.yellow.copy(alpha = 0.85f),
-                    start = Offset(16.dp.toPx(), y),
-                    end = Offset(w - 16.dp.toPx(), y),
-                    strokeWidth = 2.dp.toPx(),
-                    cap = StrokeCap.Round,
-                )
-
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            c.yellow.copy(alpha = 0f),
-                            c.yellow.copy(alpha = 0.24f),
-                            c.yellow.copy(alpha = 0f),
-                        ),
-                        startY = y - 24.dp.toPx(),
-                        endY = y + 24.dp.toPx(),
-                    ),
-                    topLeft = Offset(0f, y - 24.dp.toPx()),
-                    size = Size(w, 48.dp.toPx()),
-                )
-            }
+        if (cameraActive && !succeeded) {
+            ScanLine(color = c.yellow)
         }
+    }
+}
+
+@Composable
+private fun ScanCorners(color: Color) {
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val strokeWidth = 4.dp.toPx()
+        val cornerLength = 40.dp.toPx()
+        val inset = 2.dp.toPx()
+        val w = size.width
+        val h = size.height
+
+        drawLine(color, Offset(inset, inset), Offset(cornerLength, inset), strokeWidth, StrokeCap.Square)
+        drawLine(color, Offset(inset, inset), Offset(inset, cornerLength), strokeWidth, StrokeCap.Square)
+
+        drawLine(color, Offset(w - cornerLength, inset), Offset(w - inset, inset), strokeWidth, StrokeCap.Square)
+        drawLine(color, Offset(w - inset, inset), Offset(w - inset, cornerLength), strokeWidth, StrokeCap.Square)
+
+        drawLine(color, Offset(inset, h - inset), Offset(cornerLength, h - inset), strokeWidth, StrokeCap.Square)
+        drawLine(color, Offset(inset, h - cornerLength), Offset(inset, h - inset), strokeWidth, StrokeCap.Square)
+
+        drawLine(color, Offset(w - cornerLength, h - inset), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
+        drawLine(color, Offset(w - inset, h - cornerLength), Offset(w - inset, h - inset), strokeWidth, StrokeCap.Square)
+    }
+}
+
+@Composable
+private fun ScanLine(color: Color) {
+    val transition = rememberInfiniteTransition(label = "qr-scan-line")
+    val scanY = transition.animateFloat(
+        initialValue = 0.28f,
+        targetValue = 0.72f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1700, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "qr-scan-line-y",
+    )
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val w = size.width
+        val h = size.height
+        val y = h * scanY.value
+
+        drawLine(
+            color = color.copy(alpha = 0.85f),
+            start = Offset(16.dp.toPx(), y),
+            end = Offset(w - 16.dp.toPx(), y),
+            strokeWidth = 2.dp.toPx(),
+            cap = StrokeCap.Round,
+        )
+
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    color.copy(alpha = 0f),
+                    color.copy(alpha = 0.24f),
+                    color.copy(alpha = 0f),
+                ),
+                startY = y - 24.dp.toPx(),
+                endY = y + 24.dp.toPx(),
+            ),
+            topLeft = Offset(0f, y - 24.dp.toPx()),
+            size = Size(w, 48.dp.toPx()),
+        )
     }
 }

@@ -27,9 +27,7 @@ class QrScannerViewModel(private val appContext: Context) : ViewModel() {
     val results: Flow<ScanResult> get() = scanner.results
 
     fun refreshPermission() {
-        if (permissionStatus != CameraPermissionStatus.Granted) {
-            permissionStatus = readSystemStatus()
-        }
+        permissionStatus = readSystemStatus()
     }
 
     fun onPermissionResult(granted: Boolean, canAskAgain: Boolean) {

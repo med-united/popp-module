@@ -12,6 +12,7 @@ plugins {
 dependencies {
     kover(projects.poppSdk)
     kover(projects.poppDemo.shared)
+    kover(projects.poppDemo.popp3rdPartyAppDemo.shared3rdPartyApp)
 }
 
 kover {

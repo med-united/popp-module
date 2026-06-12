@@ -96,9 +96,10 @@ class PoppSdkErrorTest {
             PoppSdkError.Attestation("att", cause),
             PoppSdkError.Configuration("cfg", cause),
             PoppSdkError.PlatformUnsupported("pf"),
+            PoppSdkError.Protocol("proto", cause),
             PoppSdkError.Unknown("u", cause),
         )
-        assertEquals(listOf("net", "att", "cfg", "pf", "u"), errs.map { it.message })
+        assertEquals(listOf("net", "att", "cfg", "pf", "proto", "u"), errs.map { it.message })
     }
 }
 

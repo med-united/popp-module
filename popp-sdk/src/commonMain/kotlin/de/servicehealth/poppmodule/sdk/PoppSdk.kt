@@ -1,16 +1,25 @@
 package de.servicehealth.poppmodule.sdk
 
+import de.servicehealth.poppmodule.sdk.egk.EgkApduChannel
+import de.servicehealth.poppmodule.sdk.egk.EgkCheckInResult
+import de.servicehealth.poppmodule.sdk.egk.EgkProgress
+import de.servicehealth.poppmodule.sdk.egk.EgkReadDriver
+import de.servicehealth.poppmodule.sdk.egk.PoppServiceTransport
+import de.servicehealth.poppmodule.sdk.egk.transport.WebSocketScenarioTransport
+import de.servicehealth.poppmodule.sdk.egk.transport.createPoppWebSocketClient
 import de.servicehealth.poppmodule.sdk.internal.ZetaEngine
 import de.servicehealth.poppmodule.sdk.internal.createZetaEngine
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 import de.servicehealth.poppmodule.sdk.storage.createSecureStorage
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
  * Public entry point of the PoPP SDK exposed to host apps.
  *
- * All HTTP requests required by the TI 2.0 / PoPP flow (VZD search, eGK / GID
+ * All HTTP/WebSocket requests required by the TI 2.0 / PoPP flow (VZD search, eGK / GID
  * check-in, token retrieval, …) must go through the ZETA Guard proxy on the
  * device. This façade owns the lifecycle of the underlying ZETA clients and
  * exposes a small surface to host apps; under the hood it delegates to the
@@ -70,6 +79,27 @@ class PoppSdk(
         println("Hello Zeta: $result") // TODO replace with real logging
     }
 
+    /**
+     * Runs the eGK scenario read loop (POPPM-118, gemSpec_PoPP_Modul §3.3.7) against the
+     * PoPP-Service at [PoppSdkConfig.fqdn] and returns a PoPP token. Requires a started SDK.
+     * Drives [channel] for each command APDU; reports [onProgress].
+     *
+     * Business failure (server `Error`) → [EgkCheckInResult.Failed]. Infrastructure failure (socket,
+     * TLS, serialization, status-word mismatch, timeout) → [PoppSdkError].
+     *
+     * @throws PoppSdkError.Configuration if the SDK is not started.
+     */
+    suspend fun checkInWithEgk(
+        channel: EgkApduChannel,
+        onProgress: (EgkProgress) -> Unit = {},
+    ): EgkCheckInResult {
+        if (engine == null || fqdn == null) {
+            throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
+        }
+        val transport = transportFactory(fqdn, trustedCaPem)
+        return EgkReadDriver(transport, channel, newSessionId).run(onProgress)
+    }
+
     private suspend fun ensureDeviceEngine(): ZetaEngine {
         deviceEngine?.let { return it }
         return deviceMutex.withLock {
@@ -109,7 +139,7 @@ class PoppSdk(
             requiredRoleOid = REQUIRED_ROLE_OID,
             tokenProvider = DeviceOnly,
         )
-        
+
         val e = createZetaEngine(engineConfig, storage)
         try {
             e.start()
@@ -158,3 +188,9 @@ class PoppSdk(
         const val VERSION: String = "0.0.1"
     }
 }
+
+private fun defaultTransportFactory(url: String, trustedCaPem: String?): PoppServiceTransport =
+    WebSocketScenarioTransport(createPoppWebSocketClient(trustedCaPem), url)
+
+@OptIn(ExperimentalUuidApi::class)
+private fun defaultSessionId(): String = Uuid.random().toString()

@@ -20,6 +20,7 @@ kover {
             excludes {
                 classes("*.generated.resources.*") // Res, fonts, drawables,...
                 classes("*ComposableSingletons*")
+                classes("de.servicehealth.poppmodule.sdk.qr.AndroidQrScanner*")
             }
         }
     }

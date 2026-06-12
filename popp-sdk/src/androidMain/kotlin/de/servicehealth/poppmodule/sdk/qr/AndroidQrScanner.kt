@@ -8,6 +8,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.lifecycle.LifecycleOwner
@@ -47,6 +48,8 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
 
     private var cameraProvider: ProcessCameraProvider? = null
 
+    private var boundUseCases: Array<UseCase> = emptyArray()
+
     suspend fun bindToCamera(lifecycleOwner: LifecycleOwner) {
         val provider = ProcessCameraProvider.awaitInstance(context)
         cameraProvider = provider
@@ -60,13 +63,15 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
             .build()
             .apply { setAnalyzer(analysisExecutor, ::analyze) }
 
-        provider.unbindAll()
+        if (boundUseCases.isNotEmpty()) provider.unbind(*boundUseCases)
+
         provider.bindToLifecycle(
             lifecycleOwner,
             CameraSelector.DEFAULT_BACK_CAMERA,
             preview,
             analysis,
         )
+        boundUseCases = arrayOf(preview, analysis)
     }
 
     @OptIn(ExperimentalGetImage::class)
@@ -93,7 +98,8 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
     }
 
     override fun close() {
-        cameraProvider?.unbindAll()
+        cameraProvider?.unbind(*boundUseCases)
+        boundUseCases = emptyArray()
         cameraProvider = null
         barcodeScanner.close()
         analysisExecutor.shutdown()

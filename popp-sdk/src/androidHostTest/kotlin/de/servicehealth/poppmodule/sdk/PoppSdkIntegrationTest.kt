@@ -2,7 +2,10 @@ package de.servicehealth.poppmodule.sdk
 
 import de.servicehealth.poppmodule.sdk.PoppSdkIntegrationTest.Companion.FQDN_PROPERTY
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -10,6 +13,7 @@ import org.robolectric.annotation.Config
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 /**
  * Integration tests that exercise the full PoPP SDK stack against a real server.
@@ -52,6 +56,38 @@ class PoppSdkIntegrationTest {
 
         runBlocking { sdk.hello() }
     }
+
+    /**
+     * A_28507: init() alone must establish the ZETA client. The poll waits for
+     * a registration artifact (zeta-sdk persists it under a key containing
+     * "registration") — discovery-only writes do not count, so a failed
+     * registration cannot mask as success.
+     */
+    @Test
+    fun init_alone_registers_zeta_client() {
+        val fqdn = System.getProperty(FQDN_PROPERTY)
+        assertNotNull(fqdn, "Must pass -D$FQDN_PROPERTY=<wss://...> to run the test.")
+
+        val storage = InMemorySecureStorage()
+        val sdk = PoppSdk(
+            context = PoppSdkContext(RuntimeEnvironment.getApplication()),
+            storageOverride = storage,
+        )
+        sdk.init(fqdn)
+
+        runBlocking {
+            try {
+                withTimeout(60_000) {
+                    while (storage.keys().none { it.contains("registration") }) delay(500)
+                }
+            } catch (e: TimeoutCancellationException) {
+                fail(
+                    "init() never caused the ZETA client to persist registration state " +
+                        "within 60s (persisted keys: ${storage.keys()})"
+                )
+            }
+        }
+    }
 }
 
 private class InMemorySecureStorage : SecureStorage {
@@ -60,4 +96,5 @@ private class InMemorySecureStorage : SecureStorage {
     override suspend fun get(key: String): String? = map[key]
     override suspend fun remove(key: String) { map.remove(key) }
     override suspend fun clear() { map.clear() }
+    fun keys(): Set<String> = map.keys.toSet()
 }

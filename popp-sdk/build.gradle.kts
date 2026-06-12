@@ -52,6 +52,11 @@ kotlin {
             // iOS native variant becomes available.
             implementation(libs.gematik.zetaSdk)
             implementation(libs.androidx.security.crypto)
+
+            api(libs.androidx.camera.core) // because AndroidQrScanner exposes SurfaceRequest publicly
+            implementation(libs.androidx.camera.camera2)
+            implementation(libs.androidx.camera.lifecycle)
+            implementation(libs.mlkit.barcode.scanning)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

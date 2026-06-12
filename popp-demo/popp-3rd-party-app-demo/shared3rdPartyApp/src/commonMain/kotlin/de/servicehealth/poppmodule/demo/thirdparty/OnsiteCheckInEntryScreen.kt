@@ -38,6 +38,17 @@ import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
+import org.jetbrains.compose.resources.stringResource
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_header
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_question
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_search_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_search_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_count
 
 @Composable
 fun OnsiteCheckInEntryScreen(
@@ -55,7 +66,7 @@ fun OnsiteCheckInEntryScreen(
                 .background(c.white)
                 .safeContentPadding()
         ) {
-            BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
+            BrandScreenHeader(title = stringResource(Res.string.checkin_entry_header), onClose = onClose)
 
             Column(
                 modifier = Modifier
@@ -73,7 +84,7 @@ fun OnsiteCheckInEntryScreen(
                 Spacer(Modifier.height(22.dp))
 
                 Text(
-                    text = "Wo möchten Sie\neinchecken?",
+                    text = stringResource(Res.string.checkin_entry_question),
                     color = c.ink,
                     style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
                 )
@@ -81,7 +92,7 @@ fun OnsiteCheckInEntryScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Wählen Sie die Einrichtung (LEI), bei der Sie sich vor Ort anmelden.",
+                    text = stringResource(Res.string.checkin_entry_subtitle),
                     color = c.neutral700,
                     style = BrandTheme.typography.bodyMedium,
                 )
@@ -95,16 +106,16 @@ fun OnsiteCheckInEntryScreen(
                     ActionCard(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Search,
-                        title = "Suchen",
-                        subtitle = "Nach Name oder\nAdresse",
+                        title = stringResource(Res.string.checkin_entry_search_title),
+                        subtitle = stringResource(Res.string.checkin_entry_search_subtitle),
                         onClick = onSearchClick,
                     )
 
                     ActionCard(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.QrCodeScanner,
-                        title = "QR-Code\nscannen",
-                        subtitle = "Code vor Ort scannen",
+                        title = stringResource(Res.string.checkin_entry_qr_title),
+                        subtitle = stringResource(Res.string.checkin_entry_qr_subtitle),
                         onClick = onQrScanClick,
                     )
                 }
@@ -184,7 +195,7 @@ private fun FavoritesSection(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "FAVORITEN",
+            text = stringResource(Res.string.checkin_entry_favorites),
             color = c.neutral700,
             style = BrandTheme.typography.labelMedium,
             modifier = Modifier.weight(1f),
@@ -200,7 +211,7 @@ private fun FavoritesSection(
         Spacer(Modifier.width(5.dp))
 
         Text(
-            text = "2 gespeichert",
+            text = stringResource(Res.string.checkin_entry_favorites_count),
             color = c.neutral700,
             style = BrandTheme.typography.bodySmall,
         )

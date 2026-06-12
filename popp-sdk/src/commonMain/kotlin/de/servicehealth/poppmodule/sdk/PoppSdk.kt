@@ -4,6 +4,12 @@ import de.servicehealth.poppmodule.sdk.internal.ZetaEngine
 import de.servicehealth.poppmodule.sdk.internal.createZetaEngine
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 import de.servicehealth.poppmodule.sdk.storage.createSecureStorage
+import kotlin.concurrent.Volatile
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -19,12 +25,28 @@ import kotlinx.coroutines.sync.withLock
  * Two ZETA engine instances are managed internally:
  * - device engine: authenticates via device attestation only
  * - user engine: authenticates via the eGK or GesundheitsId credential
+ *
+ * Instances are intended to live for the app's lifetime; the internal coroutine scope is never cancelled.
  */
-class PoppSdk(
-    private val context: PoppSdkContext? = null,
-    internal val storageOverride: SecureStorage? = null,
+class PoppSdk internal constructor(
+    private val context: PoppSdkContext?,
+    internal val storageOverride: SecureStorage?,
+    internal val engineFactory: (PoppSdkConfig, SecureStorage) -> ZetaEngine,
+    internal val sdkScope: CoroutineScope,
 ) {
 
+    /** Public constructor for host apps. */
+    constructor(
+        context: PoppSdkContext? = null,
+        storageOverride: SecureStorage? = null,
+    ) : this(
+        context = context,
+        storageOverride = storageOverride,
+        engineFactory = ::createZetaEngine,
+        sdkScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+    )
+
+    @Volatile
     private var configuredFqdn: String? = null
 
     private val deviceStorage by lazy {
@@ -36,9 +58,13 @@ class PoppSdk(
     }
 
     private val deviceMutex = Mutex()
+
+    @Volatile
     private var deviceEngine: ZetaEngine? = null
 
     private val userMutex = Mutex()
+
+    @Volatile
     private var userEngine: ZetaEngine? = null
 
     /** Current ZETA client status, as reported by the device engine. */
@@ -49,10 +75,19 @@ class PoppSdk(
     fun platformInfo(): String = getPlatform().name
 
     /**
-     * Configures the FQDN of the PoPP service endpoint used by the ZETA clients.
-     * Must be called once during app initialization, before any API calls.
+     * Initialises the ZETA client for the PoPP service identified by [fqdn].
      *
-     * Spec ref: gemSpec_PoPP_Modul §3.3.4
+     * Spec ref: gemSpec_PoPP_Modul §3.3.4, A_28507.
+     *
+     * Fire-and-forget: records the FQDN, then starts the device ZETA engine
+     * (discovery, registration, attestation) on [sdkScope] and returns
+     * immediately. Failures are not thrown here — the first functional call
+     * (e.g. [status]) retries the engine start and surfaces the error.
+     * Only the device engine is warmed up: the user engine needs an
+     * eGK/GesundheitsID credential, which does not exist at app start.
+     *
+     * Calling init() again with the same FQDN is a no-op;
+     * a different FQDN throws [PoppSdkError.Configuration].
      *
      * @param fqdn Fully Qualified Domain Name (including scheme and path)
      *   of the PoPP service, e.g.
@@ -60,8 +95,26 @@ class PoppSdk(
      */
     fun init(fqdn: String) {
         require(fqdn.isNotBlank()) { "fqdn must not be blank" }
-        println("PoppSdk: init fqdn=$fqdn")
+        val previous = configuredFqdn
+        if (previous != null) {
+            if (previous == fqdn) return
+            throw PoppSdkError.Configuration(
+                "PoppSdk already initialised with $previous — " +
+                    "re-initialisation with a different FQDN is not supported"
+            )
+        }
         configuredFqdn = fqdn
+        sdkScope.launch {
+            // A_28507: start the ZETA client now, not on the first functional
+            // call. Only successful engines are cached, so a failure here is
+            // retried — and surfaced — by the first functional call.
+            try {
+                ensureDeviceEngine()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Throwable) {
+            }
+        }
     }
 
     /** Smoke-tests connectivity to the PoPP service via the device ZETA engine. */
@@ -90,12 +143,6 @@ class PoppSdk(
         val storage = deviceStorage
             ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
 
-        /*
-        TokenProviderConfig.Egk(
-            provider = PoppSubjectTokenProvider { error("eGK not yet implemented") }
-        )
-         */
-
         val engineConfig = PoppSdkConfig(
             fqdn = fqdn,
             productId = PRODUCT_ID,
@@ -109,10 +156,11 @@ class PoppSdk(
             requiredRoleOid = REQUIRED_ROLE_OID,
             tokenProvider = DeviceOnly,
         )
-        
-        val e = createZetaEngine(engineConfig, storage)
+        val e = engineFactory(engineConfig, storage)
         try {
             e.start()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: PoppSdkError) {
             throw e
         } catch (e: Throwable) {
@@ -139,9 +187,11 @@ class PoppSdk(
             requiredRoleOid = REQUIRED_ROLE_OID,
             tokenProvider = TokenProviderConfig.Egk { error("eGK not yet implemented") },
         )
-        val e = createZetaEngine(engineConfig, storage)
+        val e = engineFactory(engineConfig, storage)
         try {
             e.start()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: PoppSdkError) {
             throw e
         } catch (e: Throwable) {

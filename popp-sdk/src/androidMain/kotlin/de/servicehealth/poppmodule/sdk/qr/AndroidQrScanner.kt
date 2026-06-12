@@ -79,10 +79,15 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
         barcodeScanner.process(image)
             .addOnSuccessListener { barcodes ->
-                val raw = barcodes.firstNotNullOfOrNull { it.rawBytes }
-                if (raw != null) {
-                    _results.tryEmit(parseCheckInPayload(raw))
+                val barcode = barcodes.firstOrNull() ?: return@addOnSuccessListener
+                val rawBytes = barcode.rawBytes
+                val rawValue = barcode.rawValue
+                val result = when {
+                    rawBytes != null -> parseCheckInPayload(rawBytes)
+                    rawValue != null -> parseCheckInPayload(rawValue)
+                    else -> return@addOnSuccessListener
                 }
+                _results.tryEmit(result)
             }
             .addOnCompleteListener { imageProxy.close() }
     }

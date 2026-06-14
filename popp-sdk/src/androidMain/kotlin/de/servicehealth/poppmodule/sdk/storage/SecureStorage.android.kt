@@ -10,12 +10,12 @@ internal class EncryptedSharedPrefsSecureStorage(
     context: PoppSdkContext,
     namespace: String,
 ) : SecureStorage {
-
     private val prefs by lazy {
         val androidContext = context.androidContext
-        val masterKey = MasterKey.Builder(androidContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
+        val masterKey =
+            MasterKey.Builder(androidContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
         EncryptedSharedPreferences.create(
             androidContext,
             namespace,
@@ -25,21 +25,28 @@ internal class EncryptedSharedPrefsSecureStorage(
         )
     }
 
-    override suspend fun put(key: String, value: String) = withContext(Dispatchers.IO) {
-        prefs.edit().putString(key, value).apply()
-    }
+    override suspend fun put(
+        key: String,
+        value: String,
+    ) =
+        withContext(Dispatchers.IO) {
+            prefs.edit().putString(key, value).apply()
+        }
 
-    override suspend fun get(key: String): String? = withContext(Dispatchers.IO) {
-        prefs.getString(key, null)
-    }
+    override suspend fun get(key: String): String? =
+        withContext(Dispatchers.IO) {
+            prefs.getString(key, null)
+        }
 
-    override suspend fun remove(key: String) = withContext(Dispatchers.IO) {
-        prefs.edit().remove(key).apply()
-    }
+    override suspend fun remove(key: String) =
+        withContext(Dispatchers.IO) {
+            prefs.edit().remove(key).apply()
+        }
 
-    override suspend fun clear() = withContext(Dispatchers.IO) {
-        prefs.edit().clear().apply()
-    }
+    override suspend fun clear() =
+        withContext(Dispatchers.IO) {
+            prefs.edit().clear().apply()
+        }
 }
 
 actual fun createSecureStorage(

@@ -47,15 +47,16 @@ fun BrandTag(
 ) {
     val palette = tagPalette(tone)
     Row(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(palette.background)
-            .padding(
-                start = if (dot) 8.dp else 10.dp,
-                end = 10.dp,
-                top = 4.dp,
-                bottom = 4.dp,
-            ),
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(palette.background)
+                .padding(
+                    start = if (dot) 8.dp else 10.dp,
+                    end = 10.dp,
+                    top = 4.dp,
+                    bottom = 4.dp,
+                ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -64,23 +65,25 @@ fun BrandTag(
                 Modifier
                     .size(6.dp)
                     .clip(CircleShape)
-                    .background(palette.content)
+                    .background(palette.content),
             )
         }
         Text(
             text = text.uppercase(),
             color = palette.content,
-            style = TextStyle(
-                fontFamily = displayFamily(),
-                fontWeight = FontWeight.Bold,
-                fontSize = 10.sp,
-                letterSpacing = 0.7.sp,
-            ),
+            style =
+                TextStyle(
+                    fontFamily = displayFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp,
+                    letterSpacing = 0.7.sp,
+                ),
         )
     }
 }
 
-@Preview @Composable private fun TonesBrandTagPreview() {
+@Preview @Composable
+private fun TonesBrandTagPreview() {
     Column(
         modifier = Modifier.padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -94,13 +97,15 @@ fun BrandTag(
     }
 }
 
-@Preview @Composable private fun OnDarkBrandTagPreview() {
+@Preview @Composable
+private fun OnDarkBrandTagPreview() {
     Box(Modifier.background(BrandColors().deep).padding(12.dp)) {
         BrandTag(text = "On Dark", tone = BrandTagTone.OnDark)
     }
 }
 
-@Preview @Composable private fun DotBrandTagPreview() {
+@Preview @Composable
+private fun DotBrandTagPreview() {
     Column(
         modifier = Modifier.padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),

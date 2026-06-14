@@ -81,8 +81,11 @@ internal data class ErrorMessage(
  */
 @Serializable
 internal enum class CardConnectionType {
-    @SerialName("contactless-standard") CONTACTLESS,
-    @SerialName("contact-standard") CONTACT,
+    @SerialName("contactless-standard")
+    CONTACTLESS,
+
+    @SerialName("contact-standard")
+    CONTACT,
 }
 
 internal const val PROTOCOL_VERSION: String = "1.0.0"

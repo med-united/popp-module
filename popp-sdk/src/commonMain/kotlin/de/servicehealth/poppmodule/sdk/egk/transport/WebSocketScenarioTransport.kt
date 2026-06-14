@@ -25,18 +25,18 @@ internal class WebSocketScenarioTransport(
     private val client: HttpClient,
     private val url: String,
 ) : PoppServiceTransport {
-
     private var session: DefaultClientWebSocketSession? = null
 
     override suspend fun open() {
-        session = try {
-            client.webSocketSession(urlString = url)
-        } catch (e: CancellationException) {
-            throw e // never swallow structured-concurrency cancellation as an SDK error
-        } catch (e: Throwable) {
-            client.close()
-            throw PoppSdkError.Network("WebSocket connect failed: $url", e)
-        }
+        session =
+            try {
+                client.webSocketSession(urlString = url)
+            } catch (e: CancellationException) {
+                throw e // never swallow structured-concurrency cancellation as an SDK error
+            } catch (e: Throwable) {
+                client.close()
+                throw PoppSdkError.Network("WebSocket connect failed: $url", e)
+            }
     }
 
     override suspend fun send(message: PoppMessage) {

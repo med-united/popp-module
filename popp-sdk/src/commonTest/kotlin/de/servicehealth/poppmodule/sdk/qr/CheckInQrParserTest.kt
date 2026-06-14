@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class CheckInQrParserTest {
-
     private val gematikReferenceJson = """{"tid":"1-234567890","typ":"popp-checkin","wpid":"REZEPTION-1"}"""
 
     @Test

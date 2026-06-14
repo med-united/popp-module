@@ -1,8 +1,8 @@
 ## Architecture decisions (ADRs)
 
-| ADR                                                                            | Title                                                     | Status   |
-|--------------------------------------------------------------------------------|-----------------------------------------------------------|----------|
-| [ADR-001](ADR-001%20Kotlin%20Multiplatform%20and%20Compose%20Multiplatform.md) | Selection of Kotlin Multiplatform & Compose Multiplatform | Accepted |
+| ADR                                                                  | Title                                                     | Status   |
+|----------------------------------------------------------------------|-----------------------------------------------------------|----------|
+| [ADR-001](ADR-001-kotlin-multiplatform-and-compose-multiplatform.md) | Selection of Kotlin Multiplatform & Compose Multiplatform | Accepted |
 
 To propose a new decision, copy [`docs/adr/template.md`](template.md), fill it in, and open a PR.
 Every new ADR starts as a branch. The status is initially Proposed. It is discussed in the pull request. With the merge

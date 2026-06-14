@@ -78,3 +78,17 @@ are documented as Architecture Decision Records in [`docs/adr/`](./docs/adr/). T
 
 ADRs with status **Accepted** are binding — code or architecture that contradicts them requires a superseding ADR first.
 
+## Code style (ktlint)
+
+Kotlin formatting is enforced by [ktlint](https://pinterest.github.io/ktlint/) via the `jlleitschuh/ktlint-gradle` plugin.
+
+- Check: `./gradlew ktlintCheck`
+- Auto-fix: `./gradlew ktlintFormat`
+- CI: the `ktlintCheck` step in `.github/workflows/code-coverage.yml` runs before tests and fails the build on any violation.
+
+**Pre-commit hook** — run once after cloning to block commits with style violations:
+
+```sh
+printf '#!/bin/sh\n./gradlew ktlintCheck --daemon --quiet\n' > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+```
+

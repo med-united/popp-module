@@ -11,6 +11,11 @@ import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
+import de.servicehealth.poppmodule.demo.thirdparty.can.CanInputScreen
+import de.servicehealth.poppmodule.demo.thirdparty.can.CanStore
+import de.servicehealth.poppmodule.demo.thirdparty.can.InMemoryCanStore
+import de.servicehealth.poppmodule.demo.thirdparty.can.LocalCanStore
+import de.servicehealth.poppmodule.demo.thirdparty.can.NfcScanScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
@@ -19,9 +24,12 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
 @Composable
-fun App() {
+fun App(canStore: CanStore = InMemoryCanStore()) {
     BrandTheme {
-        CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
+        CompositionLocalProvider(
+            LocalPoppSdk provides PoppSdk(),
+            LocalCanStore provides canStore,
+        ) {
             val nav = rememberNavController()
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {
@@ -70,6 +78,20 @@ fun App() {
                 }
                 composable(Routes.CHECK_IN_QR) {
                     OnsiteCheckInQrScannerScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onProceed = { nav.navigate(Routes.CHECK_IN_CAN) },
+                    )
+                }
+                composable(Routes.CHECK_IN_CAN) {
+                    CanInputScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onComplete = { nav.navigate(Routes.CHECK_IN_NFC) },
+                    )
+                }
+                composable(Routes.CHECK_IN_NFC) {
+                    NfcScanScreen(
                         onBack = { nav.popBackStack() },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )

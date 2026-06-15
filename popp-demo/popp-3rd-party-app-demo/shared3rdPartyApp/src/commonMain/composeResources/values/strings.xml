@@ -37,4 +37,20 @@
     <string name="camera_permission_open_settings">Einstellungen öffnen</string>
 
     <string name="qr_scanner_ios_placeholder">Kamera-Scanner folgt auf iOS</string>
+
+    <string name="can_title">Zugangsnummer eingeben</string>
+    <string name="can_subtitle">Geben Sie die 6-stellige CAN (Card Access Number) ein. Sie sichert die NFC-Verbindung zu Ihrer Karte.</string>
+    <string name="can_card_hint">Die CAN steht rechts oben auf der Kartenvorderseite.</string>
+    <string name="can_back">Zurück</string>
+    <string name="can_continue">Weiter</string>
+    <string name="can_change">Andere CAN eingeben</string>
+
+    <string name="egk_card_title">Gesundheitskarte</string>
+    <string name="egk_card_subtitle">Elektronische Gesundheitskarte · eGK</string>
+    <string name="egk_card_can_label">CAN</string>
+    <string name="egk_card_sample_name">LENA HOFMANN</string>
+    <string name="egk_card_sample_insurance">Versicherten-Nr. A123456789</string>
+
+    <string name="nfc_stub_title">NFC-Scan folgt</string>
+    <string name="nfc_stub_subtitle">Der NFC-Scan wird in einem folgenden Schritt umgesetzt.</string>
 </resources>

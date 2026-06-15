@@ -57,8 +57,10 @@ internal data class EgkScenarioState(
  * imperative shell that runs the actions.
  */
 internal object EgkScenarioStateMachine {
-
-    fun next(state: EgkScenarioState, event: EgkEvent): Pair<EgkScenarioState, List<EgkAction>> =
+    fun next(
+        state: EgkScenarioState,
+        event: EgkEvent,
+    ): Pair<EgkScenarioState, List<EgkAction>> =
         when (event) {
             EgkEvent.Begin -> onBegin(state)
             is EgkEvent.ServerMessage -> onServerMessage(state, event.message)
@@ -76,22 +78,23 @@ internal object EgkScenarioStateMachine {
     private fun onServerMessage(
         state: EgkScenarioState,
         message: PoppMessage,
-    ): Pair<EgkScenarioState, List<EgkAction>> = when (message) {
-        is TokenMessage ->
-            state.copy(phase = EgkScenarioState.Phase.Terminal) to
-                listOf(EgkAction.Complete(EgkCheckInResult.Success(message.token, message.pn)))
+    ): Pair<EgkScenarioState, List<EgkAction>> =
+        when (message) {
+            is TokenMessage ->
+                state.copy(phase = EgkScenarioState.Phase.Terminal) to
+                    listOf(EgkAction.Complete(EgkCheckInResult.Success(message.token, message.pn)))
 
-        is ErrorMessage ->
-            state.copy(phase = EgkScenarioState.Phase.Terminal) to
-                listOf(EgkAction.Complete(EgkCheckInResult.Failed(message.errorCode, message.errorDetail)))
+            is ErrorMessage ->
+                state.copy(phase = EgkScenarioState.Phase.Terminal) to
+                    listOf(EgkAction.Complete(EgkCheckInResult.Failed(message.errorCode, message.errorDetail)))
 
-        is StandardScenarioMessage -> onScenario(state, message)
+            is StandardScenarioMessage -> onScenario(state, message)
 
-        // StartMessage / ScenarioResponseMessage are client→server only — never inbound. Listed
-        // explicitly (rather than `else`) so the compiler flags any future PoppMessage subtype.
-        is StartMessage, is ScenarioResponseMessage ->
-            fail(state, "unexpected server message ${message::class.simpleName} in phase ${state.phase}")
-    }
+            // StartMessage / ScenarioResponseMessage are client→server only — never inbound. Listed
+            // explicitly (rather than `else`) so the compiler flags any future PoppMessage subtype.
+            is StartMessage, is ScenarioResponseMessage ->
+                fail(state, "unexpected server message ${message::class.simpleName} in phase ${state.phase}")
+        }
 
     private fun onScenario(
         state: EgkScenarioState,
@@ -134,7 +137,10 @@ internal object EgkScenarioStateMachine {
                 listOf(EgkAction.Send(ScenarioResponseMessage(responsesHex)))
         }
 
-    private fun fail(state: EgkScenarioState, reason: String): Pair<EgkScenarioState, List<EgkAction>> =
+    private fun fail(
+        state: EgkScenarioState,
+        reason: String,
+    ): Pair<EgkScenarioState, List<EgkAction>> =
         state.copy(phase = EgkScenarioState.Phase.Terminal) to
             listOf(EgkAction.Fail(PoppSdkError.Protocol(reason)))
 }

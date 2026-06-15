@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 enum class CameraPermissionStatus { Granted, Denied, PermanentlyDenied }
 
 class QrScannerViewModel(private val appContext: Context) : ViewModel() {
-
     var permissionStatus by mutableStateOf(readSystemStatus())
         private set
 
@@ -30,7 +29,10 @@ class QrScannerViewModel(private val appContext: Context) : ViewModel() {
         permissionStatus = readSystemStatus()
     }
 
-    fun onPermissionResult(granted: Boolean, canAskAgain: Boolean) {
+    fun onPermissionResult(
+        granted: Boolean,
+        canAskAgain: Boolean,
+    ) {
         permissionStatus = resolveCameraPermission(granted, canAskAgain)
     }
 
@@ -52,7 +54,10 @@ class QrScannerViewModel(private val appContext: Context) : ViewModel() {
     }
 }
 
-internal fun resolveCameraPermission(granted: Boolean, canAskAgain: Boolean): CameraPermissionStatus =
+internal fun resolveCameraPermission(
+    granted: Boolean,
+    canAskAgain: Boolean,
+): CameraPermissionStatus =
     when {
         granted -> CameraPermissionStatus.Granted
         canAskAgain -> CameraPermissionStatus.Denied

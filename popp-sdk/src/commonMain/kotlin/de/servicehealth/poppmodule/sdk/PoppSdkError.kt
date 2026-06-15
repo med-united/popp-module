@@ -9,7 +9,6 @@ sealed class PoppSdkError(
     message: String,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
-
     /** Network-layer failures: DNS, TLS, ZETA Guard unreachable, etc. */
     class Network(message: String, cause: Throwable? = null) : PoppSdkError(message, cause)
 

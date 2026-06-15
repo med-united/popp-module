@@ -1,10 +1,8 @@
 package de.servicehealth.poppmodule.sdk.internal
 
-import de.gematik.zeta.sdk.BuildConfig as ZetaBuildConfig
 import de.gematik.zeta.sdk.TpmConfig
 import de.gematik.zeta.sdk.ZetaSdk
 import de.gematik.zeta.sdk.ZetaSdkClient
-import de.gematik.zeta.sdk.attestation.model.AttestationConfig as ZetaAttestationConfig
 import de.gematik.zeta.sdk.attestation.model.PlatformProductId
 import de.gematik.zeta.sdk.authentication.AuthConfig
 import de.gematik.zeta.sdk.authentication.smb.SmbTokenProvider
@@ -16,16 +14,18 @@ import de.servicehealth.poppmodule.sdk.PoppSdkContext
 import de.servicehealth.poppmodule.sdk.PoppSdkError
 import de.servicehealth.poppmodule.sdk.TokenProviderConfig
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
+import de.gematik.zeta.sdk.BuildConfig as ZetaBuildConfig
+import de.gematik.zeta.sdk.attestation.model.AttestationConfig as ZetaAttestationConfig
 
 internal class AndroidZetaEngine(
     private val config: PoppSdkConfig,
     storage: SecureStorage,
 ) : ZetaEngine {
-
-    private val client: ZetaSdkClient = ZetaSdk.build(
-        resource = config.fqdn,
-        config = config.toZetaBuildConfig(SdkStorageAdapter(storage)),
-    )
+    private val client: ZetaSdkClient =
+        ZetaSdk.build(
+            resource = config.fqdn,
+            config = config.toZetaBuildConfig(SdkStorageAdapter(storage)),
+        )
 
     override suspend fun start() {
         client.discover().getOrElse { throw it.toPoppSdkError("ZETA discover() failed") }
@@ -53,48 +53,56 @@ private fun PoppSdkConfig.toZetaBuildConfig(storage: SdkStorageAdapter): ZetaBui
         clientName = clientName,
         storageConfig = StorageConfig.Custom(provider = storage),
         tpmConfig = object : TpmConfig {},
-        authConfig = AuthConfig(
-            scopes = scopes,
-            exp = tokenLifetimeSeconds,
-            aslProdEnvironment = aslProdEnvironment,
-            subjectTokenProvider = tokenProvider.toZetaSubjectTokenProvider(),
-            attestation = attestation.toZetaAttestationConfig(),
-            requiredRoleOid = requiredRoleOid,
-        ),
+        authConfig =
+            AuthConfig(
+                scopes = scopes,
+                exp = tokenLifetimeSeconds,
+                aslProdEnvironment = aslProdEnvironment,
+                subjectTokenProvider = tokenProvider.toZetaSubjectTokenProvider(),
+                attestation = attestation.toZetaAttestationConfig(),
+                requiredRoleOid = requiredRoleOid,
+            ),
         platformProductId = platformIdentity.toZetaPlatformProductId(),
     )
 
-private fun PlatformIdentity.toZetaPlatformProductId(): PlatformProductId = when (this) {
-    is PlatformIdentity.Android -> PlatformProductId.AndroidProductId(
-        packageName = packageName,
-        sha256CertFingerprints = sha256CertFingerprints,
-    )
+private fun PlatformIdentity.toZetaPlatformProductId(): PlatformProductId =
+    when (this) {
+        is PlatformIdentity.Android ->
+            PlatformProductId.AndroidProductId(
+                packageName = packageName,
+                sha256CertFingerprints = sha256CertFingerprints,
+            )
 
-    is PlatformIdentity.Apple -> PlatformProductId.AppleProductId(
-        platformType = platformType,
-        appBundleIds = appBundleIds,
-    )
-}
+        is PlatformIdentity.Apple ->
+            PlatformProductId.AppleProductId(
+                platformType = platformType,
+                appBundleIds = appBundleIds,
+            )
+    }
 
-private fun AttestationStrategy.toZetaAttestationConfig(): ZetaAttestationConfig = when (this) {
-    AttestationStrategy.Software -> ZetaAttestationConfig.Software
-    is AttestationStrategy.TpmHttp -> ZetaAttestationConfig.TpmHttp(
-        attestationEndpoint = attestationEndpoint,
-        pcrSelection = pcrSelection,
-        websocketEndpoint = websocketEndpoint,
-    )
-}
+private fun AttestationStrategy.toZetaAttestationConfig(): ZetaAttestationConfig =
+    when (this) {
+        AttestationStrategy.Software -> ZetaAttestationConfig.Software
+        is AttestationStrategy.TpmHttp ->
+            ZetaAttestationConfig.TpmHttp(
+                attestationEndpoint = attestationEndpoint,
+                pcrSelection = pcrSelection,
+                websocketEndpoint = websocketEndpoint,
+            )
+    }
 
-private fun TokenProviderConfig.toZetaSubjectTokenProvider() = when (this) {
-    is TokenProviderConfig.Smb -> SmbTokenProvider(
-        SmbTokenProvider.Credentials(
-            keystoreFile = keystoreFile,
-            alias = alias,
-            password = password,
-            keystoreB64 = keystoreB64,
-        ),
-    )
-}
+private fun TokenProviderConfig.toZetaSubjectTokenProvider() =
+    when (this) {
+        is TokenProviderConfig.Smb ->
+            SmbTokenProvider(
+                SmbTokenProvider.Credentials(
+                    keystoreFile = keystoreFile,
+                    alias = alias,
+                    password = password,
+                    keystoreB64 = keystoreB64,
+                ),
+            )
+    }
 
 private fun Throwable.toPoppSdkError(message: String): PoppSdkError {
     val text = "$message: ${this.message ?: this::class.simpleName}"

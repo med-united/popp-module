@@ -14,5 +14,6 @@ object Routes {
     const val INSTITUTION_SEARCH = "institution_search"
 
     fun integratedHome(scenario: String) = "$INTEGRATED_HOME?$ARG_SCENARIO=$scenario"
+
     fun appToAppHome(scenario: String) = "$APP_TO_APP_HOME?$ARG_SCENARIO=$scenario"
 }

@@ -15,15 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.launcher_subline
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.launcher_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.servicehealth_logo
 import de.servicehealth.poppmodule.theme.BrandTag
 import de.servicehealth.poppmodule.theme.BrandTagTone
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.launcher_subline
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.launcher_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.servicehealth_logo
 
 /** The deep navy brand header band: solid tag + white wordmark + title + subline. */
 @Composable
@@ -32,11 +32,12 @@ fun BrandHeader(
 ) {
     val c = BrandTheme.colors
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(c.deep)
-            .safeContentPadding()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(c.deep)
+                .safeContentPadding()
+                .padding(horizontal = 20.dp, vertical = 20.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             BrandTag(text = "PoPP-Modul", tone = BrandTagTone.Solid)

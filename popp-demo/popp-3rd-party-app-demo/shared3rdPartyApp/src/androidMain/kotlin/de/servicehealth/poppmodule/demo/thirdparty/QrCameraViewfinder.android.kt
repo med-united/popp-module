@@ -30,14 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import de.servicehealth.poppmodule.sdk.qr.ScanResult
-import de.servicehealth.poppmodule.theme.BrandTheme
-import org.jetbrains.compose.resources.stringResource
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_rationale
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_allow
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_denied
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_open_settings
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_rationale
+import de.servicehealth.poppmodule.sdk.qr.ScanResult
+import de.servicehealth.poppmodule.theme.BrandTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 actual fun QrCameraViewfinder(
@@ -57,13 +57,15 @@ actual fun QrCameraViewfinder(
     val active = viewModel.permissionStatus == CameraPermissionStatus.Granted && surfaceRequest != null
     LaunchedEffect(active) { currentOnActiveChange(active) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        val canAskAgain = granted ||
-            (context.findActivity()?.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ?: false)
-        viewModel.onPermissionResult(granted, canAskAgain)
-    }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            val canAskAgain =
+                granted ||
+                    (context.findActivity()?.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ?: false)
+            viewModel.onPermissionResult(granted, canAskAgain)
+        }
 
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshPermission()
@@ -96,19 +98,21 @@ actual fun QrCameraViewfinder(
             }
         }
 
-        CameraPermissionStatus.Denied -> PermissionPanel(
-            modifier = modifier,
-            message = stringResource(Res.string.camera_permission_rationale),
-            actionLabel = stringResource(Res.string.camera_permission_allow),
-            onAction = { permissionLauncher.launch(Manifest.permission.CAMERA) },
-        )
+        CameraPermissionStatus.Denied ->
+            PermissionPanel(
+                modifier = modifier,
+                message = stringResource(Res.string.camera_permission_rationale),
+                actionLabel = stringResource(Res.string.camera_permission_allow),
+                onAction = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+            )
 
-        CameraPermissionStatus.PermanentlyDenied -> PermissionPanel(
-            modifier = modifier,
-            message = stringResource(Res.string.camera_permission_denied),
-            actionLabel = stringResource(Res.string.camera_permission_open_settings),
-            onAction = { context.findActivity()?.let { openAppSettings(it) } },
-        )
+        CameraPermissionStatus.PermanentlyDenied ->
+            PermissionPanel(
+                modifier = modifier,
+                message = stringResource(Res.string.camera_permission_denied),
+                actionLabel = stringResource(Res.string.camera_permission_open_settings),
+                onAction = { context.findActivity()?.let { openAppSettings(it) } },
+            )
     }
 }
 
@@ -153,9 +157,10 @@ private fun Context.findActivity(): Activity? {
 }
 
 private fun openAppSettings(activity: Activity) {
-    val intent = Intent(
-        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-        Uri.fromParts("package", activity.packageName, null),
-    )
+    val intent =
+        Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", activity.packageName, null),
+        )
     activity.startActivity(intent)
 }

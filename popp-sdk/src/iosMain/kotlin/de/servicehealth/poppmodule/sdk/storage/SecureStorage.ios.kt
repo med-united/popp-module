@@ -14,21 +14,25 @@ import kotlinx.coroutines.sync.withLock
  * Process-lifetime only: values are lost when the host process exits.
  */
 internal class InMemorySecureStorage : SecureStorage {
-
     private val mutex = Mutex()
     private val backing = mutableMapOf<String, String>()
 
-    override suspend fun put(key: String, value: String) = mutex.withLock {
-        backing[key] = value
-        Unit
-    }
+    override suspend fun put(
+        key: String,
+        value: String,
+    ) =
+        mutex.withLock {
+            backing[key] = value
+            Unit
+        }
 
     override suspend fun get(key: String): String? = mutex.withLock { backing[key] }
 
-    override suspend fun remove(key: String) = mutex.withLock {
-        backing.remove(key)
-        Unit
-    }
+    override suspend fun remove(key: String) =
+        mutex.withLock {
+            backing.remove(key)
+            Unit
+        }
 
     override suspend fun clear() = mutex.withLock { backing.clear() }
 }

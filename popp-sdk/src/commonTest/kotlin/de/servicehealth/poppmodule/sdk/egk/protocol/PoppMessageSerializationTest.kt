@@ -6,7 +6,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class PoppMessageSerializationTest {
-
     private val json = PoppJson.instance
 
     @Test
@@ -22,13 +21,14 @@ class PoppMessageSerializationTest {
 
     @Test
     fun standard_scenario_round_trips() {
-        val msg: PoppMessage = StandardScenarioMessage(
-            version = "1.0.0",
-            clientSessionId = "sess-1",
-            sequenceCounter = 3,
-            timeSpan = 1500,
-            steps = listOf(ScenarioStep("00A4040C", listOf("9000", "6283"))),
-        )
+        val msg: PoppMessage =
+            StandardScenarioMessage(
+                version = "1.0.0",
+                clientSessionId = "sess-1",
+                sequenceCounter = 3,
+                timeSpan = 1500,
+                steps = listOf(ScenarioStep("00A4040C", listOf("9000", "6283"))),
+            )
         val back = json.decodeFromString(PoppMessage.serializer(), json.encodeToString(PoppMessage.serializer(), msg))
         assertEquals(msg, back)
     }

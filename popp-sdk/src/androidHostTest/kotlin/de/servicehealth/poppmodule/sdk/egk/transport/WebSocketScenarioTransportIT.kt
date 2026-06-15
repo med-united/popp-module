@@ -38,7 +38,6 @@ import kotlin.test.assertTrue
  * full-loop note in §11 of the design doc).
  */
 class WebSocketScenarioTransportIT {
-
     @Test
     fun connects_and_receives_first_scenario_from_docker_stack() {
         val url = System.getenv("POPP_WS_URL")
@@ -47,10 +46,11 @@ class WebSocketScenarioTransportIT {
         // POPP_CA_PEM_FILE (optional): CA certificate to trust when pointing at the wss:// ingress;
         // unnecessary for the default plain ws://localhost:8443 path.
         val caPem = System.getenv("POPP_CA_PEM_FILE")?.let { java.io.File(it).readText() }
-        val transport = WebSocketScenarioTransport(
-            client = createPoppWebSocketClient(trustedCaPem = caPem),
-            url = url!!,
-        )
+        val transport =
+            WebSocketScenarioTransport(
+                client = createPoppWebSocketClient(trustedCaPem = caPem),
+                url = url!!,
+            )
         runBlocking {
             transport.open()
             try {

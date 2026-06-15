@@ -30,7 +30,6 @@ class PoppSdk internal constructor(
     private val transportFactory: (url: String, trustedCaPem: String?) -> PoppServiceTransport,
     private val newSessionId: () -> String,
 ) {
-
     constructor() : this(
         engine = null,
         fqdn = null,
@@ -40,8 +39,9 @@ class PoppSdk internal constructor(
     )
 
     /** Current ZETA client status, as reported by the underlying SDK. */
-    suspend fun status(): String = engine?.status()
-        ?: throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
+    suspend fun status(): String =
+        engine?.status()
+            ?: throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
 
     fun version(): String = "popp-sdk $VERSION"
 
@@ -108,7 +108,10 @@ class PoppSdk internal constructor(
     }
 }
 
-private fun defaultTransportFactory(url: String, trustedCaPem: String?): PoppServiceTransport =
+private fun defaultTransportFactory(
+    url: String,
+    trustedCaPem: String?,
+): PoppServiceTransport =
     WebSocketScenarioTransport(createPoppWebSocketClient(trustedCaPem), url)
 
 @OptIn(ExperimentalUuidApi::class)

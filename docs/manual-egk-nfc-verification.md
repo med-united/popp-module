@@ -25,7 +25,8 @@ stack's trust material for your specific card — both prove the channel works.
 ```bash
 cd ~/git/popp-sample-code
 # Build the local images. The fabric8 docker-maven-plugin can't find Docker Desktop's
-# socket on its own, so point DOCKER_HOST at it:
+# socket on its own, so point DOCKER_HOST at it. Skip this (slow) step if the images
+# already exist from a previous run — check with `docker images | grep local/popp`:
 DOCKER_HOST=unix://$HOME/.docker/desktop/docker.sock \
   ./mvnw install -Dskip.dockerbuild=false -DskipTests=true
 # Start everything except popp-client (the `full` profile needs an SMC-B key we don't have):
@@ -59,29 +60,47 @@ and no local ZETA Guard config exists yet. Until the ZETA-authenticated transpor
 lands, patch `popp-sdk/src/commonMain/kotlin/de/servicehealth/poppmodule/sdk/PoppSdk.kt`
 in two marked places:
 
-1. In the no-arg constructor, set the service URL (the device reaches the host's
-   stack via the `adb reverse` below, so `localhost` is correct *on the phone*):
+1. In the no-arg constructor, set the service URL via the `fqdn` field (the device
+   reaches the host's stack via the `adb reverse` below, so `localhost` is correct
+   *on the phone*):
 
    ```kotlin
    constructor() : this(
        engine = null,
-       poppServiceUrl = "ws://localhost:8443/ws",   // TEMP(manual-egk-test), was: null
+       fqdn = "ws://localhost:8443/ws",   // TEMP(manual-egk-test), was: null
        ...
    ```
 
-2. In `checkInWithEgk`, comment out the started-SDK gate:
+2. In `checkInWithEgk`, relax the started-SDK gate. **Don't comment out the whole
+   block** — `fqdn` smart-casts to non-null right after it (`transportFactory(fqdn, …)`),
+   so the method won't compile without a null-check. Drop only the `engine == null` half:
 
    ```kotlin
-   // TEMP(manual-egk-test): local stack is reached directly, no ZETA engine needed
-   // if (engine == null) {
-   //     throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
-   // }
+   // TEMP(manual-egk-test): local stack is reached directly, no ZETA engine needed.
+   // Keep the fqdn null-check so `fqdn` still smart-casts to non-null below.
+   // Was: if (engine == null || fqdn == null) {
+   if (fqdn == null) {
+       throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
+   }
    ```
 
 Both lines are load-bearing in production — grep for `TEMP(manual-egk-test)` and revert
 before committing anything.
 
 ## 4. Ad-hoc reader-mode activity in the 3rd-party demo
+
+The app module can't see `popp-sdk` transitively (`shared3rdPartyApp` depends on
+`popp-demo:shared` via `implementation`, not `api`), so the reader-mode activity's
+`PoppSdk` / `EgkNfcChannel` imports won't resolve. Give the app module a direct
+dependency in
+`popp-demo/popp-3rd-party-app-demo/android3rdPartyApp/build.gradle.kts`:
+
+```kotlin
+dependencies {
+    // ...
+    implementation(projects.poppSdk) // TEMP(manual-egk-test)
+}
+```
 
 Add the NFC permission to
 `popp-demo/popp-3rd-party-app-demo/android3rdPartyApp/src/main/AndroidManifest.xml`:
@@ -174,16 +193,24 @@ keep it still — PACE plus the scenario takes a few seconds.
 
 ```
 tag discovered: android.nfc.tech.IsoDep, android.nfc.tech.NfcA
-progress: scenario 1, step 1/4
-progress: scenario 1, step 2/4
+progress: scenario 0, step 1/2
+progress: scenario 0, step 2/2
+progress: scenario 1, step 1/6
 ...
+progress: scenario 1, step 6/6
 RESULT: Success(poppToken=eyJ..., pruefnachweis=...)
 ```
 
-The first `progress` line only appears after PACE succeeded (the handshake runs lazily
-inside the first `transceive`). `RESULT: Failed(code=..., detail=...)` is also a pass
-for POPPM-119 if progress advanced first — it means the server rejected the card
-business-wise, not that the channel failed.
+`progress` is emitted *before* each card transceive, and PACE runs lazily *inside* the
+first one — so `progress: scenario 0, step 1/2` shows up even when PACE then fails
+(`WRONG_CAN`, `CARD_LOST`). The proof PACE **succeeded** is reaching `step 2/2`: the
+second transceive can only run over the established secure channel.
+
+`RESULT: Failed(code=..., detail=...)` is also a pass for POPPM-119 once progress
+advanced past step 1/2 — it means the server rejected the card business-wise, not that
+the channel failed. Against this local stack a real card typically ends in
+`Failed(code=errorCode, detail=… UnknownCertificates)` (the server lacks trust material
+for the card generation) after all scenario steps have run.
 
 ## 7. Negative checks
 
@@ -205,6 +232,7 @@ business-wise, not that the channel failed.
 | `WRONG_CAN` with the correct CAN | Double-check the printed CAN (not the Kartennummer / ICCSN). |
 | `SECURE_CHANNEL_FAILED: eGK secure channel failure: null` | Card answered the EF.CardAccess read without a body — likely not a (working) eGK. |
 | `CARD_LOST` immediately on every attempt | Antenna alignment; remove the phone case; keep the card still. |
+| A tap produces **nothing** in the log (no `tag discovered`) | The screen dozed/locked → `onPause` disabled reader mode. Wake the phone and bring the app to the foreground before tapping (`adb shell svc power stayon usb` keeps it awake while on USB). |
 | Server replies `Error`/`Failed` instantly | Check `docker compose logs popp-server`; the stack may lack trust material for your card generation. |
 
 ## Cleanup

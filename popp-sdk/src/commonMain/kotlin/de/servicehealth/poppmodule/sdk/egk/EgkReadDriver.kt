@@ -50,11 +50,12 @@ internal class EgkReadDriver(
                 // No terminal reached and nothing left to do locally: pull the next server message.
                 val message = receiveNext(receiveBudgetMs)
                 if (message is StandardScenarioMessage) {
-                    receiveBudgetMs = if (message.timeSpan > 0) {
-                        message.timeSpan.toLong().coerceIn(MIN_RECEIVE_MS, MAX_RECEIVE_MS)
-                    } else {
-                        DEFAULT_RECEIVE_MS
-                    }
+                    receiveBudgetMs =
+                        if (message.timeSpan > 0) {
+                            message.timeSpan.toLong().coerceIn(MIN_RECEIVE_MS, MAX_RECEIVE_MS)
+                        } else {
+                            DEFAULT_RECEIVE_MS
+                        }
                 }
                 advance(EgkEvent.ServerMessage(message))
             }
@@ -70,15 +71,16 @@ internal class EgkReadDriver(
         val responses = ArrayList<String>(action.steps.size)
         action.steps.forEachIndexed { i, step ->
             onProgress(EgkProgress(action.scenarioIndex, i, action.steps.size))
-            val response = try {
-                channel.transceive(step.commandApdu)
-            } catch (e: PoppSdkError) {
-                throw e
-            } catch (e: CancellationException) {
-                throw e // never swallow structured-concurrency cancellation as an SDK error
-            } catch (e: Throwable) {
-                throw PoppSdkError.Unknown("eGK transceive failed for command ${step.commandApdu}", e)
-            }
+            val response =
+                try {
+                    channel.transceive(step.commandApdu)
+                } catch (e: PoppSdkError) {
+                    throw e
+                } catch (e: CancellationException) {
+                    throw e // never swallow structured-concurrency cancellation as an SDK error
+                } catch (e: Throwable) {
+                    throw PoppSdkError.Unknown("eGK transceive failed for command ${step.commandApdu}", e)
+                }
             if (step.expectedStatusWords.isNotEmpty()) {
                 val statusWord = response.takeLast(STATUS_WORD_HEX_LEN).uppercase()
                 val allowed = step.expectedStatusWords.map { it.uppercase() }

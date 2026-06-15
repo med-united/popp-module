@@ -48,36 +48,41 @@ private fun brandButtonStyle(
 ): BrandButtonStyle {
     val c = BrandTheme.colors
     return when (variant) {
-        BrandButtonVariant.Primary -> BrandButtonStyle(
-            background = if (enabled) c.violet else c.mist,
-            content = if (enabled) c.white else c.silver,
-            borderColor = null,
-            elevation = if (enabled) 8.dp else 0.dp,
-        )
-        BrandButtonVariant.Secondary -> BrandButtonStyle(
-            background = c.white,
-            content = c.ink,
-            borderColor = c.silver,
-            elevation = 0.dp,
-        )
-        BrandButtonVariant.Ghost -> BrandButtonStyle(
-            background = Color.Transparent,
-            content = c.violet,
-            borderColor = null,
-            elevation = 0.dp,
-        )
-        BrandButtonVariant.Accent -> BrandButtonStyle(
-            background = c.yellow,
-            content = c.ink,
-            borderColor = null,
-            elevation = 0.dp,
-        )
-        BrandButtonVariant.Dark -> BrandButtonStyle(
-            background = c.deep,
-            content = c.white,
-            borderColor = null,
-            elevation = 0.dp,
-        )
+        BrandButtonVariant.Primary ->
+            BrandButtonStyle(
+                background = if (enabled) c.violet else c.mist,
+                content = if (enabled) c.white else c.silver,
+                borderColor = null,
+                elevation = if (enabled) 8.dp else 0.dp,
+            )
+        BrandButtonVariant.Secondary ->
+            BrandButtonStyle(
+                background = c.white,
+                content = c.ink,
+                borderColor = c.silver,
+                elevation = 0.dp,
+            )
+        BrandButtonVariant.Ghost ->
+            BrandButtonStyle(
+                background = Color.Transparent,
+                content = c.violet,
+                borderColor = null,
+                elevation = 0.dp,
+            )
+        BrandButtonVariant.Accent ->
+            BrandButtonStyle(
+                background = c.yellow,
+                content = c.ink,
+                borderColor = null,
+                elevation = 0.dp,
+            )
+        BrandButtonVariant.Dark ->
+            BrandButtonStyle(
+                background = c.deep,
+                content = c.white,
+                borderColor = null,
+                elevation = 0.dp,
+            )
     }
 }
 
@@ -97,31 +102,34 @@ fun BrandButton(
     val pressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed && enabled) 0.97f else 1f, label = "brand-button-scale")
 
-    val fontSize = when (size) {
-        BrandButtonSize.Sm -> 14.sp
-        BrandButtonSize.Md -> 15.5.sp
-        BrandButtonSize.Lg -> 17.sp
-    }
-    val padding = when (size) {
-        BrandButtonSize.Sm -> PaddingValues(horizontal = 16.dp, vertical = 9.dp)
-        BrandButtonSize.Md -> PaddingValues(horizontal = 20.dp, vertical = 13.dp)
-        BrandButtonSize.Lg -> PaddingValues(horizontal = 24.dp, vertical = 16.dp)
-    }
+    val fontSize =
+        when (size) {
+            BrandButtonSize.Sm -> 14.sp
+            BrandButtonSize.Md -> 15.5.sp
+            BrandButtonSize.Lg -> 17.sp
+        }
+    val padding =
+        when (size) {
+            BrandButtonSize.Sm -> PaddingValues(horizontal = 16.dp, vertical = 9.dp)
+            BrandButtonSize.Md -> PaddingValues(horizontal = 20.dp, vertical = 13.dp)
+            BrandButtonSize.Lg -> PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+        }
 
     Row(
-        modifier = modifier
-            .scale(scale)
-            .let { if (style.elevation > 0.dp) it.shadow(style.elevation, CircleShape, ambientColor = BrandTheme.colors.violet, spotColor = BrandTheme.colors.violet) else it }
-            .clip(CircleShape)
-            .background(style.background)
-            .let { m -> style.borderColor?.let { m.border(1.5.dp, it, CircleShape) } ?: m }
-            .clickable(
-                enabled = enabled,
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            )
-            .padding(padding),
+        modifier =
+            modifier
+                .scale(scale)
+                .let { if (style.elevation > 0.dp) it.shadow(style.elevation, CircleShape, ambientColor = BrandTheme.colors.violet, spotColor = BrandTheme.colors.violet) else it }
+                .clip(CircleShape)
+                .background(style.background)
+                .let { m -> style.borderColor?.let { m.border(1.5.dp, it, CircleShape) } ?: m }
+                .clickable(
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                )
+                .padding(padding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp, Alignment.CenterHorizontally),
     ) {
@@ -130,27 +138,30 @@ fun BrandButton(
             Text(
                 text = text,
                 color = style.content,
-                style = TextStyle(
-                    fontFamily = displayFamily(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = fontSize,
-                    letterSpacing = 0.15.sp,
-                ),
+                style =
+                    TextStyle(
+                        fontFamily = displayFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = fontSize,
+                        letterSpacing = 0.15.sp,
+                    ),
             )
             trailingIcon?.invoke()
         }
     }
 }
 
-@Preview @Composable private fun SmallBrandButtonPreview() {
+@Preview @Composable
+private fun SmallBrandButtonPreview() {
     BrandButton(text = "Small Button", size = BrandButtonSize.Sm, onClick = {})
 }
 
-@Preview @Composable private fun MediumBrandButtonPreview() {
+@Preview @Composable
+private fun MediumBrandButtonPreview() {
     BrandButton(text = "Medium Button", onClick = {})
 }
 
-@Preview @Composable private fun LargeBrandButtonPreview() {
+@Preview @Composable
+private fun LargeBrandButtonPreview() {
     BrandButton(text = "Large Button", size = BrandButtonSize.Lg, onClick = {})
 }
-

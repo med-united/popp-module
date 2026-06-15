@@ -36,36 +36,40 @@ fun BrandScreenHeader(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp)
-                .padding(horizontal = 12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+                    .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = "service·health",
                 color = c.violet,
-                style = BrandTheme.typography.labelMedium.copy(
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                ),
+                style =
+                    BrandTheme.typography.labelMedium.copy(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
             )
 
             Box(
-                modifier = Modifier
-                    .padding(horizontal = 14.dp)
-                    .width(1.dp)
-                    .height(22.dp)
-                    .background(c.silver)
+                modifier =
+                    Modifier
+                        .padding(horizontal = 14.dp)
+                        .width(1.dp)
+                        .height(22.dp)
+                        .background(c.silver),
             )
 
             Text(
                 text = title,
                 color = c.neutral700,
-                style = BrandTheme.typography.labelLarge.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                ),
+                style =
+                    BrandTheme.typography.labelLarge.copy(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -73,11 +77,12 @@ fun BrandScreenHeader(
 
             if (onClose != null) {
                 Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(c.mist)
-                        .clickable(onClick = onClose),
+                    modifier =
+                        Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(c.mist)
+                            .clickable(onClick = onClose),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -97,14 +102,17 @@ fun BrandScreenHeader(
     }
 }
 
-@Preview @Composable private fun BrandScreenHeaderPreview() {
+@Preview @Composable
+private fun BrandScreenHeaderPreview() {
     BrandScreenHeader(title = "Versicherungsnachweis")
 }
 
-@Preview @Composable private fun BrandScreenHeaderWithClosePreview() {
+@Preview @Composable
+private fun BrandScreenHeaderWithClosePreview() {
     BrandScreenHeader(title = "Versicherungsnachweis", onClose = {})
 }
 
-@Preview @Composable private fun BrandScreenHeaderLongTitlePreview() {
+@Preview @Composable
+private fun BrandScreenHeaderLongTitlePreview() {
     BrandScreenHeader(title = "Ein sehr langer Titel der garantiert abgeschnitten wird", onClose = {})
 }

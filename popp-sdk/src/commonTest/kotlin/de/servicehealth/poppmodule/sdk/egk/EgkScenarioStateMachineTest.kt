@@ -12,13 +12,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class EgkScenarioStateMachineTest {
-
     private val sessionId = "sess-1"
     private val machine = EgkScenarioStateMachine
 
     private fun initial() = EgkScenarioState.initial(sessionId)
 
-    private fun scenario(seq: Int, steps: List<ScenarioStep>, timeSpan: Int = 1000) =
+    private fun scenario(
+        seq: Int,
+        steps: List<ScenarioStep>,
+        timeSpan: Int = 1000,
+    ) =
         StandardScenarioMessage("1.0.0", sessionId, seq, timeSpan, steps)
 
     @Test

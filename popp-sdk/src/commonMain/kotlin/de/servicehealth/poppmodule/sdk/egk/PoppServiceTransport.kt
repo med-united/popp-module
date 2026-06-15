@@ -12,9 +12,11 @@ import de.servicehealth.poppmodule.sdk.egk.protocol.PoppMessage
  */
 internal interface PoppServiceTransport {
     suspend fun open()
+
     suspend fun send(message: PoppMessage)
 
     /** Suspends until the next inbound message. */
     suspend fun receive(): PoppMessage
+
     suspend fun close()
 }

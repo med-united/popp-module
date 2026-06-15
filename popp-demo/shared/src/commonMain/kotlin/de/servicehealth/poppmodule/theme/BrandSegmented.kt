@@ -35,66 +35,74 @@ fun <T> BrandSegmented(
     val c = BrandTheme.colors
     val trackBackground = if (dark) Color.White.copy(alpha = 0.08f) else c.mist
 
-    val rowMod = (if (fillMaxWidth) modifier.fillMaxWidth() else modifier)
-        .clip(CircleShape)
-        .background(trackBackground)
-        .padding(4.dp)
+    val rowMod =
+        (if (fillMaxWidth) modifier.fillMaxWidth() else modifier)
+            .clip(CircleShape)
+            .background(trackBackground)
+            .padding(4.dp)
 
     Row(modifier = rowMod, verticalAlignment = Alignment.CenterVertically) {
         options.forEach { option ->
             val on = option.id == selected
-            val segMod = (if (fillMaxWidth) Modifier.weight(1f) else Modifier)
-                .clip(CircleShape)
-                .background(
-                    when {
-                        on && dark -> c.white
-                        on && !dark -> c.deep
-                        else -> Color.Transparent
-                    }
-                )
-                .clickable(
-                    interactionSource = remember(option.id) { MutableInteractionSource() },
-                    indication = null,
-                    onClick = { onSelect(option.id) }
-                )
-                .padding(horizontal = 14.dp, vertical = 9.dp)
+            val segMod =
+                (if (fillMaxWidth) Modifier.weight(1f) else Modifier)
+                    .clip(CircleShape)
+                    .background(
+                        when {
+                            on && dark -> c.white
+                            on && !dark -> c.deep
+                            else -> Color.Transparent
+                        },
+                    )
+                    .clickable(
+                        interactionSource = remember(option.id) { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { onSelect(option.id) },
+                    )
+                    .padding(horizontal = 14.dp, vertical = 9.dp)
 
-            val labelColor = when {
-                on && dark -> c.deep
-                on && !dark -> c.white
-                !on && dark -> Color.White.copy(alpha = 0.6f)
-                else -> c.neutral700
-            }
+            val labelColor =
+                when {
+                    on && dark -> c.deep
+                    on && !dark -> c.white
+                    !on && dark -> Color.White.copy(alpha = 0.6f)
+                    else -> c.neutral700
+                }
 
             Box(modifier = segMod, contentAlignment = Alignment.Center) {
                 Text(
                     text = option.label,
                     color = labelColor,
-                    style = TextStyle(
-                        fontFamily = displayFamily(),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                    ),
+                    style =
+                        TextStyle(
+                            fontFamily = displayFamily(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                        ),
                 )
             }
         }
     }
 }
 
-private val previewOptions = listOf(
-    SegmentedOption("a", "Option A"),
-    SegmentedOption("b", "Option B"),
-    SegmentedOption("c", "Option C"),
-)
+private val previewOptions =
+    listOf(
+        SegmentedOption("a", "Option A"),
+        SegmentedOption("b", "Option B"),
+        SegmentedOption("c", "Option C"),
+    )
 
-@Preview @Composable private fun FirstSelectedBrandSegmentedPreview() {
+@Preview @Composable
+private fun FirstSelectedBrandSegmentedPreview() {
     BrandSegmented(options = previewOptions, selected = "a", onSelect = {})
 }
 
-@Preview @Composable private fun MidSelectedBrandSegmentedPreview() {
+@Preview @Composable
+private fun MidSelectedBrandSegmentedPreview() {
     BrandSegmented(options = previewOptions, selected = "b", onSelect = {})
 }
 
-@Preview @Composable private fun DarkBrandSegmentedPreview() {
+@Preview @Composable
+private fun DarkBrandSegmentedPreview() {
     BrandSegmented(options = previewOptions, selected = "a", onSelect = {}, dark = true)
 }

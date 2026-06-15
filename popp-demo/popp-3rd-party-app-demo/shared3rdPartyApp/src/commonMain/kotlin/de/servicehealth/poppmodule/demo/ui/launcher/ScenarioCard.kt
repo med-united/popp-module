@@ -44,11 +44,12 @@ fun ScenarioCard(
             }
             if (selected) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(22.dp)
-                        .clip(CircleShape)
-                        .background(c.violet),
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .background(c.violet),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(

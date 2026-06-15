@@ -27,13 +27,16 @@ internal actual fun createPoppWebSocketClient(trustedCaPem: String?): HttpClient
     }
 
 private fun trustManagerFor(caPem: String): X509TrustManager {
-    val certificate = CertificateFactory.getInstance("X.509")
-        .generateCertificate(caPem.byteInputStream())
-    val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
-        load(null, null)
-        setCertificateEntry("popp-trusted-ca", certificate)
-    }
-    val factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-        .apply { init(keyStore) }
+    val certificate =
+        CertificateFactory.getInstance("X.509")
+            .generateCertificate(caPem.byteInputStream())
+    val keyStore =
+        KeyStore.getInstance(KeyStore.getDefaultType()).apply {
+            load(null, null)
+            setCertificateEntry("popp-trusted-ca", certificate)
+        }
+    val factory =
+        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            .apply { init(keyStore) }
     return factory.trustManagers.filterIsInstance<X509TrustManager>().first()
 }

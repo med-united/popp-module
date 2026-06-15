@@ -11,9 +11,3 @@ indent_size = 4
 max_line_length = off
 # Composable functions and KMP iOS entry points are intentionally PascalCase
 ktlint_function_naming_ignore_when_annotated_with = Composable
-
-# Compose resource generator emits lowercase object names (Res.drawable, Res.string)
-# and PascalCase factory functions — disable naming rules for all generated code
-[{**/build/generated/**/*.kt,**/build/generated/**/*.kts}]
-ktlint_standard_class-naming = disabled
-ktlint_standard_function-naming = disabled

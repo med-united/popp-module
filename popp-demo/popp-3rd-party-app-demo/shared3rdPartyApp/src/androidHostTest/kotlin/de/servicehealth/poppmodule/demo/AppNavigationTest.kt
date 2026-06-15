@@ -13,24 +13,25 @@ import kotlin.test.Test
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class AppNavigationTest {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun integratedModeStartOpensCheckInEntry() =
+        runComposeUiTest {
+            setContent { App() }
+            // Select scenario; mode defaults to INTEGRATED.
+            onNodeWithText("Online-Apotheke").performScrollTo().performClick()
+            onNodeWithText("Starte die Demo").performClick()
+            onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
+        }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun integratedModeStartOpensCheckInEntry() = runComposeUiTest {
-        setContent { App() }
-        // Select scenario; mode defaults to INTEGRATED.
-        onNodeWithText("Online-Apotheke").performScrollTo().performClick()
-        onNodeWithText("Starte die Demo").performClick()
-        onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun appToAppModeStartOpensCheckInEntry() = runComposeUiTest {
-        setContent { App() }
-        onNodeWithText("Online-Apotheke").performScrollTo().performClick()
-        onNodeWithText("App-zu-App").performScrollTo().performClick() // switch mode
-        onNodeWithText("Starte die Demo").performClick()
-        onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
-    }
+    fun appToAppModeStartOpensCheckInEntry() =
+        runComposeUiTest {
+            setContent { App() }
+            onNodeWithText("Online-Apotheke").performScrollTo().performClick()
+            onNodeWithText("App-zu-App").performScrollTo().performClick() // switch mode
+            onNodeWithText("Starte die Demo").performClick()
+            onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
+        }
 }

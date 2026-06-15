@@ -28,24 +28,25 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
 class AndroidQrScanner(private val context: Context) : PoppQrScanner {
-
     private val _surfaceRequests = MutableStateFlow<SurfaceRequest?>(null)
 
     val surfaceRequests: StateFlow<SurfaceRequest?> = _surfaceRequests.asStateFlow()
 
-    private val _results = MutableSharedFlow<ScanResult>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    private val _results =
+        MutableSharedFlow<ScanResult>(
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
     override val results: Flow<ScanResult> = _results.asSharedFlow()
 
     private val analysisExecutor = Executors.newSingleThreadExecutor()
 
-    private val barcodeScanner = BarcodeScanning.getClient(
-        BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-            .build()
-    )
+    private val barcodeScanner =
+        BarcodeScanning.getClient(
+            BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                .build(),
+        )
 
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -57,14 +58,16 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
         val provider = ProcessCameraProvider.awaitInstance(context)
         cameraProvider = provider
 
-        val preview = Preview.Builder().build().apply {
-            surfaceProvider = Preview.SurfaceProvider { request -> _surfaceRequests.update { request } }
-        }
+        val preview =
+            Preview.Builder().build().apply {
+                surfaceProvider = Preview.SurfaceProvider { request -> _surfaceRequests.update { request } }
+            }
 
-        val analysis = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .build()
-            .apply { setAnalyzer(analysisExecutor, ::analyze) }
+        val analysis =
+            ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+                .apply { setAnalyzer(analysisExecutor, ::analyze) }
 
         if (boundUseCases.isNotEmpty()) provider.unbind(*boundUseCases)
 
@@ -91,11 +94,12 @@ class AndroidQrScanner(private val context: Context) : PoppQrScanner {
                 val barcode = barcodes.firstOrNull() ?: return@addOnSuccessListener
                 val rawBytes = barcode.rawBytes
                 val rawValue = barcode.rawValue
-                val result = when {
-                    rawBytes != null -> parseCheckInPayload(rawBytes)
-                    rawValue != null -> parseCheckInPayload(rawValue)
-                    else -> return@addOnSuccessListener
-                }
+                val result =
+                    when {
+                        rawBytes != null -> parseCheckInPayload(rawBytes)
+                        rawValue != null -> parseCheckInPayload(rawValue)
+                        else -> return@addOnSuccessListener
+                    }
                 _results.tryEmit(result)
             }
             .addOnCompleteListener {

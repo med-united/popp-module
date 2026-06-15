@@ -41,34 +41,44 @@ fun BrandCard(
     val borderWidth = if (selected) 2.dp else 1.dp
     val borderColor = if (selected) c.violet else c.mist
 
-    val base = modifier
-        .scale(scale)
-        .shadow(elevation, shape, ambientColor = c.deep, spotColor = c.deep)
-        .clip(shape)
-        .background(background)
-        .border(borderWidth, borderColor, shape)
+    val base =
+        modifier
+            .scale(scale)
+            .shadow(elevation, shape, ambientColor = c.deep, spotColor = c.deep)
+            .clip(shape)
+            .background(background)
+            .border(borderWidth, borderColor, shape)
 
-    val outer = if (onClick != null) base.clickable(
-        interactionSource = interactionSource,
-        indication = null,
-        onClick = onClick,
-    ) else base
+    val outer =
+        if (onClick != null) {
+            base.clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            )
+        } else {
+            base
+        }
 
     Box(modifier = outer.padding(padding), content = { content() })
 }
 
-@Preview @Composable private fun DefaultBrandCardPreview() {
+@Preview @Composable
+private fun DefaultBrandCardPreview() {
     BrandCard { Text("Default card") }
 }
 
-@Preview @Composable private fun RaisedBrandCardPreview() {
+@Preview @Composable
+private fun RaisedBrandCardPreview() {
     BrandCard(raised = true) { Text("Raised card") }
 }
 
-@Preview @Composable private fun SelectedBrandCardPreview() {
+@Preview @Composable
+private fun SelectedBrandCardPreview() {
     BrandCard(selected = true) { Text("Selected card") }
 }
 
-@Preview @Composable private fun ClickableBrandCardPreview() {
+@Preview @Composable
+private fun ClickableBrandCardPreview() {
     BrandCard(onClick = {}) { Text("Clickable card") }
 }

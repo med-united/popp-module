@@ -12,10 +12,11 @@ import kotlinx.serialization.json.Json
  * - `classDiscriminator = "type"` matches the `@JsonClassDiscriminator("type")` on [PoppMessage].
  */
 internal object PoppJson {
-    val instance: Json = Json {
-        ignoreUnknownKeys = true
-        explicitNulls = false
-        encodeDefaults = true
-        classDiscriminator = "type"
-    }
+    val instance: Json =
+        Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+            encodeDefaults = true
+            classDiscriminator = "type"
+        }
 }

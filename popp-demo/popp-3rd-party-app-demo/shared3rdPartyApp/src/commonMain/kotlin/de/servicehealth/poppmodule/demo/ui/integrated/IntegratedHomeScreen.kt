@@ -19,7 +19,10 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Placeholder for the Voll-integriert home. Replaced by the real screen in its own ticket. */
 @Composable
-fun IntegratedHomeScreen(scenarioId: String?, onNavigateToSearch: () -> Unit = {}) {
+fun IntegratedHomeScreen(
+    scenarioId: String?,
+    onNavigateToSearch: () -> Unit = {},
+) {
     val sdk = LocalPoppSdk.current
     val c = BrandTheme.colors
     Box(

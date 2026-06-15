@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BrandColorsTest {
-
     @Test
     fun defaultPalette_hasBrandSignalColors() {
         val colors = BrandColors()

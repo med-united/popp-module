@@ -53,17 +53,19 @@ fun BrandShowcaseScreen(onOpenCheckIn: (() -> Unit)? = null) {
     BrandTheme {
         val c = BrandTheme.colors
         Column(
-            modifier = Modifier
-                .background(c.mist)
-                .fillMaxSize()
+            modifier =
+                Modifier
+                    .background(c.mist)
+                    .fillMaxSize(),
         ) {
             ShowcaseHeader()
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .safeContentPadding()
-                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .safeContentPadding()
+                        .padding(horizontal = 20.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 if (onOpenCheckIn != null) {
@@ -94,11 +96,12 @@ fun BrandShowcaseScreen(onOpenCheckIn: (() -> Unit)? = null) {
 private fun ShowcaseHeader() {
     val c = BrandTheme.colors
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(c.deep)
-            .safeContentPadding()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(c.deep)
+                .safeContentPadding()
+                .padding(horizontal = 20.dp, vertical = 20.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             BrandTag(text = "PoPP-Modul", tone = BrandTagTone.Solid)
@@ -117,7 +120,10 @@ private fun ShowcaseHeader() {
 }
 
 @Composable
-private fun SectionHeading(eyebrow: String, title: String) {
+private fun SectionHeading(
+    eyebrow: String,
+    title: String,
+) {
     val c = BrandTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
@@ -162,39 +168,57 @@ private fun ColorSection(c: BrandColors) {
         SectionHeading(eyebrow = "01 · Farben", title = "Palette")
         BrandCard {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                ColorRow("Electric Violet", listOf(
-                    "violet" to c.violet,
-                    "violet700" to c.violet700,
-                    "violet300" to c.violet300,
-                    "violet100" to c.violet100,
-                ))
-                ColorRow("Signal Yellow", listOf(
-                    "yellow" to c.yellow,
-                    "yellow300" to c.yellow300,
-                    "yellow100" to c.yellow100,
-                ))
-                ColorRow("Deep & Ink", listOf(
-                    "deep" to c.deep,
-                    "ink" to c.ink,
-                    "neutral700" to c.neutral700,
-                    "silver" to c.silver,
-                ))
-                ColorRow("Surface", listOf(
-                    "mist" to c.mist,
-                    "white" to c.white,
-                ))
-                ColorRow("Semantik", listOf(
-                    "success" to c.success,
-                    "warning" to c.warning,
-                    "danger" to c.danger,
-                ))
+                ColorRow(
+                    "Electric Violet",
+                    listOf(
+                        "violet" to c.violet,
+                        "violet700" to c.violet700,
+                        "violet300" to c.violet300,
+                        "violet100" to c.violet100,
+                    ),
+                )
+                ColorRow(
+                    "Signal Yellow",
+                    listOf(
+                        "yellow" to c.yellow,
+                        "yellow300" to c.yellow300,
+                        "yellow100" to c.yellow100,
+                    ),
+                )
+                ColorRow(
+                    "Deep & Ink",
+                    listOf(
+                        "deep" to c.deep,
+                        "ink" to c.ink,
+                        "neutral700" to c.neutral700,
+                        "silver" to c.silver,
+                    ),
+                )
+                ColorRow(
+                    "Surface",
+                    listOf(
+                        "mist" to c.mist,
+                        "white" to c.white,
+                    ),
+                )
+                ColorRow(
+                    "Semantik",
+                    listOf(
+                        "success" to c.success,
+                        "warning" to c.warning,
+                        "danger" to c.danger,
+                    ),
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ColorRow(label: String, swatches: List<Pair<String, Color>>) {
+private fun ColorRow(
+    label: String,
+    swatches: List<Pair<String, Color>>,
+) {
     val c = BrandTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
@@ -212,7 +236,7 @@ private fun ColorRow(label: String, swatches: List<Pair<String, Color>>) {
                         Modifier
                             .size(44.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(color)
+                            .background(color),
                     )
                     Text(
                         text = name,
@@ -314,11 +338,12 @@ private fun TagSection() {
                     BrandTag(text = "Live", tone = BrandTagTone.Solid, dot = true)
                 }
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(BrandTheme.colors.deep)
-                        .padding(14.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(BrandTheme.colors.deep)
+                            .padding(14.dp),
                 ) {
                     BrandTag(text = "On Dark", tone = BrandTagTone.OnDark, dot = true)
                 }
@@ -395,7 +420,7 @@ private fun FieldSection() {
                             Modifier
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(if (focused) c.violet else c.silver)
+                                .background(if (focused) c.violet else c.silver),
                         )
                     },
                 )
@@ -423,27 +448,30 @@ private fun SegmentedSection() {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Integrationsszenario", color = c.ink, style = BrandTheme.typography.titleSmall)
                 BrandSegmented(
-                    options = listOf(
-                        SegmentedOption("integrated", "Voll integriert"),
-                        SegmentedOption("app2app", "App-zu-App"),
-                    ),
+                    options =
+                        listOf(
+                            SegmentedOption("integrated", "Voll integriert"),
+                            SegmentedOption("app2app", "App-zu-App"),
+                        ),
                     selected = scenario,
                     onSelect = { scenario = it },
                 )
                 Spacer(Modifier.height(4.dp))
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(c.deep)
-                        .padding(14.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(c.deep)
+                            .padding(14.dp),
                 ) {
                     BrandSegmented(
-                        options = listOf(
-                            SegmentedOption("both", "Beide"),
-                            SegmentedOption("ios", "iOS"),
-                            SegmentedOption("android", "Android"),
-                        ),
+                        options =
+                            listOf(
+                                SegmentedOption("both", "Beide"),
+                                SegmentedOption("ios", "iOS"),
+                                SegmentedOption("android", "Android"),
+                            ),
                         selected = platform,
                         onSelect = { platform = it },
                         dark = true,

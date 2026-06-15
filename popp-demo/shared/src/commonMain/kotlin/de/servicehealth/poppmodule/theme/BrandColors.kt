@@ -36,20 +36,16 @@ data class BrandColors(
     val yellow: Color = Color(0xFFF7EA5A),
     val yellow300: Color = Color(0xFFFAF2A7),
     val yellow100: Color = Color(0xFFFDFBEB),
-
     val violet: Color = Color(0xFF5F29EF),
     val violet700: Color = Color(0xFF350791),
     val violet300: Color = Color(0xFFAE8DF5),
     val violet100: Color = Color(0xFFEBE3FC),
-
     val deep: Color = Color(0xFF100030),
-
     val ink: Color = Color(0xFF18181B),
     val neutral700: Color = Color(0xFF5D5D63),
     val silver: Color = Color(0xFFC7C7CC),
     val mist: Color = Color(0xFFF2F2F7),
     val white: Color = Color(0xFFFFFFFF),
-
     val success: Color = Color(0xFF1F8A5B),
     val successBg: Color = Color(0xFFE4F3EC),
     val warning: Color = Color(0xFFC98A12),
@@ -58,14 +54,17 @@ data class BrandColors(
 )
 
 @Composable
-private fun ColorSwatch(name: String, color: Color) {
+private fun ColorSwatch(
+    name: String,
+    color: Color,
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             Modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(color)
-                .border(1.dp, Color.Black.copy(alpha = 0.08f), RoundedCornerShape(8.dp))
+                .border(1.dp, Color.Black.copy(alpha = 0.08f), RoundedCornerShape(8.dp)),
         )
         Spacer(Modifier.height(4.dp))
         Text(name, fontSize = 9.sp, lineHeight = 11.sp)
@@ -73,7 +72,10 @@ private fun ColorSwatch(name: String, color: Color) {
 }
 
 @Composable
-private fun PaletteGroup(label: String, swatches: List<Pair<String, Color>>) {
+private fun PaletteGroup(
+    label: String,
+    swatches: List<Pair<String, Color>>,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(label, fontWeight = FontWeight.Bold, fontSize = 11.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -97,27 +99,28 @@ private fun BrandColorPalettePreview() {
     }
 }
 
-internal fun BrandColors.toMaterialColorScheme(): ColorScheme = lightColorScheme(
-    primary = violet,
-    onPrimary = white,
-    primaryContainer = violet100,
-    onPrimaryContainer = violet700,
-    secondary = deep,
-    onSecondary = white,
-    secondaryContainer = mist,
-    onSecondaryContainer = ink,
-    tertiary = yellow,
-    onTertiary = ink,
-    tertiaryContainer = yellow300,
-    onTertiaryContainer = ink,
-    background = white,
-    onBackground = ink,
-    surface = white,
-    onSurface = ink,
-    surfaceVariant = mist,
-    onSurfaceVariant = neutral700,
-    outline = silver,
-    outlineVariant = mist,
-    error = danger,
-    onError = white,
-)
+internal fun BrandColors.toMaterialColorScheme(): ColorScheme =
+    lightColorScheme(
+        primary = violet,
+        onPrimary = white,
+        primaryContainer = violet100,
+        onPrimaryContainer = violet700,
+        secondary = deep,
+        onSecondary = white,
+        secondaryContainer = mist,
+        onSecondaryContainer = ink,
+        tertiary = yellow,
+        onTertiary = ink,
+        tertiaryContainer = yellow300,
+        onTertiaryContainer = ink,
+        background = white,
+        onBackground = ink,
+        surface = white,
+        onSurface = ink,
+        surfaceVariant = mist,
+        onSurfaceVariant = neutral700,
+        outline = silver,
+        outlineVariant = mist,
+        error = danger,
+        onError = white,
+    )

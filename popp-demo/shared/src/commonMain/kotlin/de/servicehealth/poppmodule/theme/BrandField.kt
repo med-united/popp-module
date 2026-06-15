@@ -5,10 +5,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,8 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
 
 @Composable
 fun BrandField(
@@ -35,7 +35,7 @@ fun BrandField(
     trailingIcon: (@Composable () -> Unit)? = null,
     readOnly: Boolean = false,
     singleLine: Boolean = true,
-){
+) {
     val c = BrandTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -45,12 +45,13 @@ fun BrandField(
     val focusedHalo = if (focused) Modifier.shadow(elevation = 6.dp, shape = shape, ambientColor = c.violet, spotColor = c.violet) else Modifier
 
     Row(
-        modifier = modifier
-            .then(focusedHalo)
-            .clip(shape)
-            .background(c.white)
-            .border(1.5.dp, borderColor, shape)
-            .padding(horizontal = 15.dp, vertical = 13.dp),
+        modifier =
+            modifier
+                .then(focusedHalo)
+                .clip(shape)
+                .background(c.white)
+                .border(1.5.dp, borderColor, shape)
+                .padding(horizontal = 15.dp, vertical = 13.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -60,11 +61,12 @@ fun BrandField(
                 Text(
                     text = placeholder,
                     color = c.silver,
-                    style = TextStyle(
-                        fontFamily = bodyFamily,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
-                    ),
+                    style =
+                        TextStyle(
+                            fontFamily = bodyFamily,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                        ),
                 )
             }
             BasicTextField(
@@ -74,27 +76,31 @@ fun BrandField(
                 readOnly = readOnly,
                 interactionSource = interactionSource,
                 cursorBrush = SolidColor(c.violet),
-                textStyle = TextStyle(
-                    fontFamily = bodyFamily,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = c.ink,
-                ),
+                textStyle =
+                    TextStyle(
+                        fontFamily = bodyFamily,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = c.ink,
+                    ),
             )
         }
         trailingIcon?.invoke()
     }
 }
 
-@Preview @Composable private fun EmptyBrandFieldPreview() {
+@Preview @Composable
+private fun EmptyBrandFieldPreview() {
     BrandField(value = "", onValueChange = {}, placeholder = "Enter your name")
 }
 
-@Preview @Composable private fun FilledBrandFieldPreview() {
+@Preview @Composable
+private fun FilledBrandFieldPreview() {
     BrandField(value = "Max Mustermann", onValueChange = {})
 }
 
-@Preview @Composable private fun LeadingIconBrandFieldPreview() {
+@Preview @Composable
+private fun LeadingIconBrandFieldPreview() {
     BrandField(
         value = "",
         onValueChange = {},
@@ -103,6 +109,7 @@ fun BrandField(
     )
 }
 
-@Preview @Composable private fun ReadOnlyBrandFieldPreview() {
+@Preview @Composable
+private fun ReadOnlyBrandFieldPreview() {
     BrandField(value = "Read-only value", onValueChange = {}, readOnly = true)
 }

@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.ktlint) apply false
 }
 
-subprojects {
+allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         filter {

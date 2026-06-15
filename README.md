@@ -89,6 +89,6 @@ Kotlin formatting is enforced by [ktlint](https://pinterest.github.io/ktlint/) v
 **Pre-commit hook** — run once after cloning to block commits with style violations:
 
 ```sh
-printf '#!/bin/sh\n./gradlew ktlintCheck --daemon --quiet\n' > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+./gradlew addKtlintCheckGitPreCommitHook
 ```
 

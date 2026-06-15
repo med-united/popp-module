@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitView
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_denied
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.camera_permission_open_settings
@@ -39,11 +40,8 @@ import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.requestAccessForMediaType
 import platform.CoreGraphics.CGRectZero
-import platform.Foundation.NSNotificationCenter
-import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
-import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationOpenSettingsURLString
 import platform.UIKit.UIView
 import platform.darwin.dispatch_async
@@ -69,15 +67,9 @@ actual fun QrCameraViewfinder(
         onDispose { scanner.close() }
     }
 
-    DisposableEffect(Unit) {
-        val token = NSNotificationCenter.defaultCenter.addObserverForName(
-            UIApplicationDidBecomeActiveNotification,
-            null,
-            NSOperationQueue.mainQueue,
-        ) { _ ->
-            if (status != CameraAuth.Authorized) status = cameraAuthStatus()
-        }
-        onDispose { NSNotificationCenter.defaultCenter.removeObserver(token) }
+    LifecycleResumeEffect(Unit) {
+        if (status != CameraAuth.Authorized) status = cameraAuthStatus()
+        onPauseOrDispose { }
     }
 
     LaunchedEffect(Unit) {

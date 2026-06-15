@@ -26,31 +26,33 @@ import platform.darwin.dispatch_queue_create
 
 @OptIn(ExperimentalForeignApi::class)
 class IosQrScanner : PoppQrScanner {
-
-    private val _results = MutableSharedFlow<ScanResult>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    private val _results =
+        MutableSharedFlow<ScanResult>(
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
     override val results: Flow<ScanResult> = _results.asSharedFlow()
 
     val session: AVCaptureSession = AVCaptureSession()
 
-    private val delegate = object : NSObject(), AVCaptureMetadataOutputObjectsDelegateProtocol {
-        override fun captureOutput(
-            output: AVCaptureOutput,
-            didOutputMetadataObjects: List<*>,
-            fromConnection: AVCaptureConnection,
-        ) {
-            val code = didOutputMetadataObjects
-                .firstNotNullOfOrNull { it as? AVMetadataMachineReadableCodeObject } ?: return
-            val value = code.stringValue
-            if (value == null) {
-                _results.tryEmit(ScanResult.Invalid(ScanResult.Invalid.Reason.NOT_UTF8))
-                return
+    private val delegate =
+        object : NSObject(), AVCaptureMetadataOutputObjectsDelegateProtocol {
+            override fun captureOutput(
+                output: AVCaptureOutput,
+                didOutputMetadataObjects: List<*>,
+                fromConnection: AVCaptureConnection,
+            ) {
+                val code =
+                    didOutputMetadataObjects
+                        .firstNotNullOfOrNull { it as? AVMetadataMachineReadableCodeObject } ?: return
+                val value = code.stringValue
+                if (value == null) {
+                    _results.tryEmit(ScanResult.Invalid(ScanResult.Invalid.Reason.NOT_UTF8))
+                    return
+                }
+                _results.tryEmit(parseCheckInPayload(value))
             }
-            _results.tryEmit(parseCheckInPayload(value))
         }
-    }
 
     private var configured = false
 
@@ -63,11 +65,12 @@ class IosQrScanner : PoppQrScanner {
     }
 
     private fun configure(): Boolean {
-        val device = AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypes(
-            deviceTypes = listOf(AVCaptureDeviceTypeBuiltInWideAngleCamera),
-            mediaType = AVMediaTypeVideo,
-            position = AVCaptureDevicePositionBack,
-        ).devices.firstOrNull() as? AVCaptureDevice ?: return false
+        val device =
+            AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypes(
+                deviceTypes = listOf(AVCaptureDeviceTypeBuiltInWideAngleCamera),
+                mediaType = AVMediaTypeVideo,
+                position = AVCaptureDevicePositionBack,
+            ).devices.firstOrNull() as? AVCaptureDevice ?: return false
         val input = AVCaptureDeviceInput.deviceInputWithDevice(device, null) ?: return false
         if (!session.canAddInput(input)) return false
 

@@ -91,19 +91,21 @@ actual fun QrCameraViewfinder(
     }
 
     when (status) {
-        CameraAuth.Authorized -> UIKitView(
-            factory = { CameraPreviewView(AVCaptureVideoPreviewLayer(session = scanner.session)) },
-            modifier = modifier,
-        )
+        CameraAuth.Authorized ->
+            UIKitView(
+                factory = { CameraPreviewView(AVCaptureVideoPreviewLayer(session = scanner.session)) },
+                modifier = modifier,
+            )
 
         CameraAuth.NotDetermined -> Box(modifier.background(c.deep))
 
-        CameraAuth.Denied -> PermissionPanel(
-            modifier = modifier,
-            message = stringResource(Res.string.camera_permission_denied),
-            actionLabel = stringResource(Res.string.camera_permission_open_settings),
-            onAction = { openAppSettings() },
-        )
+        CameraAuth.Denied ->
+            PermissionPanel(
+                modifier = modifier,
+                message = stringResource(Res.string.camera_permission_denied),
+                actionLabel = stringResource(Res.string.camera_permission_open_settings),
+                onAction = { openAppSettings() },
+            )
     }
 }
 
@@ -154,7 +156,6 @@ private fun openAppSettings() {
 private class CameraPreviewView(
     private val previewLayer: AVCaptureVideoPreviewLayer,
 ) : UIView(frame = CGRectZero.readValue()) {
-
     init {
         previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
         layer.addSublayer(previewLayer)

@@ -18,6 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.generated.resources.Res
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_black
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_bold
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_extrabold
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_medium
+import de.servicehealth.poppmodule.demo.generated.resources.twk_everett_regular
 import org.jetbrains.compose.resources.Font
 
 /**

@@ -18,7 +18,10 @@ internal fun parseCommandApdu(raw: ByteArray): CommandApdu {
     val p1 = raw[2].toInt() and 0xFF
     val p2 = raw[3].toInt() and 0xFF
 
-    fun of(data: ByteArray?, ne: Int?) = CommandApdu.ofOptions(cla, ins, p1, p2, data, ne)
+    fun of(
+        data: ByteArray?,
+        ne: Int?,
+    ) = CommandApdu.ofOptions(cla, ins, p1, p2, data, ne)
 
     if (raw.size == 4) return of(null, null) // case 1
 

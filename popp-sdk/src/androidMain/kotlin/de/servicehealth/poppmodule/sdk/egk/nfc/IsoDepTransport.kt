@@ -11,7 +11,6 @@ import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.ResponseApdu
  * JVM (thin wrapper over framework I/O); verified on hardware (see docs/manual-egk-nfc-verification.md).
  */
 internal class IsoDepTransport(private val isoDep: IsoDep) : ICardChannel {
-
     override val maxTransceiveLength: Int get() = isoDep.maxTransceiveLength
     override val isExtendedLengthSupported: Boolean get() = isoDep.isExtendedLengthApduSupported
 

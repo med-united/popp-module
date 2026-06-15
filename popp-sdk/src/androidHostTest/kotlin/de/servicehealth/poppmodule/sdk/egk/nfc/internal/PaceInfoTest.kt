@@ -30,7 +30,6 @@ import org.junit.Assert
 import kotlin.test.Test
 
 class PaceInfoTest {
-
     @Test
     fun testPaceInfoExtraction() {
         val cardAccessBytes: ByteArray = Hex.decode("31143012060A04007F0007020204020202010202010D")
@@ -42,7 +41,7 @@ class PaceInfoTest {
         val paceInfoProtocolBytes = paceInfo.paceInfoProtocolBytes
         Assert.assertArrayEquals(
             expectedPaceInfoProtocolBytes,
-            paceInfoProtocolBytes
+            paceInfoProtocolBytes,
         )
     }
 }

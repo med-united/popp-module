@@ -8,8 +8,10 @@ import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalStdlibApi::class)
 class PaceCommandsTest {
-
-    private fun assertBytes(expectedHex: String, command: CommandApdu) =
+    private fun assertBytes(
+        expectedHex: String,
+        command: CommandApdu,
+    ) =
         assertContentEquals(expectedHex.hexToByteArray(), command.bytes)
 
     @Test
@@ -53,14 +55,17 @@ class PaceCommandsTest {
 
     @Test
     fun `transmitSuccessfully throws CardResponseException on non-9000`() {
-        val channel = object : ICardChannel {
-            override val maxTransceiveLength = 65535
-            override val isExtendedLengthSupported = true
-            override fun transmit(command: CommandApdu) = ResponseApdu(byteArrayOf(0x63, 0x00))
-        }
-        val e = assertFailsWith<CardResponseException> {
-            channel.transmitSuccessfully("GENERAL AUTHENTICATE step 1", PaceCommands.generalAuthenticate(true))
-        }
+        val channel =
+            object : ICardChannel {
+                override val maxTransceiveLength = 65535
+                override val isExtendedLengthSupported = true
+
+                override fun transmit(command: CommandApdu) = ResponseApdu(byteArrayOf(0x63, 0x00))
+            }
+        val e =
+            assertFailsWith<CardResponseException> {
+                channel.transmitSuccessfully("GENERAL AUTHENTICATE step 1", PaceCommands.generalAuthenticate(true))
+            }
         assertEquals(0x6300, e.sw)
     }
 }

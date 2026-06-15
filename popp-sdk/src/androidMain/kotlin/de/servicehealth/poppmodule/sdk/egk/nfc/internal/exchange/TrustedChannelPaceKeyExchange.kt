@@ -32,7 +32,6 @@ import de.servicehealth.poppmodule.sdk.egk.nfc.internal.card.PaceKey
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.CardResponseException
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.PaceCommands
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.transmitSuccessfully
-import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.KeyDerivationFunction
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.KeyDerivationFunction.getAES128Key
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.secureRandomInstance
 import org.bouncycastle.asn1.ASN1EncodableVector
@@ -87,13 +86,14 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
             paceInfo: PaceInfo,
             nonceSInt: BigInteger,
             pcdSkX1: BigInteger,
-            pcdPk1: ByteArray
-        ) -> PaceKey
+            pcdPk1: ByteArray,
+        ) -> PaceKey,
     ): PaceKey {
-        val nonceZBytes = transmitSuccessfully(
-            "GENERAL AUTHENTICATE step 1",
-            PaceCommands.generalAuthenticate(true),
-        ).data
+        val nonceZBytes =
+            transmitSuccessfully(
+                "GENERAL AUTHENTICATE step 1",
+                PaceCommands.generalAuthenticate(true),
+            ).data
         val nonceZBytesEncoded = extractKeyObjectEncoded(nonceZBytes)
         val canBytes = cardAccessNumber.toByteArray()
 
@@ -124,13 +124,14 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
         step3: suspend (
             paceInfo: PaceInfo,
             pcdSkX2: BigInteger,
-            pcdPkS2: ByteArray
-        ) -> PaceKey
+            pcdPkS2: ByteArray,
+        ) -> PaceKey,
     ): PaceKey {
-        val piccPk1Bytes = transmitSuccessfully(
-            "GENERAL AUTHENTICATE step 2",
-            PaceCommands.generalAuthenticate(true, pcdPk1, 1),
-        ).data
+        val piccPk1Bytes =
+            transmitSuccessfully(
+                "GENERAL AUTHENTICATE step 2",
+                PaceCommands.generalAuthenticate(true, pcdPk1, 1),
+            ).data
 
         val piccPk1BytesEncoded = extractKeyObjectEncoded(piccPk1Bytes)
         val y1 = byteArrayToECPoint(piccPk1BytesEncoded, paceInfo.ecCurve)
@@ -152,13 +153,14 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
         pcdPkS2: ByteArray,
         step4: suspend (
             piccMacDerived: ByteArray,
-            pcdMac: ByteArray
-        ) -> Boolean
+            pcdMac: ByteArray,
+        ) -> Boolean,
     ): PaceKey {
-        val piccPk2Bytes = transmitSuccessfully(
-            "GENERAL AUTHENTICATE step 3",
-            PaceCommands.generalAuthenticate(true, pcdPkS2, 3),
-        ).data
+        val piccPk2Bytes =
+            transmitSuccessfully(
+                "GENERAL AUTHENTICATE step 3",
+                PaceCommands.generalAuthenticate(true, pcdPkS2, 3),
+            ).data
 
         val piccPk2 = extractKeyObjectEncoded(piccPk2Bytes)
 
@@ -167,10 +169,11 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
 
         val sharedSecretKBytes: ByteArray = paceSharedSecret(sharedSecretK)
 
-        val paceKey = PaceKey(
-            getAES128Key(sharedSecretKBytes, KeyDerivationFunction.Mode.ENC),
-            getAES128Key(sharedSecretKBytes, KeyDerivationFunction.Mode.MAC)
-        )
+        val paceKey =
+            PaceKey(
+                getAES128Key(sharedSecretKBytes, KeyDerivationFunction.Mode.ENC),
+                getAES128Key(sharedSecretKBytes, KeyDerivationFunction.Mode.MAC),
+            )
 
         val pcdMac = paceAuthTokenMac(paceKey.mac, piccPk2, paceInfo.protocolID)
         val piccMacDerived = paceAuthTokenMac(paceKey.mac, pcdPkS2, paceInfo.protocolID)
@@ -182,16 +185,17 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
 
     fun step4VerifyPcdAndPiccMac(
         piccMacDerived: ByteArray,
-        pcdMac: ByteArray
+        pcdMac: ByteArray,
     ): Boolean {
-        val piccMacBytes = try {
-            transmitSuccessfully(
-                "GENERAL AUTHENTICATE step 4",
-                PaceCommands.generalAuthenticate(false, pcdMac, 5),
-            ).data
-        } catch (e: CardResponseException) {
-            throw WrongCanException(e)
-        }
+        val piccMacBytes =
+            try {
+                transmitSuccessfully(
+                    "GENERAL AUTHENTICATE step 4",
+                    PaceCommands.generalAuthenticate(false, pcdMac, 5),
+                ).data
+            } catch (e: CardResponseException) {
+                throw WrongCanException(e)
+            }
 
         val piccMac = extractKeyObjectEncoded(piccMacBytes)
 
@@ -222,20 +226,27 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
 internal fun paceSharedSecret(sharedSecretPoint: ECPoint): ByteArray =
     sharedSecretPoint.normalize().xCoord.encoded
 
-internal fun paceAuthToken(ecPoint: ByteArray, protocolID: String): ByteArray {
+internal fun paceAuthToken(
+    ecPoint: ByteArray,
+    protocolID: String,
+): ByteArray {
     val asn1EncodableVector = ASN1EncodableVector()
     asn1EncodableVector.add(ASN1ObjectIdentifier(protocolID))
     asn1EncodableVector.add(
         DERTaggedObject(
             false,
             TAG_6,
-            DEROctetString(ecPoint)
-        )
+            DEROctetString(ecPoint),
+        ),
     )
     return DERTaggedObject(false, BERTags.APPLICATION, TAG_49, DERSequence(asn1EncodableVector)).encoded
 }
 
-internal fun paceAuthTokenMac(macKey: ByteArray, publicKey: ByteArray, protocolID: String): ByteArray =
+internal fun paceAuthTokenMac(
+    macKey: ByteArray,
+    publicKey: ByteArray,
+    protocolID: String,
+): ByteArray =
     CMac(AESEngine(), MAX).apply {
         init(KeyParameter(macKey))
 

@@ -6,7 +6,6 @@ import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalStdlibApi::class)
 class RawCommandApduTest {
-
     private fun roundTrip(hex: String): String =
         parseCommandApdu(hex.hexToByteArray()).bytes.toHexString(HexFormat.UpperCase)
 

@@ -44,20 +44,21 @@ internal class LengthObject(le: Int) {
 
     init {
         if (le >= 0) {
-            leData = when {
-                le == EXPECTED_LENGTH_WILDCARD_SHORT -> {
-                    byteArrayOf(0x00)
+            leData =
+                when {
+                    le == EXPECTED_LENGTH_WILDCARD_SHORT -> {
+                        byteArrayOf(0x00)
+                    }
+                    le > EXPECTED_LENGTH_WILDCARD_SHORT -> {
+                        byteArrayOf(
+                            (le shr BYTE_VALUE and BYTE_MASK).toByte(),
+                            (le and BYTE_MASK).toByte(),
+                        )
+                    }
+                    else -> {
+                        byteArrayOf(le.toByte())
+                    }
                 }
-                le > EXPECTED_LENGTH_WILDCARD_SHORT -> {
-                    byteArrayOf(
-                        (le shr BYTE_VALUE and BYTE_MASK).toByte(),
-                        (le and BYTE_MASK).toByte()
-                    )
-                }
-                else -> {
-                    byteArrayOf(le.toByte())
-                }
-            }
         }
     }
 }

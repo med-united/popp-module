@@ -63,14 +63,15 @@ internal class PaceInfo(cardAccess: ByteArray) {
      */
     val protocolID: String = protocol.id
 
-    private val ecNamedCurveParameterSpec = ECNamedCurveTable.getParameterSpec(
-        when (parameterID) {
-            PARAMETER256 -> "BrainpoolP256r1"
-            PARAMETER384 -> "BrainpoolP384r1"
-            PARAMETER512 -> "BrainpoolP512r1"
-            else -> ""
-        }
-    )
+    private val ecNamedCurveParameterSpec =
+        ECNamedCurveTable.getParameterSpec(
+            when (parameterID) {
+                PARAMETER256 -> "BrainpoolP256r1"
+                PARAMETER384 -> "BrainpoolP384r1"
+                PARAMETER512 -> "BrainpoolP512r1"
+                else -> ""
+            },
+        )
 
     val ecCurve = ecNamedCurveParameterSpec.curve
     val ecPointG = ecNamedCurveParameterSpec.g

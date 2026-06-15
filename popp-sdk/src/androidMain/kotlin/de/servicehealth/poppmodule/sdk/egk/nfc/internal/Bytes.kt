@@ -35,7 +35,10 @@ internal object Bytes {
      * @param blockSize int
      * @return byte array with padded data
      */
-    fun padData(data: ByteArray, blockSize: Int): ByteArray =
+    fun padData(
+        data: ByteArray,
+        blockSize: Int,
+    ): ByteArray =
         ByteArray(data.size + (blockSize - data.size % blockSize)).apply {
             data.copyInto(this)
             this[data.size] = PAD

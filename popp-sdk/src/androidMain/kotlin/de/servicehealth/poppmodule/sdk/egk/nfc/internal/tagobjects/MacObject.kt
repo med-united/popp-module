@@ -49,7 +49,7 @@ internal class MacObject(
     private val header: ByteArray? = null,
     private val commandOutput: ByteArrayOutputStream,
     private val kMac: ByteArray,
-    private val ssc: ByteArray
+    private val ssc: ByteArray,
 ) {
     private var _mac: ByteArray = ByteArray(BLOCK_SIZE)
     val mac: ByteArray
@@ -79,7 +79,10 @@ internal class MacObject(
         _mac = _mac.copyOfRange(0, MAC_SIZE)
     }
 
-    private fun getCMac(secureMessagingSSC: ByteArray, kMac: ByteArray): CMac =
+    private fun getCMac(
+        secureMessagingSSC: ByteArray,
+        kMac: ByteArray,
+    ): CMac =
         CMac(AESEngine()).apply {
             init(KeyParameter(kMac))
             update(secureMessagingSSC, 0, secureMessagingSSC.size)

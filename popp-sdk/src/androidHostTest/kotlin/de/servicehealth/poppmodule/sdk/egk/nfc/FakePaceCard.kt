@@ -41,7 +41,6 @@ internal class FakePaceCard(
     private val can: String,
     var logicalResponder: (ByteArray) -> ByteArray = { plain -> plain + STATUS_OK },
 ) : ICardChannel {
-
     override var maxTransceiveLength = 65535
     override var isExtendedLengthSupported = true
 
@@ -62,7 +61,10 @@ internal class FakePaceCard(
     private val ssc = ByteArray(16)
 
     override fun transmit(command: CommandApdu): ResponseApdu {
-        throwOnNextTransmit?.let { throwOnNextTransmit = null; throw it }
+        throwOnNextTransmit?.let {
+            throwOnNextTransmit = null
+            throw it
+        }
         val apdu = command.bytes
         return ResponseApdu(if (paceKey != null) handleSecureMessaging(apdu) else handlePlain(apdu))
     }
@@ -104,10 +106,11 @@ internal class FakePaceCard(
                 val k = CardUtilities.byteArrayToECPoint(pcdPk2, curve.curve).multiply(sk2)
                 // Fixed-length FE2OS like a conformant card, matching the PCD side.
                 val kBytes = paceSharedSecret(k)
-                negotiatedKey = PaceKey(
-                    getAES128Key(kBytes, KeyDerivationFunction.Mode.ENC),
-                    getAES128Key(kBytes, KeyDerivationFunction.Mode.MAC),
-                )
+                negotiatedKey =
+                    PaceKey(
+                        getAES128Key(kBytes, KeyDerivationFunction.Mode.ENC),
+                        getAES128Key(kBytes, KeyDerivationFunction.Mode.MAC),
+                    )
                 gaResponse(0x84, cardPk2)
             }
             4 -> { // step 4: verify PCD token; on success return card token, SM active
@@ -141,7 +144,10 @@ internal class FakePaceCard(
      * (not the wire byte), so the context tag number is `wireTag and 0x1F` — this yields the exact
      * single-byte tag the PCD's `extractKeyObjectEncoded` strips. See deviation note in the task report.
      */
-    private fun gaResponse(wireTag: Int, payload: ByteArray): ByteArray =
+    private fun gaResponse(
+        wireTag: Int,
+        payload: ByteArray,
+    ): ByteArray =
         DERTaggedObject(
             true,
             BERTags.APPLICATION,
@@ -163,7 +169,10 @@ internal class FakePaceCard(
     /** Decrypts DO87 if present and restores the Le from DO97; reconstructs the short-form
      *  plain command `header [+ lc + data] [+ le]` (command MAC not re-verified —
      *  the PCD-side wrapping is pinned by the ported SecureMessagingTest vectors). */
-    private fun unwrapCommand(apdu: ByteArray, key: PaceKey): ByteArray {
+    private fun unwrapCommand(
+        apdu: ByteArray,
+        key: PaceKey,
+    ): ByteArray {
         val cmd = parseCommandApdu(apdu)
         val body = cmd.bytes.copyOfRange(cmd.dataOffset, cmd.dataOffset + cmd.rawNc)
         var data: ByteArray? = null
@@ -174,33 +183,45 @@ internal class FakePaceCard(
             val (len, lenSize) = readDerLength(body, offset + 1)
             val content = body.copyOfRange(offset + 1 + lenSize, offset + 1 + lenSize + len)
             when (tag) {
-                0x87 -> data = Bytes.unPadData( // content[0] is the 0x01 padding indicator
-                    aesCbcWithSscIv(Cipher.DECRYPT_MODE, key.enc, content.copyOfRange(1, content.size)),
-                )
+                0x87 ->
+                    // content[0] is the 0x01 padding indicator
+                    data =
+                        Bytes.unPadData(
+                            aesCbcWithSscIv(Cipher.DECRYPT_MODE, key.enc, content.copyOfRange(1, content.size)),
+                        )
                 0x97 -> le = content
                 0x8E -> {} // command MAC, not re-verified (see KDoc)
                 else -> error("FakePaceCard: unexpected SM data object 0x${tag.toString(16)}")
             }
             offset += 1 + lenSize + len
         }
-        val headerPlain = byteArrayOf(
-            (apdu[0].toInt() and 0x0C.inv()).toByte(), apdu[1], apdu[2], apdu[3],
-        )
-        val lcAndData = data?.let {
-            require(it.size <= 255) { "FakePaceCard reconstructs short-form commands only (${it.size} data bytes)" }
-            byteArrayOf(it.size.toByte()) + it
-        } ?: ByteArray(0)
+        val headerPlain =
+            byteArrayOf(
+                (apdu[0].toInt() and 0x0C.inv()).toByte(),
+                apdu[1],
+                apdu[2],
+                apdu[3],
+            )
+        val lcAndData =
+            data?.let {
+                require(it.size <= 255) { "FakePaceCard reconstructs short-form commands only (${it.size} data bytes)" }
+                byteArrayOf(it.size.toByte()) + it
+            } ?: ByteArray(0)
         le?.let { require(it.size == 1) { "FakePaceCard reconstructs short-form Le only (DO97 of ${it.size} bytes)" } }
         return headerPlain + lcAndData + (le ?: ByteArray(0))
     }
 
-    private fun wrapResponse(plainResponse: ByteArray, key: PaceKey): ByteArray {
+    private fun wrapResponse(
+        plainResponse: ByteArray,
+        key: PaceKey,
+    ): ByteArray {
         val sw = plainResponse.copyOfRange(plainResponse.size - 2, plainResponse.size)
         val data = plainResponse.copyOfRange(0, plainResponse.size - 2)
         val out = ByteArrayOutputStream()
         if (data.isNotEmpty()) {
-            val encrypted = byteArrayOf(0x01) +
-                aesCbcWithSscIv(Cipher.ENCRYPT_MODE, key.enc, Bytes.padData(data, 16))
+            val encrypted =
+                byteArrayOf(0x01) +
+                    aesCbcWithSscIv(Cipher.ENCRYPT_MODE, key.enc, Bytes.padData(data, 16))
             DataObject(encrypted).taggedObject.encodeTo(out)
         }
         StatusObject(sw).taggedObject.encodeTo(out)
@@ -222,18 +243,26 @@ internal class FakePaceCard(
         }
     }
 
-    private fun aesCbcWithSscIv(mode: Int, key: ByteArray, data: ByteArray): ByteArray {
-        val iv = Cipher.getInstance("AES/ECB/NoPadding", BCProvider).run {
-            init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES"))
-            doFinal(ssc)
-        }
+    private fun aesCbcWithSscIv(
+        mode: Int,
+        key: ByteArray,
+        data: ByteArray,
+    ): ByteArray {
+        val iv =
+            Cipher.getInstance("AES/ECB/NoPadding", BCProvider).run {
+                init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES"))
+                doFinal(ssc)
+            }
         return Cipher.getInstance("AES/CBC/NoPadding", BCProvider).run {
             init(mode, SecretKeySpec(key, "AES"), IvParameterSpec(iv))
             doFinal(data)
         }
     }
 
-    private fun readDerLength(bytes: ByteArray, offset: Int): Pair<Int, Int> {
+    private fun readDerLength(
+        bytes: ByteArray,
+        offset: Int,
+    ): Pair<Int, Int> {
         val first = bytes[offset].toInt() and 0xFF
         return when {
             first < 0x80 -> first to 1

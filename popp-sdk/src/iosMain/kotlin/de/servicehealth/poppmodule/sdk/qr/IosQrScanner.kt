@@ -21,8 +21,8 @@ import platform.AVFoundation.AVMetadataMachineReadableCodeObject
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import platform.darwin.NSObject
 import platform.darwin.dispatch_async
-import platform.darwin.dispatch_get_global_queue
 import platform.darwin.dispatch_get_main_queue
+import platform.darwin.dispatch_queue_create
 
 @OptIn(ExperimentalForeignApi::class)
 class IosQrScanner : PoppQrScanner {
@@ -54,9 +54,11 @@ class IosQrScanner : PoppQrScanner {
 
     private var configured = false
 
+    private val sessionQueue = dispatch_queue_create("de.servicehealth.poppmodule.qr.session", null)
+
     fun start(): Boolean {
         if (!configured && !configure()) return false
-        dispatch_async(dispatch_get_global_queue(0L, 0u)) { session.startRunning() }
+        dispatch_async(sessionQueue) { session.startRunning() }
         return true
     }
 
@@ -86,8 +88,10 @@ class IosQrScanner : PoppQrScanner {
     }
 
     override fun close() {
-        session.stopRunning()
-        session.inputs.forEach { session.removeInput(it as AVCaptureInput) }
-        session.outputs.forEach { session.removeOutput(it as AVCaptureOutput) }
+        dispatch_async(sessionQueue) {
+            session.stopRunning()
+            session.inputs.forEach { session.removeInput(it as AVCaptureInput) }
+            session.outputs.forEach { session.removeOutput(it as AVCaptureOutput) }
+        }
     }
 }

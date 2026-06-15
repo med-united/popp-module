@@ -21,14 +21,17 @@ internal class EgkReadDriver(
         var receiveBudgetMs = DEFAULT_RECEIVE_MS
         val pending = ArrayDeque<EgkAction>()
 
+        fun advance(event: EgkEvent) {
+            val (s, actions) = EgkScenarioStateMachine.next(state, event)
+            state = s
+            pending.addAll(actions)
+        }
+
         try {
             // open() is inside the try so the finally still runs (and closes) if a future
             // transport implementation throws after acquiring resources mid-open.
             transport.open()
-            EgkScenarioStateMachine.next(state, EgkEvent.Begin).let { (s, actions) ->
-                state = s
-                pending.addAll(actions)
-            }
+            advance(EgkEvent.Begin)
 
             while (true) {
                 while (pending.isNotEmpty()) {
@@ -39,14 +42,8 @@ internal class EgkReadDriver(
 
                         is EgkAction.Fail -> throw action.error
 
-                        is EgkAction.Transceive -> {
-                            val responses = runScenario(action, onProgress)
-                            EgkScenarioStateMachine.next(state, EgkEvent.ApdusTransceived(responses))
-                                .let { (s, actions) ->
-                                    state = s
-                                    pending.addAll(actions)
-                                }
-                        }
+                        is EgkAction.Transceive ->
+                            advance(EgkEvent.ApdusTransceived(runScenario(action, onProgress)))
                     }
                 }
 
@@ -59,10 +56,7 @@ internal class EgkReadDriver(
                         DEFAULT_RECEIVE_MS
                     }
                 }
-                EgkScenarioStateMachine.next(state, EgkEvent.ServerMessage(message)).let { (s, actions) ->
-                    state = s
-                    pending.addAll(actions)
-                }
+                advance(EgkEvent.ServerMessage(message))
             }
         } finally {
             transport.close()

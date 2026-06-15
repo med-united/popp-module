@@ -23,8 +23,8 @@ class PoppSdkCheckInTest {
     private fun startedSdk(transport: FakeTransport): PoppSdk =
         PoppSdk(
             engine = FakeEngine(),
-            poppServiceUrl = "wss://test/ws",
-            devDisableTlsValidation = false,
+            fqdn = "wss://test/ws",
+            trustedCaPem = null,
             transportFactory = { _, _ -> transport },
             newSessionId = { sessionId },
         )
@@ -52,14 +52,14 @@ class PoppSdkCheckInTest {
     }
 
     @Test
-    fun check_in_without_poppServiceUrl_throws_configuration() = runTest {
-        // Started SDK (engine present) but no endpoint configured: the second guard must fire
-        // before any transport is built.
+    fun check_in_without_fqdn_throws_configuration() = runTest {
+        // Engine present but no fqdn (only reachable through the internal constructor): the guard
+        // must fire before any transport is built.
         val sdk = PoppSdk(
             engine = FakeEngine(),
-            poppServiceUrl = null,
-            devDisableTlsValidation = false,
-            transportFactory = { _, _ -> error("transport must not be built when poppServiceUrl is null") },
+            fqdn = null,
+            trustedCaPem = null,
+            transportFactory = { _, _ -> error("transport must not be built when fqdn is null") },
             newSessionId = { sessionId },
         )
         assertFailsWith<PoppSdkError.Configuration> {

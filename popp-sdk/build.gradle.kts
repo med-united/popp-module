@@ -59,6 +59,10 @@ kotlin {
             implementation(libs.ktor.client.cio)
             // PACE + secure messaging for the NFC eGK channel (POPPM-119).
             implementation(libs.bouncycastle.bcprov)
+            api(libs.androidx.camera.core) // because AndroidQrScanner exposes SurfaceRequest publicly
+            implementation(libs.androidx.camera.camera2)
+            implementation(libs.androidx.camera.lifecycle)
+            implementation(libs.mlkit.barcode.scanning)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

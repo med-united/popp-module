@@ -11,6 +11,7 @@ import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.websocket.close
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Real [PoppServiceTransport] over a Ktor client WebSocket. Connects to [url], serializes outbound
@@ -56,8 +57,15 @@ internal class WebSocketScenarioTransport(
         } catch (e: PoppSdkError) {
             throw e
         } catch (e: CancellationException) {
-            // A timeout/cancellation (e.g. the driver's receiveNext withTimeout) must propagate as
-            // cancellation, not be reclassified as a Protocol/Network failure.
+            // Ktor CIO's WebSocketReader wraps an IOException in a CancellationException when the
+            // TCP connection drops mid-read. Detect that by inspecting the cause: a non-
+            // CancellationException cause means transport failure, while real structured-concurrency
+            // cancellation (the driver's receiveNext withTimeout, caller cancel) has no such cause
+            // and must keep propagating as cancellation.
+            val networkCause = e.cause?.takeIf { it !is CancellationException }
+            if (networkCause != null) {
+                throw PoppSdkError.Network("WebSocket receive failed", networkCause)
+            }
             throw e
         } catch (e: ClosedReceiveChannelException) {
             // The server closed the socket before/while sending the next frame → transport failure.
@@ -71,12 +79,17 @@ internal class WebSocketScenarioTransport(
 
     override suspend fun close() {
         try {
-            session?.close()
+            // Bound the close handshake so an unresponsive server can't hang the caller's coroutine.
+            withTimeoutOrNull(CLOSE_TIMEOUT_MS) { session?.close() }
         } catch (_: Throwable) {
             // closing best-effort
         } finally {
             session = null
             client.close()
         }
+    }
+
+    private companion object {
+        const val CLOSE_TIMEOUT_MS = 5_000L
     }
 }

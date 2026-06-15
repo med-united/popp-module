@@ -12,6 +12,7 @@ plugins {
 dependencies {
     kover(projects.poppSdk)
     kover(projects.poppDemo.shared)
+    kover(projects.poppDemo.popp3rdPartyAppDemo.shared3rdPartyApp)
 }
 
 kover {
@@ -20,6 +21,7 @@ kover {
             excludes {
                 classes("*.generated.resources.*") // Res, fonts, drawables,...
                 classes("*ComposableSingletons*")
+                classes("de.servicehealth.poppmodule.sdk.qr.AndroidQrScanner*")
             }
         }
     }

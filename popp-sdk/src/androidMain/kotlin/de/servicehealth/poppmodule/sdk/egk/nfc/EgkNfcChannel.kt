@@ -15,18 +15,21 @@ import de.servicehealth.poppmodule.sdk.egk.EgkApduChannel
  * handshake happen lazily on the first transceive, on Dispatchers.IO.
  */
 object EgkNfcChannel {
-
     /**
      * @param tag the NFC tag from e.g. NfcAdapter.ReaderCallback.onTagDiscovered
      * @param can the 6-digit Card Access Number printed on the eGK
      * @throws PoppSdkError.Card if the tag does not support ISO-DEP (ISO 14443-4)
      */
-    fun fromTag(tag: Tag, can: String): EgkApduChannel {
-        val isoDep = IsoDep.get(tag)
-            ?: throw PoppSdkError.Card(
-                CardErrorReason.SECURE_CHANNEL_FAILED,
-                "NFC tag does not support ISO-DEP (ISO 14443-4) — not an eGK?",
-            )
+    fun fromTag(
+        tag: Tag,
+        can: String,
+    ): EgkApduChannel {
+        val isoDep =
+            IsoDep.get(tag)
+                ?: throw PoppSdkError.Card(
+                    CardErrorReason.SECURE_CHANNEL_FAILED,
+                    "NFC tag does not support ISO-DEP (ISO 14443-4) — not an eGK?",
+                )
         return PaceSecuredChannel(IsoDepTransport(isoDep), can)
     }
 }

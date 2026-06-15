@@ -16,7 +16,6 @@ import org.bouncycastle.asn1.DERTaggedObject
  */
 @Suppress("MagicNumber")
 internal object PaceCommands {
-
     /** SELECT MF, request FCP (gemSpec_COS#14.2.6.2). */
     fun selectRoot(extendedLength: Boolean): CommandApdu =
         CommandApdu.ofOptions(0x00, 0xA4, 0x04, 0x04, null, expectAll(extendedLength))
@@ -32,7 +31,10 @@ internal object PaceCommands {
     /** MSE:SET AT — select PACE with the CAN, symmetric key reference 2 (gemSpec_COS#14.9.9.7). */
     fun mseSetAtPaceCan(paceInfoProtocolBytes: ByteArray): CommandApdu =
         CommandApdu.ofOptions(
-            0x00, 0x22, 0xC1, 0xA4,
+            0x00,
+            0x22,
+            0xC1,
+            0xA4,
             // '80 I2OS(OctetLength(OID), 1) || OID || 83 01 02'
             DERTaggedObject(false, 0, DEROctetString(paceInfoProtocolBytes)).encoded +
                 DERTaggedObject(false, 3, DEROctetString(byteArrayOf(2))).encoded,
@@ -42,15 +44,25 @@ internal object PaceCommands {
     /** GENERAL AUTHENTICATE step 1 — request nonce (gemSpec_COS#14.7.2.1.1). */
     fun generalAuthenticate(commandChaining: Boolean): CommandApdu =
         CommandApdu.ofOptions(
-            cla(commandChaining), 0x86, 0x00, 0x00,
+            cla(commandChaining),
+            0x86,
+            0x00,
+            0x00,
             DERTaggedObject(false, BERTags.APPLICATION, 28, DERSequence()).encoded,
             EXPECTED_LENGTH_WILDCARD_SHORT,
         )
 
     /** GENERAL AUTHENTICATE steps 2a/3a/5a with payload under context tag 1/3/5 (gemSpec_COS#14.7.2.1.1). */
-    fun generalAuthenticate(commandChaining: Boolean, data: ByteArray, tagNo: Int): CommandApdu =
+    fun generalAuthenticate(
+        commandChaining: Boolean,
+        data: ByteArray,
+        tagNo: Int,
+    ): CommandApdu =
         CommandApdu.ofOptions(
-            cla(commandChaining), 0x86, 0x00, 0x00,
+            cla(commandChaining),
+            0x86,
+            0x00,
+            0x00,
             DERTaggedObject(
                 true,
                 BERTags.APPLICATION,
@@ -72,5 +84,8 @@ internal class CardResponseException(val sw: Int, step: String) :
 
 /** Transmits [command] and requires SW 9000 (replaces E-Rezept's executeSuccessfulOn). */
 @Suppress("MagicNumber")
-internal fun ICardChannel.transmitSuccessfully(step: String, command: CommandApdu): ResponseApdu =
+internal fun ICardChannel.transmitSuccessfully(
+    step: String,
+    command: CommandApdu,
+): ResponseApdu =
     transmit(command).also { if (it.sw != 0x9000) throw CardResponseException(it.sw, step) }

@@ -52,7 +52,7 @@ private fun encodeExpectedLengthShort(ne: Int): ByteArray =
             ne.toByte()
         } else {
             0x0
-        }
+        },
     )
 
 /**
@@ -76,11 +76,11 @@ internal class CommandApdu(
     apduBytes: ByteArray,
     val rawNc: Int,
     val rawNe: Int?,
-    val dataOffset: Int
+    val dataOffset: Int,
 ) {
-    private val _apduBytes = apduBytes.copyOf()
+    private val _bytes = apduBytes.copyOf()
     val bytes
-        get() = _apduBytes.copyOf()
+        get() = _bytes.copyOf()
 
     companion object {
         fun ofOptions(
@@ -88,7 +88,7 @@ internal class CommandApdu(
             ins: Int,
             p1: Int,
             p2: Int,
-            ne: Int?
+            ne: Int?,
         ) = ofOptions(cla = cla, ins = ins, p1 = p1, p2 = p2, data = null, ne = ne)
 
         @Suppress("CyclomaticComplexMethod")
@@ -98,7 +98,7 @@ internal class CommandApdu(
             p1: Int,
             p2: Int,
             data: ByteArray?,
-            ne: Int?
+            ne: Int?,
         ): CommandApdu {
             require(!(cla < 0 || ins < 0 || p1 < 0 || p2 < 0)) {
                 "APDU header fields must not be less than 0"
@@ -157,7 +157,7 @@ internal class CommandApdu(
                     apduBytes = bytes.toByteArray(),
                     rawNc = nc,
                     rawNe = le,
-                    dataOffset = dataOffset
+                    dataOffset = dataOffset,
                 )
             } else {
                 // data empty
@@ -177,7 +177,7 @@ internal class CommandApdu(
                         apduBytes = bytes.toByteArray(),
                         rawNc = 0,
                         rawNe = ne,
-                        dataOffset = 0
+                        dataOffset = 0,
                     )
                 } else {
                     // case 1
@@ -185,7 +185,7 @@ internal class CommandApdu(
                         apduBytes = bytes.toByteArray(),
                         rawNc = 0,
                         rawNe = null,
-                        dataOffset = 0
+                        dataOffset = 0,
                     )
                 }
             }

@@ -29,43 +29,44 @@ internal class PaceSecuredChannel(
     private val channel: ICardChannel,
     private val can: String,
 ) : EgkApduChannel {
-
     private var secureMessaging: SecureMessaging? = null
 
-    override suspend fun transceive(commandApduHex: String): String = withContext(Dispatchers.IO) {
-        try {
-            val sm = secureMessaging
-                ?: SecureMessaging(channel.establishTrustedChannel(can)).also { secureMessaging = it }
-            val command = parseCommandApdu(commandApduHex.hexToByteArray())
-            sm.decrypt(checkedTransmit(sm.encrypt(command))).bytes.toHexString(HexFormat.UpperCase)
-        } catch (e: PoppSdkError) {
-            secureMessaging = null
-            throw e
-        } catch (e: CancellationException) {
-            secureMessaging = null
-            throw e
-        } catch (e: WrongCanException) {
-            throw PoppSdkError.Card(
-                CardErrorReason.WRONG_CAN,
-                "PACE mutual authentication failed — the CAN does not match this card",
-                e,
-            )
-        } catch (e: IOException) {
-            secureMessaging = null
-            throw PoppSdkError.Card(
-                CardErrorReason.CARD_LOST,
-                "lost connection to the eGK during the NFC exchange",
-                e,
-            )
-        } catch (e: Throwable) {
-            secureMessaging = null
-            throw PoppSdkError.Card(
-                CardErrorReason.SECURE_CHANNEL_FAILED,
-                "eGK secure channel failure: ${e.message}",
-                e,
-            )
+    override suspend fun transceive(commandApduHex: String): String =
+        withContext(Dispatchers.IO) {
+            try {
+                val sm =
+                    secureMessaging
+                        ?: SecureMessaging(channel.establishTrustedChannel(can)).also { secureMessaging = it }
+                val command = parseCommandApdu(commandApduHex.hexToByteArray())
+                sm.decrypt(checkedTransmit(sm.encrypt(command))).bytes.toHexString(HexFormat.UpperCase)
+            } catch (e: PoppSdkError) {
+                secureMessaging = null
+                throw e
+            } catch (e: CancellationException) {
+                secureMessaging = null
+                throw e
+            } catch (e: WrongCanException) {
+                throw PoppSdkError.Card(
+                    CardErrorReason.WRONG_CAN,
+                    "PACE mutual authentication failed — the CAN does not match this card",
+                    e,
+                )
+            } catch (e: IOException) {
+                secureMessaging = null
+                throw PoppSdkError.Card(
+                    CardErrorReason.CARD_LOST,
+                    "lost connection to the eGK during the NFC exchange",
+                    e,
+                )
+            } catch (e: Throwable) {
+                secureMessaging = null
+                throw PoppSdkError.Card(
+                    CardErrorReason.SECURE_CHANNEL_FAILED,
+                    "eGK secure channel failure: ${e.message}",
+                    e,
+                )
+            }
         }
-    }
 
     /**
      * Guards the secure-messaging transmit with the reader's capabilities so an

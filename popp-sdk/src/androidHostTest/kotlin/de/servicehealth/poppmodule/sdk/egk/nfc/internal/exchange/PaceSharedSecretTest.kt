@@ -14,7 +14,6 @@ import kotlin.test.fail
  * handshakes, deriving keys a real card does not — see [paceSharedSecret].
  */
 class PaceSharedSecretTest {
-
     private val curve = ECNamedCurveTable.getParameterSpec("BrainpoolP256r1")
 
     @Test

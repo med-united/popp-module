@@ -21,7 +21,7 @@
  * Modified by the PoPP-Module project (POPPM-119) — see NOTICE.md at the repository root.
  */
 
-@file:Suppress("ktlint:max-line-length", "ktlint:standard:argument-list-wrapping")
+@file:Suppress("ktlint:standard:max-line-length", "ktlint:standard:argument-list-wrapping")
 
 package de.servicehealth.poppmodule.sdk.egk.nfc.internal
 
@@ -36,9 +36,10 @@ import java.io.IOException
 import kotlin.test.Test
 
 internal class CardUtilitiesTest {
-    private val byteArray: ByteArray = Hex.decode(
-        "044E2778F6AAEF54CB42865A3C30C753495AF4E53121400802D0AB1ACD665E9C774C2FAE1687E9DAA36C64570C909F93176F01EEAFCB45F9C08E49805F127D94EF"
-    )
+    private val byteArray: ByteArray =
+        Hex.decode(
+            "044E2778F6AAEF54CB42865A3C30C753495AF4E53121400802D0AB1ACD665E9C774C2FAE1687E9DAA36C64570C909F93176F01EEAFCB45F9C08E49805F127D94EF",
+        )
     private val ecNamedCurveParameterSpec: ECNamedCurveParameterSpec =
         ECNamedCurveTable.getParameterSpec("BrainpoolP256r1")
     private val expectedECPoint =
@@ -56,7 +57,7 @@ internal class CardUtilitiesTest {
     fun shouldEncodeAsn1KeyObject() {
         val asn1InputArray: ByteArray =
             Hex.decode(
-                "7C438341041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F"
+                "7C438341041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F",
             )
         val expectedKeyArray: ByteArray =
             Hex.decode("041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")

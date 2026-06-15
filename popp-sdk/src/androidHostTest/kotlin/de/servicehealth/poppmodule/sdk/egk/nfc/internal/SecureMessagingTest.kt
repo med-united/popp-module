@@ -48,7 +48,7 @@ class SecureMessagingTest {
         val encryptedCommandApdu = secureMessaging.encrypt(commandApdu)
         Assert.assertArrayEquals(
             expectedEncryptedApdu,
-            encryptedCommandApdu.bytes
+            encryptedCommandApdu.bytes,
         )
         try {
             secureMessaging.encrypt(encryptedCommandApdu)
@@ -67,7 +67,7 @@ class SecureMessagingTest {
         val encryptedCommandApdu = secureMessaging.encrypt(commandApdu)
         Assert.assertArrayEquals(
             expectedEncryptedApdu,
-            encryptedCommandApdu.bytes
+            encryptedCommandApdu.bytes,
         )
     }
 
@@ -80,7 +80,7 @@ class SecureMessagingTest {
         val encryptedCommandApdu = secureMessaging.encrypt(commandApdu)
         Assert.assertArrayEquals(
             expectedEncryptedApdu,
-            encryptedCommandApdu.bytes
+            encryptedCommandApdu.bytes,
         )
     }
 
@@ -95,7 +95,7 @@ class SecureMessagingTest {
         val encryptedCommandApdu = secureMessaging.encrypt(commandApdu)
         Assert.assertArrayEquals(
             expectedEncryptedApdu,
-            encryptedCommandApdu.bytes
+            encryptedCommandApdu.bytes,
         )
     }
 
@@ -109,7 +109,7 @@ class SecureMessagingTest {
         val encryptedCommandApdu = secureMessaging.encrypt(commandApdu)
         Assert.assertArrayEquals(
             expectedEncryptedApdu,
-            encryptedCommandApdu.bytes
+            encryptedCommandApdu.bytes,
         )
     }
 
@@ -126,13 +126,13 @@ class SecureMessagingTest {
                         "CBC6F7726762A8BCE324C0B330548114154A13EDDBFF6DCBC3773DCA9A8494404BE4A5654273F9C2B9EBE1BD615CB39FFD0D3F2A0EEA" +
                         "29AA10B810D53EDB550FB741A68CC6B0BDF928F9EB6BC238416AACB4CF3002E865D486CF42D762C86EEBE6A2B25DECE2E88D569854A0" +
                         "7D3F146BC134BAF08B6EDCBEBDFF47EBA6AC7B441A1642B03253B588C49B69ABBEC92BA1723B7260DE8AD6158873141AFA7C70CFCF12" +
-                        "5BA1DF77CA48025D049FCEE497017F8E0856332C83EABDF93C0000"
+                        "5BA1DF77CA48025D049FCEE497017F8E0856332C83EABDF93C0000",
                 )
-                )
+            )
         val encryptedCommandApdu = secureMessaging.encrypt(commandApdu)
         Assert.assertArrayEquals(
             expectedEncryptedApdu,
-            encryptedCommandApdu.bytes
+            encryptedCommandApdu.bytes,
         )
     }
 
@@ -145,7 +145,7 @@ class SecureMessagingTest {
         val expectedDecryptedApdu = ResponseApdu(byteArrayOf(0x90.toByte(), 0x00))
         Assert.assertArrayEquals(
             expectedDecryptedApdu.bytes,
-            decryptedApdu.bytes
+            decryptedApdu.bytes,
         )
     }
 
@@ -159,7 +159,7 @@ class SecureMessagingTest {
         val expectedDecryptedApdu = ResponseApdu(Hex.decode("05060708090a9000"))
         Assert.assertArrayEquals(
             expectedDecryptedApdu.bytes,
-            decryptedApdu.bytes
+            decryptedApdu.bytes,
         )
     }
 
@@ -236,7 +236,7 @@ class SecureMessagingTest {
         val expectedDecryptedAPDU = byteArrayOf(0x90.toByte(), 0x00)
         Assert.assertArrayEquals(
             expectedDecryptedAPDU,
-            decryptedAPDU.bytes
+            decryptedAPDU.bytes,
         )
     }
 }

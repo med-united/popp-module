@@ -51,6 +51,15 @@
     <string name="egk_card_sample_name">LENA HOFMANN</string>
     <string name="egk_card_sample_insurance">Versicherten-Nr. A123456789</string>
 
-    <string name="nfc_stub_title">NFC-Scan folgt</string>
-    <string name="nfc_stub_subtitle">Der NFC-Scan wird in einem folgenden Schritt umgesetzt.</string>
+    <string name="nfc_title">Gesundheitskarte anlegen</string>
+    <string name="nfc_waiting">Halten Sie Ihre Gesundheitskarte an die Rückseite Ihres Smartphones.</string>
+    <string name="nfc_reading">Karte erkannt – bitte nicht bewegen. Daten werden sicher gelesen…</string>
+    <string name="nfc_secure_transfer">Sichere Übertragung · %1$d %%</string>
+    <string name="nfc_footer">Ende-zu-Ende verschlüsselt · CAN-gesichert</string>
+    <string name="nfc_unsupported">NFC wird auf diesem Gerät nicht unterstützt.</string>
+    <string name="checkin_success_title">Karte gelesen</string>
+    <string name="checkin_success_subtitle">Anwesenheit erfolgreich nachgewiesen</string>
+    <string name="checkin_success_badge">Verifiziert</string>
+    <string name="checkin_error_title">Karte lesen fehlgeschlagen</string>
+    <string name="checkin_error_subtitle">Anwesenheit konnte nicht nachgewiesen werden</string>
 </resources>

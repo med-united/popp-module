@@ -14,6 +14,11 @@ object Routes {
     const val CHECK_IN_NFC = "check_in_nfc"
     const val ARG_SCENARIO = "scenario"
     const val INSTITUTION_SEARCH = "institution_search"
+    const val CHECK_IN_SUCCESS = "check_in_success"
+    const val CHECK_IN_ERROR = "check_in_error"
+    const val ARG_FAILURE = "failure"
+
+    fun checkInError(failure: String) = "$CHECK_IN_ERROR?$ARG_FAILURE=$failure"
 
     fun integratedHome(scenario: String) = "$INTEGRATED_HOME?$ARG_SCENARIO=$scenario"
 

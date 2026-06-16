@@ -3,9 +3,9 @@
 The `IsoDepTransport` and real-card PACE cannot run in CI — they need a physical NFC
 phone and a real eGK. This walkthrough drives the full chain
 (`EgkNfcChannel.fromTag` → PACE → secure messaging → PoPP scenario loop → token)
-against the local dockerized PoPP stack, using an ad-hoc reader-mode activity in the
-3rd-party demo app. Once the POPPM-135 UI (CAN input + scan screen) exists, it replaces
-the ad-hoc activity and steps 3–4 below.
+against the local dockerized PoPP stack, through the 3rd-party demo's real check-in flow
+(POPPM-157 CAN screen → POPPM-161 NFC scan screen). The earlier ad-hoc reader-mode
+activity and the TEMP SDK patches are gone — see §3–§4.
 
 **What counts as "verified":** the PACE handshake completes against a real card and the
 scenario steps execute over secure messaging (the progress log advances). Whether the
@@ -52,181 +52,100 @@ POPP_WS_URL="ws://localhost:8443/ws" ./gradlew --no-daemon \
 (`--no-daemon` matters: a pre-existing Gradle daemon caches its own environment and the
 test would silently skip.) If this is green, every later failure is on the NFC side.
 
-## 3. Temporary test wiring in the SDK (revert afterwards!)
+## 3. SDK wiring — no patching needed (POPPM-161)
 
-`PoppSdk.checkInWithEgk` requires a *started* SDK (`PoppSdk.start(...)` runs the ZETA
-registration/attestation), but the local stack is reached directly, bypassing ZETA —
-and no local ZETA Guard config exists yet. Until the ZETA-authenticated transport
-lands, patch `popp-sdk/src/commonMain/kotlin/de/servicehealth/poppmodule/sdk/PoppSdk.kt`
-in two marked places:
-
-1. In the no-arg constructor, set the service URL via the `fqdn` field (the device
-   reaches the host's stack via the `adb reverse` below, so `localhost` is correct
-   *on the phone*):
-
-   ```kotlin
-   constructor() : this(
-       engine = null,
-       fqdn = "ws://localhost:8443/ws",   // TEMP(manual-egk-test), was: null
-       ...
-   ```
-
-2. In `checkInWithEgk`, relax the started-SDK gate. **Don't comment out the whole
-   block** — `fqdn` smart-casts to non-null right after it (`transportFactory(fqdn, …)`),
-   so the method won't compile without a null-check. Drop only the `engine == null` half:
-
-   ```kotlin
-   // TEMP(manual-egk-test): local stack is reached directly, no ZETA engine needed.
-   // Keep the fqdn null-check so `fqdn` still smart-casts to non-null below.
-   // Was: if (engine == null || fqdn == null) {
-   if (fqdn == null) {
-       throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
-   }
-   ```
-
-Both lines are load-bearing in production — grep for `TEMP(manual-egk-test)` and revert
-before committing anything.
-
-## 4. Ad-hoc reader-mode activity in the 3rd-party demo
-
-The app module can't see `popp-sdk` transitively (`shared3rdPartyApp` depends on
-`popp-demo:shared` via `implementation`, not `api`), so the reader-mode activity's
-`PoppSdk` / `EgkNfcChannel` imports won't resolve. Give the app module a direct
-dependency in
-`popp-demo/popp-3rd-party-app-demo/android3rdPartyApp/build.gradle.kts`:
+This flow is productised: there are **no TEMP patches**. The SDK exposes a fenced
+DEV/TEST factory in `popp-sdk` commonMain:
 
 ```kotlin
-dependencies {
-    // ...
-    implementation(projects.poppSdk) // TEMP(manual-egk-test)
-}
+@PoppDevTransport // @RequiresOptIn(ERROR) — greppable, production can't call it by accident
+fun directTransport(fqdn: String, trustedCaPem: String? = null): PoppSdk
 ```
 
-Add the NFC permission to
-`popp-demo/popp-3rd-party-app-demo/android3rdPartyApp/src/main/AndroidManifest.xml`:
+It runs the real eGK read loop straight against `fqdn` (reusing the real WebSocket
+transport), skipping only the ZETA handshake via an internal no-op engine — so
+`checkInWithEgk` works without `PoppSdk.start()`. ZETA-authenticated eGK transport is a
+separate follow-up; until then the local stack is reached directly at
+`ws://localhost:8443/ws`.
 
-```xml
-<uses-permission android:name="android.permission.NFC" />
-```
+The 3rd-party demo's `MainActivity` builds it from the `local` product flavor's
+`BuildConfig.POPP_SERVER_FQDN` and injects it into `App(poppSdk = …)`. Nothing to edit.
 
-Replace the body of
-`popp-demo/popp-3rd-party-app-demo/android3rdPartyApp/src/main/kotlin/de/servicehealth/poppmodule/MainActivity.kt`
-with a reader-mode variant (keep the original `setContent { App() }` line):
+## 4. The real screen (replaces the old ad-hoc activity)
 
-```kotlin
-import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.util.Log
-import de.servicehealth.poppmodule.sdk.PoppSdk
-import de.servicehealth.poppmodule.sdk.PoppSdkError
-import de.servicehealth.poppmodule.sdk.egk.nfc.EgkNfcChannel
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+The hand-written reader-mode activity is gone. NFC is now owned by the demo's own code:
 
-private const val TAG = "EgkNfcTest"
-private const val CAN = "123456" // ← the 6-digit CAN printed on YOUR card
-
-class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
-
-    private val scope = MainScope()
-    private val sdk = PoppSdk() // works only with the TEMP patches from step 3
-
-    // ... existing onCreate with setContent { App() } ...
-
-    override fun onResume() {
-        super.onResume()
-        // Reader mode: eGKs are ISO-DEP over NFC-A/B; skip NDEF so discovery is instant.
-        NfcAdapter.getDefaultAdapter(this)?.enableReaderMode(
-            this, this,
-            NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_NFC_B or
-                NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
-            null,
-        )
-    }
-
-    override fun onPause() {
-        NfcAdapter.getDefaultAdapter(this)?.disableReaderMode(this)
-        super.onPause()
-    }
-
-    override fun onTagDiscovered(tag: Tag) {
-        Log.i(TAG, "tag discovered: ${tag.techList.joinToString()}")
-        val channel = try {
-            EgkNfcChannel.fromTag(tag, CAN)
-        } catch (e: PoppSdkError.Card) {
-            Log.e(TAG, "not an eGK? ${e.message}"); return
-        }
-        scope.launch {
-            try {
-                val result = sdk.checkInWithEgk(channel) { p ->
-                    Log.i(TAG, "progress: scenario ${p.scenario}, step ${p.index + 1}/${p.count}")
-                }
-                Log.i(TAG, "RESULT: $result")
-            } catch (e: PoppSdkError.Card) {
-                Log.e(TAG, "card error: ${e.reason} — ${e.message}")
-            } catch (e: PoppSdkError) {
-                Log.e(TAG, "sdk error: ${e.message}", e)
-            }
-        }
-    }
-
-    override fun onDestroy() { scope.cancel(); super.onDestroy() }
-}
-```
+- `NfcReaderEgkChannelSource` (`shared3rdPartyApp` androidMain) drives `NfcAdapter` reader
+  mode (`FLAG_READER_NFC_A | NFC_B | SKIP_NDEF_CHECK`) and hands each tag to
+  `EgkNfcChannel.fromTag(tag, can)`.
+- `NfcScanScreen` (commonMain) runs `checkInWithEgk` via `NfcCheckInController` and renders
+  live progress; the CAN comes from the encrypted `CanStore` filled on the CAN screen.
+- The NFC permission and the `local` flavor's `BuildConfig.POPP_SERVER_FQDN` are already in
+  `android3rdPartyApp` (`uses-permission android.permission.NFC`).
 
 ## 5. Install and run
 
 ```bash
 cd ~/git/popp-module
-./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installDebug
+./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installLocalDebug
 # Make localhost:8443 ON THE PHONE reach the host's stack (re-run after replugging USB):
 adb reverse tcp:8443 tcp:8443
 adb shell monkey -p de.servicehealth.poppmodule.demo.thirdparty -c android.intent.category.LAUNCHER 1
-adb logcat -s EgkNfcTest
+adb logcat   # PoppSdk* / errors; progress itself is shown on-screen
 ```
 
-Hold the eGK flat against the back of the phone (NFC antenna is usually centred) and
-keep it still — PACE plus the scenario takes a few seconds.
+In the app: launcher → start demo → QR → **CAN** (enter your card's 6-digit CAN) → **NFC
+scan**. Hold the eGK flat against the back of the phone (NFC antenna is usually centred)
+and keep it still — PACE plus the scenario takes a few seconds. The scan screen shows the
+percentage climbing, then routes to the Success or Error screen.
 
-## 6. Expected output
+## 6. Expected behaviour
 
-```
-tag discovered: android.nfc.tech.IsoDep, android.nfc.tech.NfcA
-progress: scenario 0, step 1/2
-progress: scenario 0, step 2/2
-progress: scenario 1, step 1/6
-...
-progress: scenario 1, step 6/6
-RESULT: Success(poppToken=eyJ..., pruefnachweis=...)
-```
+On a good tap the scan screen shows "Karte erkannt …", the **Sichere Übertragung · N %**
+pill climbs as the SDK emits `EgkProgress` for each transceive, and then the flow routes to
+the **Success** screen (real `poppToken` + `pruefnachweis`) or the **Error** screen.
 
-`progress` is emitted *before* each card transceive, and PACE runs lazily *inside* the
-first one — so `progress: scenario 0, step 1/2` shows up even when PACE then fails
-(`WRONG_CAN`, `CARD_LOST`). The proof PACE **succeeded** is reaching `step 2/2`: the
-second transceive can only run over the established secure channel.
+PACE runs lazily *inside* the first transceive, so the percentage starts moving even when
+PACE then fails (`WRONG_CAN`, `CARD_LOST`). The proof PACE **succeeded** is the progress
+advancing past the first scenario's first step.
 
-`RESULT: Failed(code=..., detail=...)` is also a pass for POPPM-119 once progress
-advanced past step 1/2 — it means the server rejected the card business-wise, not that
-the channel failed. Against this local stack a real card typically ends in
-`Failed(code=errorCode, detail=… UnknownCertificates)` (the server lacks trust material
-for the card generation) after all scenario steps have run.
+Against this local stack a real card typically lands on the **Error** screen with
+`SERVER_REJECTED` (`UnknownCertificates`) — the server lacks trust material for the card
+generation. That is still a pass for the channel (the card was read end-to-end); to get a
+real `Success`, pre-seed the hash as in §6a.
+
+## 6a. Getting a real Success: pre-seed the eGK hash (local stack)
+
+The PoPP server only issues a token when the card's certificate-pair hash is known
+(`egk_entries`); the **contactless** path does not auto-enrol, so a fresh card is always
+`UnknownCertificates`. Postgres is exposed on `localhost:5432`
+(`poppserver`/`verysafe`/`egk_hash_db`).
+
+1. Temporarily log the hashes: in popp-sample-code `EgkHashValidationService.validateAndProcess`,
+   log `cvcHash`/`autHash` as hex, rebuild `popp-server`, tap once (still fails), read them
+   from `docker compose logs popp-server`.
+2. Insert a known row:
+   ```sql
+   INSERT INTO egk_entries (cvc_hash, aut_hash, state, not_after)
+   VALUES (decode('<cvcHex>','hex'), decode('<autHex>','hex'), 'imported', '2099-01-01 00:00:00');
+   ```
+3. Tap again → `MATCH` → `EgkCheckInResult.Success(token, pruefnachweis)` → Success screen.
 
 ## 7. Negative checks
 
-- **Wrong CAN:** set `CAN` to a wrong value, rebuild, scan →
-  `card error: WRONG_CAN — PACE mutual authentication failed …`. Note ~1 in 256
-  handshakes legitimately failed this way before the FE2OS shared-secret fix
-  (`paceSharedSecret`); with the fix a correct CAN must never produce WRONG_CAN.
-- **Card lost:** pull the card away while `progress` lines are appearing →
-  `card error: CARD_LOST — lost connection to the eGK during the NFC exchange`.
+- **Wrong CAN:** enter a wrong CAN on the CAN screen, then scan → Error screen with
+  `WRONG_CAN` (PACE mutual authentication failed). Note ~1 in 256 handshakes legitimately
+  failed this way before the FE2OS shared-secret fix (`paceSharedSecret`); with the fix a
+  correct CAN must never produce WRONG_CAN.
+- **Card lost:** pull the card away while the percentage is climbing → Error screen with
+  `CARD_LOST` (lost connection to the eGK during the NFC exchange).
 
 ## Troubleshooting
 
 | Symptom | Cause / fix |
 | --- | --- |
-| `PoppSdkError.Configuration: PoppSdk not started` | Step-3 patches missing (or reverted too early). |
-| `sdk error: …Connection refused` | `adb reverse` not active (re-run it) or the docker stack is down. |
+| `PoppSdkError.Configuration: PoppSdk not started` | The injected SDK wasn't built via `PoppSdk.directTransport(...)`; check `MainActivity`/`BuildConfig.POPP_SERVER_FQDN` (run the `local` flavor). |
+| Error screen `NETWORK` / `…Connection refused` | `adb reverse tcp:8443 tcp:8443` not active (re-run it) or the docker stack is down. |
 | HTTP 401 on connect | You pointed at the ingress (`wss://…443/ws`); use `ws://localhost:8443/ws` directly. |
 | `not an eGK? NFC tag does not support ISO-DEP…` | Wrong card type tapped (the message is accurate). |
 | `WRONG_CAN` with the correct CAN | Double-check the printed CAN (not the Kartennummer / ICCSN). |
@@ -237,8 +156,9 @@ for the card generation) after all scenario steps have run.
 
 ## Cleanup
 
+No source to revert (the flow is productised — `directTransport` is permanent, fenced
+DEV/TEST API). Just stop the stack when done:
+
 ```bash
-git checkout -- popp-sdk/src/commonMain/kotlin/de/servicehealth/poppmodule/sdk/PoppSdk.kt
-git checkout -- popp-demo/popp-3rd-party-app-demo/android3rdPartyApp/
 cd ~/git/popp-sample-code && docker compose -f docker/compose.yaml down
 ```

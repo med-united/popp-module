@@ -15,7 +15,9 @@ import de.servicehealth.poppmodule.demo.thirdparty.can.CanInputScreen
 import de.servicehealth.poppmodule.demo.thirdparty.can.CanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.InMemoryCanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.LocalCanStore
-import de.servicehealth.poppmodule.demo.thirdparty.can.NfcScanScreen
+import de.servicehealth.poppmodule.demo.thirdparty.nfc.ErrorPlaceholderScreen
+import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanScreen
+import de.servicehealth.poppmodule.demo.thirdparty.nfc.SuccessPlaceholderScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
@@ -24,10 +26,13 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
 @Composable
-fun App(canStore: CanStore = InMemoryCanStore()) {
+fun App(
+    poppSdk: PoppSdk = PoppSdk(),
+    canStore: CanStore = InMemoryCanStore(),
+) {
     BrandTheme {
         CompositionLocalProvider(
-            LocalPoppSdk provides PoppSdk(),
+            LocalPoppSdk provides poppSdk,
             LocalCanStore provides canStore,
         ) {
             val nav = rememberNavController()
@@ -93,6 +98,34 @@ fun App(canStore: CanStore = InMemoryCanStore()) {
                 composable(Routes.CHECK_IN_NFC) {
                     NfcScanScreen(
                         onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onSuccess = { _, _ ->
+                            nav.navigate(Routes.CHECK_IN_SUCCESS) {
+                                popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
+                            }
+                        },
+                        onError = { reason, _ ->
+                            nav.navigate(Routes.checkInError(reason.name)) {
+                                popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
+                            }
+                        },
+                    )
+                }
+                composable(Routes.CHECK_IN_SUCCESS) {
+                    SuccessPlaceholderScreen(onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) })
+                }
+                composable(
+                    route = "${Routes.CHECK_IN_ERROR}?${Routes.ARG_FAILURE}={${Routes.ARG_FAILURE}}",
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_FAILURE) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
+                ) { entry ->
+                    ErrorPlaceholderScreen(
+                        failure = entry.arguments?.read { getStringOrNull(Routes.ARG_FAILURE) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }

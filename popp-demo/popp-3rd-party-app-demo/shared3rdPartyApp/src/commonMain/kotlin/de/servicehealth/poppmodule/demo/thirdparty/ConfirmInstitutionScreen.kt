@@ -58,7 +58,6 @@ import org.jetbrains.compose.resources.stringResource
 // ---------------------------------------------------------------------------
 // Data model – stubbed for now, to be replaced with real VZD lookup data
 // ---------------------------------------------------------------------------
-
 data class LeiData(
     // e.g. "APOTHEKE"
     val institutionType: String,

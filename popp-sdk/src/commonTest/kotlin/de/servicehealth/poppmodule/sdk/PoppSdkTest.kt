@@ -6,30 +6,32 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class PoppSdkConfigTest {
-
     private fun validConfig(
         fqdn: String = "https://popp.example.test",
         scopes: List<String> = listOf("openid"),
         requiredRoleOid: String = "1.2.276.0.76.4.156",
         tokenLifetimeSeconds: Long = 300,
-    ): PoppSdkConfig = PoppSdkConfig(
-        fqdn = fqdn,
-        productId = "de.servicehealth.popp",
-        productVersion = "0.0.1",
-        clientName = "popp-sdk-test",
-        platformIdentity = PlatformIdentity.Android(
-            packageName = "de.servicehealth.poppmodule",
-            sha256CertFingerprints = listOf("AA:BB:CC"),
-        ),
-        scopes = scopes,
-        requiredRoleOid = requiredRoleOid,
-        tokenLifetimeSeconds = tokenLifetimeSeconds,
-        tokenProvider = TokenProviderConfig.Smb(
-            alias = "smb-alias",
-            password = "secret",
-            keystoreB64 = "AAAA",
-        ),
-    )
+    ): PoppSdkConfig =
+        PoppSdkConfig(
+            fqdn = fqdn,
+            productId = "de.servicehealth.popp",
+            productVersion = "0.0.1",
+            clientName = "popp-sdk-test",
+            platformIdentity =
+                PlatformIdentity.Android(
+                    packageName = "de.servicehealth.poppmodule",
+                    sha256CertFingerprints = listOf("AA:BB:CC"),
+                ),
+            scopes = scopes,
+            requiredRoleOid = requiredRoleOid,
+            tokenLifetimeSeconds = tokenLifetimeSeconds,
+            tokenProvider =
+                TokenProviderConfig.Smb(
+                    alias = "smb-alias",
+                    password = "secret",
+                    keystoreB64 = "AAAA",
+                ),
+        )
 
     @Test
     fun valid_config_constructs() {
@@ -77,17 +79,18 @@ class PoppSdkConfigTest {
 }
 
 class PoppSdkErrorTest {
-
     @Test
     fun error_messages_round_trip() {
         val cause = RuntimeException("boom")
-        val errs = listOf(
-            PoppSdkError.Network("net", cause),
-            PoppSdkError.Attestation("att", cause),
-            PoppSdkError.Configuration("cfg", cause),
-            PoppSdkError.PlatformUnsupported("pf"),
-            PoppSdkError.Unknown("u", cause),
-        )
-        assertEquals(listOf("net", "att", "cfg", "pf", "u"), errs.map { it.message })
+        val errs =
+            listOf(
+                PoppSdkError.Network("net", cause),
+                PoppSdkError.Attestation("att", cause),
+                PoppSdkError.Configuration("cfg", cause),
+                PoppSdkError.PlatformUnsupported("pf"),
+                PoppSdkError.Protocol("proto", cause),
+                PoppSdkError.Unknown("u", cause),
+            )
+        assertEquals(listOf("net", "att", "cfg", "pf", "proto", "u"), errs.map { it.message })
     }
 }

@@ -9,7 +9,6 @@ sealed class PoppSdkError(
     message: String,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
-
     /** Network-layer failures: DNS, TLS, ZETA Guard unreachable, etc. */
     class Network(message: String, cause: Throwable? = null) : PoppSdkError(message, cause)
 
@@ -21,6 +20,14 @@ sealed class PoppSdkError(
 
     /** Platform doesn't yet support PoPP — currently iOS, until zeta-sdk publishes a native variant. */
     class PlatformUnsupported(message: String) : PoppSdkError(message)
+
+    /**
+     * The PoPP-Service spoke something the loop can't honour: a malformed/unexpected message,
+     * a class-discriminator we don't model, a sequence-counter replay/gap, or a card status word
+     * outside the scenario's expected set. Distinct from [Network] (socket/TLS) — this is a
+     * protocol-level violation, not a transport failure.
+     */
+    class Protocol(message: String, cause: Throwable? = null) : PoppSdkError(message, cause)
 
     /** Catch-all for unexpected failures so they still come through the SDK's error type. */
     class Unknown(message: String, cause: Throwable? = null) : PoppSdkError(message, cause)

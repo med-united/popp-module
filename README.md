@@ -54,15 +54,15 @@ Running on a physical iOS device requires setting your signing `TEAM_ID` in the 
 - SDK, Android host JVM (fast): `./gradlew :popp-sdk:testAndroidHostTest`
 - SDK, iOS simulator (requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`
 - Demo shared UI, Android host JVM: `./gradlew :popp-demo:shared:testAndroidHostTest` (`BrandColorsTest`)
-- All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest`
+- 3rd-party app, Android host JVM: `./gradlew :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
+- All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
 
 ## Code coverage (Kover) & CI
 
 - Local aggregated report: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport`
   → XML `build/reports/kover/report.xml`, HTML `build/reports/kover/html/`.
-- Coverage aggregates `:popp-sdk` and `:popp-demo:shared` (the modules with host tests). Compose-generated
-  classes are excluded via root Kover filters.
-  `:popp-demo:shared` is mostly Compose UI
+- Coverage aggregates `:popp-sdk`, `:popp-demo:shared`, and `:popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp`. Compose-generated
+  classes and `AndroidQrScanner` are excluded via root Kover filters.
 - CI: `.github/workflows/code-coverage.yml` runs both modules' host tests, uploads artifacts, and pushes the
   XML to Codecov. Dependabot (`.github/dependabot.yml`) watches Gradle dependencies weekly.
 
@@ -70,3 +70,25 @@ Running on a physical iOS device requires setting your signing `TEAM_ID` in the 
 
 - Android AAR: `./gradlew :popp-sdk:assemble` → `popp-sdk/build/outputs/aar/`
 - iOS XCFramework: `./gradlew :popp-sdk:assemblePoppSdkXCFramework` → `popp-sdk/build/XCFrameworks/`
+
+## Architecture decisions (ADRs)
+
+Key decisions about *why* the project is structured this way — and what alternatives were considered and rejected —
+are documented as Architecture Decision Records in [`docs/adr/`](./docs/adr/). To learn more, read the specific [`ADR Documentation`](./docs/adr/README.md) 
+
+ADRs with status **Accepted** are binding — code or architecture that contradicts them requires a superseding ADR first.
+
+## Code style (ktlint)
+
+Kotlin formatting is enforced by [ktlint](https://pinterest.github.io/ktlint/) via the `jlleitschuh/ktlint-gradle` plugin.
+
+- Check: `./gradlew ktlintCheck`
+- Auto-fix: `./gradlew ktlintFormat`
+- CI: the `ktlintCheck` step in `.github/workflows/code-coverage.yml` runs before tests and fails the build on any violation.
+
+**Pre-commit hook** — run once after cloning to block commits with style violations:
+
+```sh
+./gradlew addKtlintCheckGitPreCommitHook
+```
+

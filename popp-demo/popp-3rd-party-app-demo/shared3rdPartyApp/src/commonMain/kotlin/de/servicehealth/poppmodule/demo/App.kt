@@ -9,11 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
-import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
-import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
@@ -32,22 +32,28 @@ fun App() {
                 }
                 composable(
                     route = "${Routes.INTEGRATED_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments = listOf(navArgument(Routes.ARG_SCENARIO) {
-                        type = NavType.StringType
-                        nullable = true
-                    }),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_SCENARIO) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     IntegratedHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
-                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) }
+                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) },
                     )
                 }
                 composable(
                     route = "${Routes.APP_TO_APP_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments = listOf(navArgument(Routes.ARG_SCENARIO) {
-                        type = NavType.StringType
-                        nullable = true
-                    }),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_SCENARIO) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     AppToAppHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },

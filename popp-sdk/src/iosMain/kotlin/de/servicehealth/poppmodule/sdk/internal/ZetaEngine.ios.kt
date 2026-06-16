@@ -14,7 +14,7 @@ private class UnsupportedZetaEngine : ZetaEngine {
     override suspend fun start(): Nothing =
         throw PoppSdkError.PlatformUnsupported(
             "ZETA SDK has no iOS variant yet (zeta-sdk 1.0.1 is Android/JVM only). " +
-                "Track gematik/zeta-sdk for an iOS native release."
+                "Track gematik/zeta-sdk for an iOS native release.",
         )
 
     override suspend fun status(): String = "iOS: zeta-sdk not yet available"

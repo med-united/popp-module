@@ -20,4 +20,29 @@
     <string name="confirm_institution_choose_other">Andere Einrichtung wählen</string>
     <string name="confirm_institution_label_address">ADRESSE</string>
     <string name="confirm_institution_label_hours">ÖFFNUNGSZEITEN</string>
+
+    <string name="checkin_entry_header">VOR-ORT-CHECK-IN</string>
+    <string name="checkin_entry_question">Wo möchten Sie\neinchecken?</string>
+    <string name="checkin_entry_subtitle">Wählen Sie die Einrichtung (LEI), bei der Sie sich vor Ort anmelden.</string>
+    <string name="checkin_entry_search_title">Suchen</string>
+    <string name="checkin_entry_search_subtitle">Nach Name oder\nAdresse</string>
+    <string name="checkin_entry_qr_title">QR-Code\nscannen</string>
+    <string name="checkin_entry_qr_subtitle">Code vor Ort scannen</string>
+    <string name="checkin_entry_favorites">FAVORITEN</string>
+    <string name="checkin_entry_favorites_count">2 gespeichert</string>
+
+    <string name="checkin_scanner_title">QR-Code scannen</string>
+    <string name="checkin_scanner_instruction">Richten Sie die Kamera auf den Check-in-\nCode der Einrichtung.</string>
+    <string name="checkin_scanner_searching">Suche nach Code...</string>
+    <string name="checkin_scanner_code_detected">Code erkannt</string>
+    <string name="checkin_scanner_invalid">Der gescannte QR-Code ist nicht lesbar, da er fehlerhafte Daten enthält. Bitte informieren Sie umgehend die Einrichtung bei der Sie sich einchecken wollten.</string>
+    <string name="checkin_scanner_back">Zurück</string>
+    <string name="checkin_scanner_close">Schließen</string>
+
+    <string name="camera_permission_rationale">Kamerazugriff wird benötigt, um den Check-in-Code zu scannen.</string>
+    <string name="camera_permission_allow">Erlauben</string>
+    <string name="camera_permission_denied">Kamerazugriff ist deaktiviert. Bitte erlauben Sie ihn in den Einstellungen.</string>
+    <string name="camera_permission_open_settings">Einstellungen öffnen</string>
+
+    <string name="qr_scanner_ios_placeholder">Kamera-Scanner folgt auf iOS</string>
 </resources>

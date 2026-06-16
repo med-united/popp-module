@@ -60,11 +60,15 @@ import org.jetbrains.compose.resources.stringResource
 // ---------------------------------------------------------------------------
 
 data class LeiData(
-    val institutionType: String, // e.g. "APOTHEKE"
+    // e.g. "APOTHEKE"
+    val institutionType: String,
     val institutionTypeIcon: ImageVector = Icons.Rounded.LocalHospital,
-    val name: String, // e.g. "Apotheke am Markt"
-    val address: String, // e.g. "Marktplatz 3, 52062 Aachen"
-    val openingHours: String, // e.g. "Mo–Fr 8:00–18:30 · Sa 9:00–13:00"
+    // e.g. "Apotheke am Markt"
+    val name: String,
+    // e.g. "Marktplatz 3, 52062 Aachen"
+    val address: String,
+    // e.g. "Mo–Fr 8:00–18:30 · Sa 9:00–13:00"
+    val openingHours: String,
 )
 
 // Stub – replace with real VZD result once POPPM-116 is implemented
@@ -238,7 +242,12 @@ private fun LeiCard(data: LeiData) {
                     Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                        .background(brush = remember { Brush.linearGradient(colors = listOf(c.violet700, c.violet)) })
+                        .background(
+                            brush =
+                                remember {
+                                    Brush.linearGradient(colors = listOf(c.violet700, c.violet))
+                                },
+                        )
                         .padding(horizontal = 20.dp, vertical = 20.dp),
             ) {
                 Column {
@@ -341,6 +350,18 @@ private fun LeiDetailRow(
                 style = BrandTheme.typography.bodyMedium,
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun LeiDetailRowPreview() {
+    BrandTheme {
+        LeiDetailRow(
+            icon = Icons.Rounded.LocationOn,
+            label = "ADRESSE",
+            value = "Marktplatz 3, 52062 Aachen",
+        )
     }
 }
 

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.runComposeUiTest
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.junit.runner.RunWith
@@ -31,8 +32,10 @@ private class RecordingCanStore(private val initial: String? = null) : CanStore 
 // Past the screen's 450ms auto-advance delay, with margin.
 private const val PAST_AUTO_ADVANCE_MS = 800L
 
-// The CAN screen is a tall, non-scrolling column; a tall test display keeps the keypad and
-// continue button on-screen so injected clicks/visibility checks land.
+// The CAN screen is a tall, vertically scrollable column. A tall test display keeps the keypad
+// and continue button within the viewport for the functional tests below, so their injected
+// clicks/visibility checks land without scrolling. `keypadIsReachableByScrolling` overrides this
+// with a realistic phone height to exercise the scroll itself.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], qualifiers = "w411dp-h2000dp")
 class CanInputScreenTest {
@@ -132,5 +135,24 @@ class CanInputScreenTest {
             waitForIdle()
             assertEquals("654321", store.saved)
             assertTrue(completed)
+        }
+
+    // Regression: on a real phone the keypad's bottom row sits below the fold, so the column must
+    // scroll. A realistic height forces the backspace key off-screen; it must be reachable by scroll.
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @Config(sdk = [35], qualifiers = "w411dp-h780dp")
+    fun keypadIsReachableByScrolling() =
+        runComposeUiTest {
+            val store = RecordingCanStore()
+            setContent {
+                BrandTheme {
+                    CompositionLocalProvider(LocalCanStore provides store) {
+                        CanInputScreen(onBack = {}, onClose = {}, onComplete = {})
+                    }
+                }
+            }
+            waitForIdle()
+            onNodeWithTag("can_key_back").performScrollTo().assertIsDisplayed()
         }
 }

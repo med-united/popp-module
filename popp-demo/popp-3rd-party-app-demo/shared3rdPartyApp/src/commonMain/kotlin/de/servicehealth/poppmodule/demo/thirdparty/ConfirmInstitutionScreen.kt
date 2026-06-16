@@ -56,7 +56,7 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.stringResource
 
 // ---------------------------------------------------------------------------
-// Data model â€“ stubbed for now, to be replaced with real VZD lookup data
+// Data model - stubbed for now, to be replaced with real VZD lookup data
 // ---------------------------------------------------------------------------
 data class LeiData(
     // e.g. "APOTHEKE"
@@ -66,17 +66,17 @@ data class LeiData(
     val name: String,
     // e.g. "Marktplatz 3, 52062 Aachen"
     val address: String,
-    // e.g. "Moâ€“Fr 8:00â€“18:30 Â· Sa 9:00â€“13:00"
+    // e.g. "Mo-Fr 8:00-18:30 Sa 9:00-13:00"
     val openingHours: String,
 )
 
-// Stub â€“ replace with real VZD result once POPPM-116 is implemented
+// Stub - replace with real VZD result once POPPM-116 is implemented
 val stubLeiData =
     LeiData(
         institutionType = "Apotheke",
         name = "Apotheke am Markt",
         address = "Marktplatz 3, 52062 Aachen",
-        openingHours = "Moâ€“Fr 8:00â€“18:30 Â· Sa 9:00â€“13:00",
+        openingHours = "Mo-Fr 8:00-18:30 Sa 9:00-13:00",
     )
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ val stubLeiData =
 // ---------------------------------------------------------------------------
 
 /**
- * A3 â€“ "Einrichtung bestÃ¤tigen"
+ * A3 - "Einrichtung bestaetigen"
  *
  * Displays VZD-looked-up LEI data and collects explicit user consent before
  * transmitting insured data. Gematik refs: A_28488, A_27621.
@@ -186,7 +186,7 @@ fun ConfirmInstitutionScreen(
             Spacer(Modifier.height(32.dp))
         }
 
-        // AC3: action buttons â€“ pinned to bottom
+        // AC3: action buttons - pinned to bottom
         Column(
             modifier =
                 Modifier
@@ -203,7 +203,7 @@ fun ConfirmInstitutionScreen(
                 size = BrandButtonSize.Lg,
                 trailingIcon = {
                     Text(
-                        text = "â†’",
+                        text = "->",
                         color = c.white,
                         fontSize = 17.sp,
                     )
@@ -308,7 +308,7 @@ private fun LeiCard(data: LeiData) {
 }
 
 @Composable
-private fun LeiDetailRow(
+private fun leiDetailRow(
     icon: ImageVector,
     label: String,
     value: String,
@@ -354,9 +354,9 @@ private fun LeiDetailRow(
 
 @Preview
 @Composable
-private fun LeiDetailRowPreview() {
+private fun leiDetailRowPreview() {
     BrandTheme {
-        LeiDetailRow(
+        leiDetailRow(
             icon = Icons.Rounded.LocationOn,
             label = "ADRESSE",
             value = "Marktplatz 3, 52062 Aachen",
@@ -366,7 +366,7 @@ private fun LeiDetailRowPreview() {
 
 @Preview
 @Composable
-private fun ConfirmInstitutionScreenPreview() {
+private fun confirmInstitutionScreenPreview() {
     ConfirmInstitutionScreen(
         onConfirm = {},
         onBack = {},

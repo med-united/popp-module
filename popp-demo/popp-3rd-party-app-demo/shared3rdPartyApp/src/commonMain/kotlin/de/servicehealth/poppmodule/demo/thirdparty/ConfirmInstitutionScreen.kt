@@ -356,7 +356,7 @@ private fun LeiDetailRow(
 @Composable
 private fun LeiDetailRowPreview() {
     BrandTheme {
-        leiDetailRow(
+        LeiDetailRow(
             icon = Icons.Rounded.LocationOn,
             label = "ADRESSE",
             value = "Marktplatz 3, 52062 Aachen",

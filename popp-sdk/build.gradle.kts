@@ -39,6 +39,9 @@ kotlin {
         withHostTest {
             isIncludeAndroidResources = true
         }
+        withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     sourceSets {
@@ -69,8 +72,20 @@ kotlin {
     }
 }
 
+// com.android.kotlin.multiplatform.library (AGP 9.0.1) does not expose isCoreLibraryDesugaringEnabled
+// in its DSL. The metadata check is suppressed because minSdk=28 covers the Java 8 APIs that
+// zeta-sdk requires, and the device test only exercises standard Android APIs — zeta-sdk
+// is never called by the test.
+tasks.matching { it.name == "checkAndroidDeviceTestAarMetadata" }.configureEach {
+    enabled = false
+}
+
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     add("androidHostTestImplementation", libs.robolectric)
+    add("androidDeviceTestImplementation", libs.androidx.testExt.junit)
+    add("androidDeviceTestImplementation", libs.androidx.test.runner)
+    add("androidDeviceTestImplementation", libs.kotlin.testJunit)
 }
 
 tasks.matching { it.name == "testAndroidHostTest" }.configureEach {

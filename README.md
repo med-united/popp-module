@@ -88,6 +88,20 @@ Gradle tasks, following the standard Android convention
 - 3rd-party app, Android host JVM: `./gradlew :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
 - All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
 
+### On-device tests
+
+Verify implementations on a connected device or emulator. This is the complement to the host JVM tests, which use a
+software-backed stub to keep CI fast.
+
+**Prerequisites:** a device or emulator connected via adb (`adb devices` to confirm).
+
+```bash
+./gradlew :popp-sdk:connectedAndroidDeviceTest
+```
+
+> **Note:** These tests are not part of CI (CI has no connected device). Run them manually
+> before changing code that relies on the device.
+
 ### Integration testing
 
 Integration tests live in `popp-sdk/src/androidHostTest` alongside the unit tests but are

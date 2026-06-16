@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
@@ -52,29 +54,27 @@ import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.preview.Preview
-
 
 // ---------------------------------------------------------------------------
 // Data model – stubbed for now, to be replaced with real VZD lookup data
 // ---------------------------------------------------------------------------
 
 data class LeiData(
-    val institutionType: String,            // e.g. "APOTHEKE"
+    val institutionType: String, // e.g. "APOTHEKE"
     val institutionTypeIcon: ImageVector = Icons.Rounded.LocalHospital,
-    val name: String,                       // e.g. "Apotheke am Markt"
-    val address: String,                    // e.g. "Marktplatz 3, 52062 Aachen"
-    val openingHours: String,               // e.g. "Mo–Fr 8:00–18:30 · Sa 9:00–13:00"
+    val name: String, // e.g. "Apotheke am Markt"
+    val address: String, // e.g. "Marktplatz 3, 52062 Aachen"
+    val openingHours: String, // e.g. "Mo–Fr 8:00–18:30 · Sa 9:00–13:00"
 )
 
 // Stub – replace with real VZD result once POPPM-116 is implemented
-val stubLeiData = LeiData(
-    institutionType = "Apotheke",
-    name = "Apotheke am Markt",
-    address = "Marktplatz 3, 52062 Aachen",
-    openingHours = "Mo–Fr 8:00–18:30 · Sa 9:00–13:00",
-)
+val stubLeiData =
+    LeiData(
+        institutionType = "Apotheke",
+        name = "Apotheke am Markt",
+        address = "Marktplatz 3, 52062 Aachen",
+        openingHours = "Mo–Fr 8:00–18:30 · Sa 9:00–13:00",
+    )
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -107,10 +107,11 @@ fun ConfirmInstitutionScreen(
     val c = BrandTheme.colors
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(c.white)
-            .safeContentPadding()
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(c.white)
+                .safeContentPadding(),
     ) {
         // Top bar
         BrandScreenHeader(
@@ -120,11 +121,12 @@ fun ConfirmInstitutionScreen(
 
         // Scrollable body
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 12.dp)
-                .padding(top = 18.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp),
         ) {
             // AC4: back button + progress dots
             Row(
@@ -132,9 +134,10 @@ fun ConfirmInstitutionScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(onClick = onBack),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .clickable(onClick = onBack),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
@@ -182,10 +185,11 @@ fun ConfirmInstitutionScreen(
 
         // AC3: action buttons – pinned to bottom
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .padding(bottom = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             BrandButton(
@@ -230,19 +234,21 @@ private fun LeiCard(data: LeiData) {
         Column {
             // Purple gradient header: institution type badge + name
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                    .background(brush = remember { Brush.linearGradient(colors = listOf(c.violet700, c.violet)) })
-                    .padding(horizontal = 20.dp, vertical = 20.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                        .background(brush = remember { Brush.linearGradient(colors = listOf(c.violet700, c.violet)) })
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
             ) {
                 Column {
                     // Institution type badge
                     Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(Color.White.copy(alpha = 0.18f))
-                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                        modifier =
+                            Modifier
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(Color.White.copy(alpha = 0.18f))
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
@@ -306,10 +312,11 @@ private fun LeiDetailRow(
         verticalAlignment = Alignment.Top,
     ) {
         Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(RoundedCornerShape(11.dp))
-                .background(c.violet100),
+            modifier =
+                Modifier
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(c.violet100),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -335,7 +342,6 @@ private fun LeiDetailRow(
             )
         }
     }
-    
 }
 
 @Preview

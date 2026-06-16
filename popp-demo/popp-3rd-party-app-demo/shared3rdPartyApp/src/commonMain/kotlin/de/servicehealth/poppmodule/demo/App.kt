@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
+import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
@@ -16,7 +17,6 @@ import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
-import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
 @Composable
@@ -79,11 +79,11 @@ fun App() {
                 composable(Routes.CONFIRM_INSTITUTION) {
                     ConfirmInstitutionScreen(
                         onConfirm = { /* TODO: navigate to auth flow */ },
-                        onBack = { nav.popBackStack()},
+                        onBack = { nav.popBackStack() },
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
-    )
-}
+                    )
+                }
             }
         }
     }

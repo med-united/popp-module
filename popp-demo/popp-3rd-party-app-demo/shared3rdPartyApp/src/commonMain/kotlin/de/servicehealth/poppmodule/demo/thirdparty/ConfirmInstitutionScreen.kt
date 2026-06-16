@@ -308,7 +308,7 @@ private fun LeiCard(data: LeiData) {
 }
 
 @Composable
-private fun leiDetailRow(
+private fun LeiDetailRow(
     icon: ImageVector,
     label: String,
     value: String,
@@ -354,7 +354,7 @@ private fun leiDetailRow(
 
 @Preview
 @Composable
-private fun leiDetailRowPreview() {
+private fun LeiDetailRowPreview() {
     BrandTheme {
         leiDetailRow(
             icon = Icons.Rounded.LocationOn,
@@ -366,7 +366,7 @@ private fun leiDetailRowPreview() {
 
 @Preview
 @Composable
-private fun confirmInstitutionScreenPreview() {
+private fun ConfirmInstitutionScreenPreview() {
     ConfirmInstitutionScreen(
         onConfirm = {},
         onBack = {},

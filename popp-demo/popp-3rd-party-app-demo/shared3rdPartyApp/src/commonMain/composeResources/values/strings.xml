@@ -12,4 +12,12 @@
     <string name="mode_app2app_title">App-zu-App</string>
     <string name="mode_app2app_desc">Die Demo-App überträgt die Authentifizierung an die Versicherungs-App.</string>
     <string name="start_demo_button">Starte die Demo</string>
+    <string name="confirm_institution_header">VOR-ORT-CHECK-IN</string>
+    <string name="confirm_institution_back">Zurück</string>
+    <string name="confirm_institution_title">Einrichtung bestätigen</string>
+    <string name="confirm_institution_subtitle">Wir haben diese Einrichtung erkannt. Bitte prüfen und bestätigen Sie.</string>
+    <string name="confirm_institution_confirm_button">Bestätigen &amp; anmelden</string>
+    <string name="confirm_institution_choose_other">Andere Einrichtung wählen</string>
+    <string name="confirm_institution_label_address">ADRESSE</string>
+    <string name="confirm_institution_label_hours">ÖFFNUNGSZEITEN</string>
 </resources>

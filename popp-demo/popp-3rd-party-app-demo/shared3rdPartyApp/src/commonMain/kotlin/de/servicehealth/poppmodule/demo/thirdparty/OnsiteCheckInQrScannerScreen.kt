@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 fun OnsiteCheckInQrScannerScreen(
     onBack: () -> Unit,
     onClose: () -> Unit,
+    onSuccess: () -> Unit = {},
 ) {
     BrandTheme {
         val c = BrandTheme.colors

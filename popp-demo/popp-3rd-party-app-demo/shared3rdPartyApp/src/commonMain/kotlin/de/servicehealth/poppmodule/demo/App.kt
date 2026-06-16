@@ -67,11 +67,13 @@ fun App() {
                     OnsiteCheckInQrScannerScreen(
                         onBack = { nav.popBackStack() },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onSuccess = { nav.navigate(Routes.CONFIRM_INSTITUTION) },
                     )
                 }
                 composable(Routes.CONFIRM_INSTITUTION) {
                     ConfirmInstitutionScreen(
                         onConfirm = { /* TODO: navigate to auth flow */ },
+                        onBack = { nav.popBackStack()},
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
     )

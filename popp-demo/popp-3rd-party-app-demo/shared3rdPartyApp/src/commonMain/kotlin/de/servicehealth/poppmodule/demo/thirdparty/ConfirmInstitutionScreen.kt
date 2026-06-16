@@ -1,6 +1,7 @@
 package de.servicehealth.poppmodule.demo.thirdparty
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,16 +33,28 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_back
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_choose_other
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_confirm_button
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_header
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_address
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_hours
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_title
 import de.servicehealth.poppmodule.theme.BrandButton
-import de.servicehealth.poppmodule.theme.BrandButtonVariant
 import de.servicehealth.poppmodule.theme.BrandButtonSize
+import de.servicehealth.poppmodule.theme.BrandButtonVariant
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
+import org.jetbrains.compose.resources.stringResource
+import androidx.compose.runtime.remember
+import androidx.compose.ui.tooling.preview.Preview
+
 
 // ---------------------------------------------------------------------------
 // Data model – stubbed for now, to be replaced with real VZD lookup data
@@ -74,125 +87,130 @@ val stubLeiData = LeiData(
  * transmitting insured data. Gematik refs: A_28488, A_27621.
  *
  * @param leiData       Institution data to display (AC2). Use [stubLeiData] until POPPM-116.
- * @param currentStep   1-based index for the progress dots (AC4).
+ * @param currentStep   0-based index for BrandProgressDots (AC4).
  * @param totalSteps    Total steps in the check-in flow (AC4).
  * @param onConfirm     Grants consent and triggers the auth flow (AC3 primary button).
- * @param onChooseOther Returns to search/scanner (AC3 secondary button + back button).
+ * @param onBack        Navigates to previous screen (AC4 back button).
+ * @param onChooseOther Returns to search/scanner (AC3 secondary button).
  * @param onClose       Closes the VOR-ORT-CHECK-IN flow entirely.
  */
 @Composable
 fun ConfirmInstitutionScreen(
     leiData: LeiData = stubLeiData,
-    currentStep: Int = 2,   // 0-based index for BrandProgressDots
+    currentStep: Int = 2,
     totalSteps: Int = 4,
     onConfirm: () -> Unit,
+    onBack: () -> Unit,
     onChooseOther: () -> Unit,
     onClose: () -> Unit,
 ) {
-    BrandTheme {
-        val c = BrandTheme.colors
+    val c = BrandTheme.colors
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(c.white)
+            .safeContentPadding()
+    ) {
+        // Top bar
+        BrandScreenHeader(
+            title = stringResource(Res.string.confirm_institution_header),
+            onClose = onClose,
+        )
+
+        // Scrollable body
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(c.white)
-                .safeContentPadding()
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 12.dp)
+                .padding(top = 18.dp),
         ) {
-            // AC4 + top bar
-            BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
-
-            // Scrollable body
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 18.dp),
+            // AC4: back button + progress dots
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // AC4: back button + progress dots
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onBack),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
-                            contentDescription = "Zurück",
-                            tint = c.violet,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = "Zurück",
-                            color = c.violet,
-                            style = BrandTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
-                    BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBack,
+                        contentDescription = stringResource(Res.string.confirm_institution_back),
+                        tint = c.violet,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(Res.string.confirm_institution_back),
+                        color = c.violet,
+                        style = BrandTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
-
-                Spacer(Modifier.height(22.dp))
-
-                // AC1: title + subtitle
-                Text(
-                    text = "Einrichtung bestätigen",
-                    color = c.ink,
-                    style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Text(
-                    text = "Wir haben diese Einrichtung erkannt. Bitte prüfen und bestätigen Sie.",
-                    color = c.neutral700,
-                    style = BrandTheme.typography.bodyMedium,
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                // AC2: LEI card
-                LeiCard(data = leiData)
-
-                Spacer(Modifier.height(32.dp))
+                BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
             }
 
-            // AC3: action buttons – pinned to bottom
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                BrandButton(
-                    text = "Bestätigen & anmelden",
-                    onClick = onConfirm,
-                    modifier = Modifier.fillMaxWidth(),
-                    variant = BrandButtonVariant.Primary,
-                    size = BrandButtonSize.Lg,
-                    trailingIcon = {
-                        Text(
-                            text = "→",
-                            color = c.white,
-                            fontSize = 17.sp,
-                        )
-                    },
-                )
+            Spacer(Modifier.height(22.dp))
 
-                Spacer(Modifier.height(16.dp))
+            // AC1: title
+            Text(
+                text = stringResource(Res.string.confirm_institution_title),
+                color = c.ink,
+                style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
+            )
 
-                BrandButton(
-                    text = "Andere Einrichtung wählen",
-                    onClick = onChooseOther,
-                    variant = BrandButtonVariant.Ghost,
-                    size = BrandButtonSize.Md,
-                )
-            }
+            Spacer(Modifier.height(8.dp))
+
+            // AC1: subtitle
+            Text(
+                text = stringResource(Res.string.confirm_institution_subtitle),
+                color = c.neutral700,
+                style = BrandTheme.typography.bodyMedium,
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // AC2: LEI card
+            LeiCard(data = leiData)
+
+            Spacer(Modifier.height(32.dp))
+        }
+
+        // AC3: action buttons – pinned to bottom
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            BrandButton(
+                text = stringResource(Res.string.confirm_institution_confirm_button),
+                onClick = onConfirm,
+                modifier = Modifier.fillMaxWidth(),
+                variant = BrandButtonVariant.Primary,
+                size = BrandButtonSize.Lg,
+                trailingIcon = {
+                    Text(
+                        text = "→",
+                        color = c.white,
+                        fontSize = 17.sp,
+                    )
+                },
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            BrandButton(
+                text = stringResource(Res.string.confirm_institution_choose_other),
+                onClick = onChooseOther,
+                variant = BrandButtonVariant.Ghost,
+                size = BrandButtonSize.Md,
+            )
         }
     }
 }
@@ -215,11 +233,7 @@ private fun LeiCard(data: LeiData) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(c.violet700, c.violet),
-                        )
-                    )
+                    .background(brush = remember { Brush.linearGradient(colors = listOf(c.violet700, c.violet)) })
                     .padding(horizontal = 20.dp, vertical = 20.dp),
             ) {
                 Column {
@@ -266,12 +280,12 @@ private fun LeiCard(data: LeiData) {
             ) {
                 LeiDetailRow(
                     icon = Icons.Rounded.LocationOn,
-                    label = "ADRESSE",
+                    label = stringResource(Res.string.confirm_institution_label_address),
                     value = data.address,
                 )
                 LeiDetailRow(
                     icon = Icons.Rounded.Schedule,
-                    label = "ÖFFNUNGSZEITEN",
+                    label = stringResource(Res.string.confirm_institution_label_hours),
                     value = data.openingHours,
                 )
             }
@@ -321,4 +335,16 @@ private fun LeiDetailRow(
             )
         }
     }
+    
+}
+
+@Preview
+@Composable
+private fun ConfirmInstitutionScreenPreview() {
+    ConfirmInstitutionScreen(
+        onConfirm = {},
+        onBack = {},
+        onChooseOther = {},
+        onClose = {},
+    )
 }

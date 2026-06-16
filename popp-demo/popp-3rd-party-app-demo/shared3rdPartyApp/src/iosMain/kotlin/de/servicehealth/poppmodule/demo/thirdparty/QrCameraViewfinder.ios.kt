@@ -30,6 +30,7 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusNotDetermined
@@ -69,7 +70,8 @@ actual fun QrCameraViewfinder(
 
     LifecycleResumeEffect(Unit) {
         if (status != CameraAuth.Authorized) status = cameraAuthStatus()
-        onPauseOrDispose { }
+        if (status == CameraAuth.Authorized) scanner.start()
+        onPauseOrDispose { scanner.stop() }
     }
 
     LaunchedEffect(Unit) {
@@ -83,10 +85,11 @@ actual fun QrCameraViewfinder(
     }
 
     LaunchedEffect(status) {
-        currentOnActiveChange(status == CameraAuth.Authorized && scanner.start())
+        if (status == CameraAuth.Authorized) scanner.start()
     }
 
     LaunchedEffect(scanner) {
+        launch { scanner.isActive.collect { currentOnActiveChange(it) } }
         scanner.results.collect { currentOnResult(it) }
     }
 

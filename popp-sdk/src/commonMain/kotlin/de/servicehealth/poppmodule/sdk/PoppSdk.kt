@@ -105,7 +105,40 @@ class PoppSdk internal constructor(
                 newSessionId = ::defaultSessionId,
             )
         }
+
+        /**
+         * DEV/TEST ONLY ([PoppDevTransport]): a PoppSdk that runs [checkInWithEgk] straight against
+         * the PoPP-Service WebSocket at [fqdn], bypassing the ZETA Guard handshake. Reuses the real
+         * transport — only registration/attestation is skipped. Production must use [start].
+         *
+         * RECONCILE ON POPPM-115 MERGE: POPPM-115 rewrites this class (new `PoppSdk(context)` +
+         * fire-and-forget `init(fqdn)` ZETA lifecycle, device/user engines, `DeviceOnlyTokenProvider`)
+         * and drops `checkInWithEgk`. When it lands, reconcile so a single started SDK both inits ZETA
+         * and runs the eGK loop. Note the demo's `local` flavor FQDN split: 115 points `local` at the
+         * ZETA ingress (`wss://popp-zeta-ingress:443/ws`) for `init`, but the eGK read loop can't use
+         * the ZETA-gated ingress yet (HTTP 401) so it needs the direct `ws://…:8443/ws` — until a
+         * ZETA-authenticated eGK transport exists, keep these two endpoints distinct.
+         */
+        @PoppDevTransport
+        fun directTransport(
+            fqdn: String,
+            trustedCaPem: String? = null,
+        ): PoppSdk =
+            PoppSdk(
+                engine = NoZetaEngine,
+                fqdn = fqdn,
+                trustedCaPem = trustedCaPem,
+                transportFactory = ::defaultTransportFactory,
+                newSessionId = ::defaultSessionId,
+            )
     }
+}
+
+/** DEV/TEST no-op engine: satisfies the started-SDK guard for [PoppSdk.directTransport] without ZETA. */
+internal object NoZetaEngine : ZetaEngine {
+    override suspend fun start() = Unit
+
+    override suspend fun status(): String = "DIRECT (no ZETA)"
 }
 
 private fun defaultTransportFactory(

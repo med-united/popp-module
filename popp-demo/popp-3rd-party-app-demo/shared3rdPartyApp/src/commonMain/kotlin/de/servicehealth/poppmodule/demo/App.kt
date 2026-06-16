@@ -64,6 +64,7 @@ fun App() {
                         onClose = { nav.popBackStack() },
                         onSearchClick = { nav.navigate(Routes.INSTITUTION_SEARCH) },
                         onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
+                        onFavoriteClick = { nav.navigate(Routes.CONFIRM_INSTITUTION) },
                     )
                 }
                 composable(Routes.INSTITUTION_SEARCH) {

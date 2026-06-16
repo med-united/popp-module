@@ -11,10 +11,10 @@ import de.servicehealth.poppmodule.sdk.internal.ZetaEngine
 import de.servicehealth.poppmodule.sdk.internal.createZetaEngine
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 import de.servicehealth.poppmodule.sdk.storage.createSecureStorage
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Public entry point of the PoPP SDK exposed to host apps.
@@ -29,11 +29,15 @@ import kotlinx.coroutines.sync.withLock
  * - device engine: authenticates via device attestation only
  * - user engine: authenticates via the eGK or GesundheitsId credential
  */
-class PoppSdk(
+class PoppSdk internal constructor(
     private val context: PoppSdkContext? = null,
     internal val storageOverride: SecureStorage? = null,
+    private val engine: ZetaEngine? = null,
+    private val fqdn: String? = null,
+    private val trustedCaPem: String? = null,
+    private val transportFactory: (url: String, trustedCaPem: String?) -> PoppServiceTransport = ::defaultTransportFactory,
+    private val newSessionId: () -> String = ::defaultSessionId,
 ) {
-
     private var configuredFqdn: String? = null
 
     private val deviceStorage by lazy {
@@ -51,7 +55,8 @@ class PoppSdk(
     private var userEngine: ZetaEngine? = null
 
     /** Current ZETA client status, as reported by the device engine. */
-    suspend fun status(): String = ensureDeviceEngine().status()
+    suspend fun status(): String =
+        ensureDeviceEngine().status()
 
     fun version(): String = "popp-sdk $VERSION"
 
@@ -115,10 +120,12 @@ class PoppSdk(
     }
 
     private suspend fun createDeviceEngine(): ZetaEngine {
-        val fqdn = configuredFqdn
-            ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
-        val storage = deviceStorage
-            ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
+        val fqdn =
+            configuredFqdn
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
+        val storage =
+            deviceStorage
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
 
         /*
         TokenProviderConfig.Egk(
@@ -126,19 +133,21 @@ class PoppSdk(
         )
          */
 
-        val engineConfig = PoppSdkConfig(
-            fqdn = fqdn,
-            productId = PRODUCT_ID,
-            productVersion = VERSION,
-            clientName = "service-health-popp-module",
-            platformIdentity = PlatformIdentity.Android(
-                packageName = "de.servicehealth.poppmodule",
-                sha256CertFingerprints = listOf("AA:BB:CC"),
-            ),
-            scopes = listOf("openid"),
-            requiredRoleOid = REQUIRED_ROLE_OID,
-            tokenProvider = DeviceOnly,
-        )
+        val engineConfig =
+            PoppSdkConfig(
+                fqdn = fqdn,
+                productId = PRODUCT_ID,
+                productVersion = VERSION,
+                clientName = "service-health-popp-module",
+                platformIdentity =
+                    PlatformIdentity.Android(
+                        packageName = "de.servicehealth.poppmodule",
+                        sha256CertFingerprints = listOf("AA:BB:CC"),
+                    ),
+                scopes = listOf("openid"),
+                requiredRoleOid = REQUIRED_ROLE_OID,
+                tokenProvider = DeviceOnly,
+            )
 
         val e = createZetaEngine(engineConfig, storage)
         try {
@@ -152,23 +161,27 @@ class PoppSdk(
     }
 
     private suspend fun createUserEngine(): ZetaEngine {
-        val fqdn = configuredFqdn
-            ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
-        val storage = userStorage
-            ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
-        val engineConfig = PoppSdkConfig(
-            fqdn = fqdn,
-            productId = PRODUCT_ID,
-            productVersion = VERSION,
-            clientName = "service-health-popp-module",
-            platformIdentity = PlatformIdentity.Android(
-                packageName = "de.servicehealth.poppmodule",
-                sha256CertFingerprints = listOf("AA:BB:CC"),
-            ),
-            scopes = listOf("openid"),
-            requiredRoleOid = REQUIRED_ROLE_OID,
-            tokenProvider = TokenProviderConfig.Egk { error("eGK not yet implemented") },
-        )
+        val fqdn =
+            configuredFqdn
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
+        val storage =
+            userStorage
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
+        val engineConfig =
+            PoppSdkConfig(
+                fqdn = fqdn,
+                productId = PRODUCT_ID,
+                productVersion = VERSION,
+                clientName = "service-health-popp-module",
+                platformIdentity =
+                    PlatformIdentity.Android(
+                        packageName = "de.servicehealth.poppmodule",
+                        sha256CertFingerprints = listOf("AA:BB:CC"),
+                    ),
+                scopes = listOf("openid"),
+                requiredRoleOid = REQUIRED_ROLE_OID,
+                tokenProvider = TokenProviderConfig.Egk { error("eGK not yet implemented") },
+            )
         val e = createZetaEngine(engineConfig, storage)
         try {
             e.start()
@@ -181,6 +194,8 @@ class PoppSdk(
     }
 
     companion object {
+        operator fun invoke(context: PoppSdkContext? = null): PoppSdk = PoppSdk(context = context)
+
         private const val PRODUCT_ID = "de.servicehealth.popp"
         private const val REQUIRED_ROLE_OID = "1.2.276.0.76.4.156"
         private const val DEVICE_STORAGE_NAMESPACE = "popp-sdk-device"
@@ -189,7 +204,10 @@ class PoppSdk(
     }
 }
 
-private fun defaultTransportFactory(url: String, trustedCaPem: String?): PoppServiceTransport =
+private fun defaultTransportFactory(
+    url: String,
+    trustedCaPem: String?,
+): PoppServiceTransport =
     WebSocketScenarioTransport(createPoppWebSocketClient(trustedCaPem), url)
 
 @OptIn(ExperimentalUuidApi::class)

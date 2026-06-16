@@ -22,13 +22,14 @@ import androidx.compose.ui.unit.dp
  * fully pill-shaped — Material maps those into its [Shapes] slots as closely as
  * possible.
  */
-private val brandShapes: Shapes = Shapes(
-    extraSmall = RoundedCornerShape(10.dp),
-    small = RoundedCornerShape(14.dp),
-    medium = RoundedCornerShape(18.dp),
-    large = RoundedCornerShape(24.dp),
-    extraLarge = RoundedCornerShape(32.dp),
-)
+private val brandShapes: Shapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(10.dp),
+        small = RoundedCornerShape(14.dp),
+        medium = RoundedCornerShape(18.dp),
+        large = RoundedCornerShape(24.dp),
+        extraLarge = RoundedCornerShape(32.dp),
+    )
 
 /**
  * CompositionLocal that exposes the raw [BrandColors] palette to brand primitives
@@ -64,7 +65,8 @@ fun BrandTheme(
     }
 }
 
-@Preview @Composable private fun BrandThemePreview() {
+@Preview @Composable
+private fun BrandThemePreview() {
     BrandTheme {
         Column(
             modifier = Modifier.background(BrandColors().white).padding(20.dp),
@@ -77,7 +79,8 @@ fun BrandTheme(
     }
 }
 
-@Preview @Composable private fun BrandThemeCustomColorsPreview() {
+@Preview @Composable
+private fun BrandThemeCustomColorsPreview() {
     val tinted = BrandColors(violet = BrandColors().violet700)
     BrandTheme(colors = tinted) {
         Column(

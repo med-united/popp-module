@@ -1,34 +1,36 @@
 package de.servicehealth.poppmodule.sdk
 
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 class PoppSdkConfigTest {
-
     private fun validConfig(
         fqdn: String = "https://popp.example.test",
         scopes: List<String> = listOf("openid"),
         requiredRoleOid: String = "1.2.276.0.76.4.156",
         tokenLifetimeSeconds: Long = 300,
-    ): PoppSdkConfig = PoppSdkConfig(
-        fqdn = fqdn,
-        productId = "de.servicehealth.popp",
-        productVersion = "0.0.1",
-        clientName = "popp-sdk-test",
-        platformIdentity = PlatformIdentity.Android(
-            packageName = "de.servicehealth.poppmodule",
-            sha256CertFingerprints = listOf("AA:BB:CC"),
-        ),
-        scopes = scopes,
-        requiredRoleOid = requiredRoleOid,
-        tokenLifetimeSeconds = tokenLifetimeSeconds,
-        tokenProvider = TokenProviderConfig.Egk(
-            provider = { "stub-token" }
-        ),
-    )
+    ): PoppSdkConfig =
+        PoppSdkConfig(
+            fqdn = fqdn,
+            productId = "de.servicehealth.popp",
+            productVersion = "0.0.1",
+            clientName = "popp-sdk-test",
+            platformIdentity =
+                PlatformIdentity.Android(
+                    packageName = "de.servicehealth.poppmodule",
+                    sha256CertFingerprints = listOf("AA:BB:CC"),
+                ),
+            scopes = scopes,
+            requiredRoleOid = requiredRoleOid,
+            tokenLifetimeSeconds = tokenLifetimeSeconds,
+            tokenProvider =
+                TokenProviderConfig.Egk(
+                    provider = { "stub-token" },
+                ),
+        )
 
     @Test
     fun valid_config_constructs() {
@@ -87,61 +89,64 @@ class PoppSdkConfigTest {
 }
 
 class PoppSdkErrorTest {
-
     @Test
     fun error_messages_round_trip() {
         val cause = RuntimeException("boom")
-        val errs = listOf(
-            PoppSdkError.Network("net", cause),
-            PoppSdkError.Attestation("att", cause),
-            PoppSdkError.Configuration("cfg", cause),
-            PoppSdkError.PlatformUnsupported("pf"),
-            PoppSdkError.Protocol("proto", cause),
-            PoppSdkError.Unknown("u", cause),
-        )
+        val errs =
+            listOf(
+                PoppSdkError.Network("net", cause),
+                PoppSdkError.Attestation("att", cause),
+                PoppSdkError.Configuration("cfg", cause),
+                PoppSdkError.PlatformUnsupported("pf"),
+                PoppSdkError.Protocol("proto", cause),
+                PoppSdkError.Unknown("u", cause),
+            )
         assertEquals(listOf("net", "att", "cfg", "pf", "proto", "u"), errs.map { it.message })
     }
 }
 
 class PoppSdkEnsureEngineTest {
+    @Test
+    fun status_before_init_throws_Configuration() =
+        runTest {
+            assertFailsWith<PoppSdkError.Configuration> { PoppSdk().status() }
+        }
 
     @Test
-    fun status_before_init_throws_Configuration() = runTest {
-        assertFailsWith<PoppSdkError.Configuration> { PoppSdk().status() }
-    }
+    fun hello_before_init_throws_Configuration() =
+        runTest {
+            assertFailsWith<PoppSdkError.Configuration> { PoppSdk().hello() }
+        }
 
     @Test
-    fun hello_before_init_throws_Configuration() = runTest {
-        assertFailsWith<PoppSdkError.Configuration> { PoppSdk().hello() }
-    }
-
-    @Test
-    fun status_with_fqdn_but_no_context_reports_missing_context() = runTest {
-        val sdk = PoppSdk()
-        sdk.init("wss://popp.example.test")
-        val error = assertFailsWith<PoppSdkError.Configuration> { sdk.status() }
-        assertTrue(
-            error.message!!.contains("PoppSdk(context)"),
-            "Expected context error but got: ${error.message}",
-        )
-    }
+    fun status_with_fqdn_but_no_context_reports_missing_context() =
+        runTest {
+            val sdk = PoppSdk()
+            sdk.init("wss://popp.example.test")
+            val error = assertFailsWith<PoppSdkError.Configuration> { sdk.status() }
+            assertTrue(
+                error.message!!.contains("PoppSdk(context)"),
+                "Expected context error but got: ${error.message}",
+            )
+        }
 }
 
 class TokenProviderConfigTest {
-
     @Test
     fun egk_provider_constructs() {
-        val provider = TokenProviderConfig.Egk(
-            provider = { "stub" }
-        )
+        val provider =
+            TokenProviderConfig.Egk(
+                provider = { "stub" },
+            )
         assertTrue(provider is TokenProviderConfig.Egk)
     }
 
     @Test
     fun gesundheitsId_provider_constructs() {
-        val provider = TokenProviderConfig.GesundheitsId(
-            provider = { "stub" }
-        )
+        val provider =
+            TokenProviderConfig.GesundheitsId(
+                provider = { "stub" },
+            )
         assertTrue(provider is TokenProviderConfig.GesundheitsId)
     }
 }

@@ -31,22 +31,28 @@ fun App(poppSdk: PoppSdk) {
                 }
                 composable(
                     route = "${Routes.INTEGRATED_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments = listOf(navArgument(Routes.ARG_SCENARIO) {
-                        type = NavType.StringType
-                        nullable = true
-                    }),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_SCENARIO) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     IntegratedHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
-                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) }
+                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) },
                     )
                 }
                 composable(
                     route = "${Routes.APP_TO_APP_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments = listOf(navArgument(Routes.ARG_SCENARIO) {
-                        type = NavType.StringType
-                        nullable = true
-                    }),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_SCENARIO) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     AppToAppHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },

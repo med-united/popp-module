@@ -8,9 +8,15 @@ import de.servicehealth.poppmodule.sdk.PoppSdkContext
  * on Android and the iOS Keychain.
  */
 interface SecureStorage {
-    suspend fun put(key: String, value: String)
+    suspend fun put(
+        key: String,
+        value: String,
+    )
+
     suspend fun get(key: String): String?
+
     suspend fun remove(key: String)
+
     suspend fun clear()
 }
 

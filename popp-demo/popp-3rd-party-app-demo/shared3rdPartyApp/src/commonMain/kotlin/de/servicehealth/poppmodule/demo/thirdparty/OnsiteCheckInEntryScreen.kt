@@ -34,21 +34,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_count
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_header
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_question
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_search_subtitle
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_search_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_subtitle
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.stringResource
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_header
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_question
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_subtitle
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_search_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_search_subtitle
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_subtitle
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_count
 
 @Composable
 fun OnsiteCheckInEntryScreen(
@@ -61,18 +61,20 @@ fun OnsiteCheckInEntryScreen(
         val c = BrandTheme.colors
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(c.white)
-                .safeContentPadding()
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(c.white)
+                    .safeContentPadding(),
         ) {
             BrandScreenHeader(title = stringResource(Res.string.checkin_entry_header), onClose = onClose)
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 18.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 18.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -149,10 +151,11 @@ private fun ActionCard(
             verticalArrangement = Arrangement.Top,
         ) {
             Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(c.deep),
+                modifier =
+                    Modifier
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(c.deep),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -259,17 +262,19 @@ private fun FavoriteRow(
     val c = BrandTheme.colors
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick(id) }
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick(id) }
+                .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(13.dp))
-                .background(c.violet100),
+            modifier =
+                Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(c.violet100),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

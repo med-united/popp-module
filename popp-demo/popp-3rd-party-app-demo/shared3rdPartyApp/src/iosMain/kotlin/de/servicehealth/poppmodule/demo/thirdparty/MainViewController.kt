@@ -6,9 +6,13 @@ import de.servicehealth.poppmodule.demo.App
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.sdk.PoppSdkContext
 
-fun MainViewController(fqdn: String) = ComposeUIViewController {
-    val poppSdk = remember {
-        PoppSdk(context = PoppSdkContext()).also { it.init(fqdn) }
+@Suppress("FunctionName")
+fun MainViewController(fqdn: String) =
+    ComposeUIViewController {
+        val poppSdk =
+            remember {
+                PoppSdk(context = PoppSdkContext()).also { it.init(fqdn) }
+            }
+
+        App(poppSdk = poppSdk)
     }
-    App(poppSdk = poppSdk)
-}

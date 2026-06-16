@@ -1,7 +1,6 @@
 package de.servicehealth.poppmodule.sdk.internal
 
 import de.servicehealth.poppmodule.sdk.PoppSdkConfig
-import de.servicehealth.poppmodule.sdk.PoppSdkContext
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 
 /**

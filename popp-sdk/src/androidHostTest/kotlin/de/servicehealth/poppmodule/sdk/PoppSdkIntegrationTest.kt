@@ -34,7 +34,6 @@ import kotlin.test.assertNotNull
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class PoppSdkIntegrationTest {
-
     companion object {
         const val FQDN_PROPERTY = "popp.integration.fqdn"
     }
@@ -44,10 +43,11 @@ class PoppSdkIntegrationTest {
         val fqdn = System.getProperty(FQDN_PROPERTY)
         assertNotNull(fqdn, "Must pass -D$FQDN_PROPERTY=<wss://...> to run the test.")
 
-        val sdk = PoppSdk(
-            context = PoppSdkContext(RuntimeEnvironment.getApplication()),
-            storageOverride = InMemorySecureStorage(),
-        )
+        val sdk =
+            PoppSdk(
+                context = PoppSdkContext(RuntimeEnvironment.getApplication()),
+                storageOverride = InMemorySecureStorage(),
+            )
         sdk.init(fqdn)
 
         runBlocking { sdk.hello() }
@@ -56,8 +56,21 @@ class PoppSdkIntegrationTest {
 
 private class InMemorySecureStorage : SecureStorage {
     private val map = ConcurrentHashMap<String, String>()
-    override suspend fun put(key: String, value: String) { map[key] = value }
+
+    override suspend fun put(
+        key: String,
+        value: String,
+    ) {
+        map[key] = value
+    }
+
     override suspend fun get(key: String): String? = map[key]
-    override suspend fun remove(key: String) { map.remove(key) }
-    override suspend fun clear() { map.clear() }
+
+    override suspend fun remove(key: String) {
+        map.remove(key)
+    }
+
+    override suspend fun clear() {
+        map.clear()
+    }
 }

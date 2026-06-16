@@ -23,6 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.model.IntegrationMode
 import de.servicehealth.poppmodule.demo.model.demoScenarios
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_app2app_desc
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_app2app_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_integrated_desc
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_integrated_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.start_demo_button
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
@@ -30,18 +36,13 @@ import de.servicehealth.poppmodule.theme.BrandSegmented
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.SegmentedOption
 import org.jetbrains.compose.resources.stringResource
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_app2app_desc
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_app2app_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_integrated_desc
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.mode_integrated_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.start_demo_button
 
 /** Enum round-trips through its `name` so the segmented selection survives recreation. */
-val IntegrationModeSaver: Saver<IntegrationMode, String> = Saver(
-    save = { it.name },
-    restore = { IntegrationMode.valueOf(it) },
-)
+val IntegrationModeSaver: Saver<IntegrationMode, String> =
+    Saver(
+        save = { it.name },
+        restore = { IntegrationMode.valueOf(it) },
+    )
 
 /**
  * The launcher start screen. Selects one scenario (single-select; none initially) and
@@ -76,17 +77,19 @@ fun PoppLauncherScreen(
         },
     ) { inner ->
         Column(
-            modifier = Modifier
-                .padding(inner)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .padding(inner)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                modifier = Modifier
-                    .widthIn(max = 480.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                modifier =
+                    Modifier
+                        .widthIn(max = 480.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
                 // --- Scenario section (AC2) ---
@@ -113,18 +116,23 @@ fun PoppLauncherScreen(
                         style = MaterialTheme.typography.labelSmall,
                     )
                     BrandSegmented(
-                        options = listOf(
-                            SegmentedOption(IntegrationMode.INTEGRATED, stringResource(Res.string.mode_integrated_title)),
-                            SegmentedOption(IntegrationMode.APP_TO_APP, stringResource(Res.string.mode_app2app_title)),
-                        ),
+                        options =
+                            listOf(
+                                SegmentedOption(IntegrationMode.INTEGRATED, stringResource(Res.string.mode_integrated_title)),
+                                SegmentedOption(IntegrationMode.APP_TO_APP, stringResource(Res.string.mode_app2app_title)),
+                            ),
                         selected = selectedMode,
                         onSelect = { selectedMode = it },
                     )
                     Text(
-                        text = stringResource(
-                            if (selectedMode == IntegrationMode.INTEGRATED) Res.string.mode_integrated_desc
-                            else Res.string.mode_app2app_desc
-                        ),
+                        text =
+                            stringResource(
+                                if (selectedMode == IntegrationMode.INTEGRATED) {
+                                    Res.string.mode_integrated_desc
+                                } else {
+                                    Res.string.mode_app2app_desc
+                                },
+                            ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = c.neutral700,
                     )

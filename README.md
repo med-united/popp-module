@@ -85,7 +85,8 @@ Gradle tasks, following the standard Android convention
 - SDK, Android host JVM (fast): `./gradlew :popp-sdk:testAndroidHostTest`
 - SDK, iOS simulator (requires macOS + simulator): `./gradlew :popp-sdk:iosSimulatorArm64Test`
 - Demo shared UI, Android host JVM: `./gradlew :popp-demo:shared:testAndroidHostTest` (`BrandColorsTest`)
-- All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest`
+- 3rd-party app, Android host JVM: `./gradlew :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
+- All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
 
 ### Integration testing
 
@@ -98,18 +99,20 @@ the network.
 
 Pass `-Pintegration` (Gradle project property) together with `-Dpopp.integration.fqdn=<wss://...>`:
 
-```bash
-# RISE dev server (publicly trusted certificate — no extra flags needed)
-./gradlew :popp-sdk:testAndroidHostTest \
-  -Pintegration \
-  -Dpopp.integration.fqdn="wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc"
+* RISE dev server (publicly trusted certificate — no extra flags needed):
+  ```bash
+  ./gradlew :popp-sdk:testAndroidHostTest \
+    -Pintegration \
+    -Dpopp.integration.fqdn="wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc"
+  ```
 
-# Local docker-compose stack (self-signed certificate — supply the CA cert)
-./gradlew :popp-sdk:testAndroidHostTest \
-  -Pintegration \
-  -Dpopp.integration.fqdn="wss://popp-zeta-ingress:443/ws" \
-  -Dpopp.integration.ca.pem.file="/absolute/path/to/ca.pem"
-```
+* Local docker-compose stack (self-signed certificate — supply the CA cert):
+  ```bash
+  ./gradlew :popp-sdk:testAndroidHostTest \
+    -Pintegration \
+    -Dpopp.integration.fqdn="wss://popp-zeta-ingress:443/ws" \
+    -Dpopp.integration.ca.pem.file="/absolute/path/to/ca.pem"
+  ```
 
 The FQDN values match the Android product flavors defined in the demo apps (see [Selecting the PoPP-Server](#selecting-the-popp-server-android-product-flavors)).
 
@@ -135,9 +138,8 @@ openssl s_client -connect popp-zeta-ingress:443 -showcerts \
 
 - Local aggregated report: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport`
   → XML `build/reports/kover/report.xml`, HTML `build/reports/kover/html/`.
-- Coverage aggregates `:popp-sdk` and `:popp-demo:shared` (the modules with host tests). Compose-generated
-  classes are excluded via root Kover filters.
-  `:popp-demo:shared` is mostly Compose UI
+- Coverage aggregates `:popp-sdk`, `:popp-demo:shared`, and `:popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp`. Compose-generated
+  classes and `AndroidQrScanner` are excluded via root Kover filters.
 - CI: `.github/workflows/code-coverage.yml` runs both modules' host tests, uploads artifacts, and pushes the
   XML to Codecov. Dependabot (`.github/dependabot.yml`) watches Gradle dependencies weekly.
 
@@ -145,3 +147,25 @@ openssl s_client -connect popp-zeta-ingress:443 -showcerts \
 
 - Android AAR: `./gradlew :popp-sdk:assemble` → `popp-sdk/build/outputs/aar/`
 - iOS XCFramework: `./gradlew :popp-sdk:assemblePoppSdkXCFramework` → `popp-sdk/build/XCFrameworks/`
+
+## Architecture decisions (ADRs)
+
+Key decisions about *why* the project is structured this way — and what alternatives were considered and rejected —
+are documented as Architecture Decision Records in [`docs/adr/`](./docs/adr/). To learn more, read the specific [`ADR Documentation`](./docs/adr/README.md) 
+
+ADRs with status **Accepted** are binding — code or architecture that contradicts them requires a superseding ADR first.
+
+## Code style (ktlint)
+
+Kotlin formatting is enforced by [ktlint](https://pinterest.github.io/ktlint/) via the `jlleitschuh/ktlint-gradle` plugin.
+
+- Check: `./gradlew ktlintCheck`
+- Auto-fix: `./gradlew ktlintFormat`
+- CI: the `ktlintCheck` step in `.github/workflows/code-coverage.yml` runs before tests and fails the build on any violation.
+
+**Pre-commit hook** — run once after cloning to block commits with style violations:
+
+```sh
+./gradlew addKtlintCheckGitPreCommitHook
+```
+

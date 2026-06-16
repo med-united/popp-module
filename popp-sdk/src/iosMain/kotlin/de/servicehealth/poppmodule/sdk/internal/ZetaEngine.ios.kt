@@ -1,7 +1,6 @@
 package de.servicehealth.poppmodule.sdk.internal
 
 import de.servicehealth.poppmodule.sdk.PoppSdkConfig
-import de.servicehealth.poppmodule.sdk.PoppSdkContext
 import de.servicehealth.poppmodule.sdk.PoppSdkError
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 
@@ -12,12 +11,14 @@ import de.servicehealth.poppmodule.sdk.storage.SecureStorage
  */
 private class UnsupportedZetaEngine : ZetaEngine {
     override suspend fun start(): Nothing = unsupported()
+
     override suspend fun status(): String = "iOS: zeta-sdk not yet available"
+
     override suspend fun hello(): Nothing = unsupported()
 
     private fun unsupported(): Nothing = throw PoppSdkError.PlatformUnsupported(
         "ZETA SDK has no iOS variant yet (zeta-sdk 1.0.1 is Android/JVM only). " +
-            "Track gematik/zeta-sdk for an iOS native release."
+            "Track gematik/zeta-sdk for an iOS native release.",
     )
 }
 

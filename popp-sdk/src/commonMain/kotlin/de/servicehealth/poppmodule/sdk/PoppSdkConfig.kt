@@ -1,15 +1,12 @@
 package de.servicehealth.poppmodule.sdk
 
 /**
- * Configuration passed to [PoppSdk.start]. Carries everything the underlying
- * ZETA client needs to register and attest at the ZETA Guard, plus the
- * deployment-specific values (scopes, role OID, token provider) that the host
- * app supplies.
+ * Configuration passed to the underlying ZETA engines. Carries everything the
+ * ZETA client needs to register, attest, and authenticate at the ZETA Guard.
  *
- * Field mapping to `de.gematik.zeta.sdk.BuildConfig` / `AuthConfig` is done
- * internally by the platform engine.
+ * This is an internal type.
  */
-data class PoppSdkConfig(
+internal data class PoppSdkConfig(
     /**
      * Fully Qualified Domain Name (including scheme and path) of the PoPP service, e.g.
      * `wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc`.
@@ -43,8 +40,34 @@ data class PoppSdkConfig(
 }
 
 /**
- * Selects how the device identifies itself in the ZETA `platform_product_id`
- * claim. Use [Android] in androidMain hosts and [Apple] in iOS hosts.
+ * Callback interface the host app implements to supply a signed subject token
+ * to the ZETA authentication layer.
+ *
+ * For [TokenProviderConfig.Egk]: implementation reads the insured person's eGK
+ * via NFC and returns a signed JWT.
+ * For [TokenProviderConfig.GesundheitsId]: implementation drives a GesundheitsId
+ * OIDC flow and returns the resulting ID token.
+ */
+fun interface PoppSubjectTokenProvider {
+    suspend fun createSubjectToken(): String
+}
+
+/**
+ * Selects which subject-token strategy the ZETA engine uses for authentication.
+ */
+sealed interface TokenProviderConfig {
+    /** Insured person authenticates via eGK (electronic health card, NFC). */
+    data class Egk(val provider: PoppSubjectTokenProvider) : TokenProviderConfig
+
+    /** Insured person authenticates via GesundheitsId (OIDC digital identity). */
+    data class GesundheitsId(val provider: PoppSubjectTokenProvider) : TokenProviderConfig
+}
+
+/** SDK-internal device-only token provider — not exposed to host apps. */
+internal data object DeviceOnly : TokenProviderConfig
+
+/**
+ * Selects how the device identifies itself in the ZETA `platform_product_id` claim.
  */
 sealed interface PlatformIdentity {
     data class Android(
@@ -72,23 +95,4 @@ sealed interface AttestationStrategy {
         val pcrSelection: List<Int> = listOf(23),
         val websocketEndpoint: String? = null,
     ) : AttestationStrategy
-}
-
-/**
- * Source of the bearer token that the ZETA client uses to authenticate. Only
- * [Smb] (SMB-C keystore credentials) is modelled for now.
- */
-sealed interface TokenProviderConfig {
-    data class Smb(
-        val alias: String,
-        val password: String,
-        val keystoreFile: String = "",
-        val keystoreB64: String = "",
-    ) : TokenProviderConfig {
-        init {
-            require(keystoreFile.isNotEmpty() || keystoreB64.isNotEmpty()) {
-                "either keystoreFile or keystoreB64 must be provided"
-            }
-        }
-    }
 }

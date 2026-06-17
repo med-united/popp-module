@@ -19,9 +19,9 @@ import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
 @Composable
-fun App() {
+fun App(poppSdk: PoppSdk) {
     BrandTheme {
-        CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
+        CompositionLocalProvider(LocalPoppSdk provides poppSdk) {
             val nav = rememberNavController()
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {

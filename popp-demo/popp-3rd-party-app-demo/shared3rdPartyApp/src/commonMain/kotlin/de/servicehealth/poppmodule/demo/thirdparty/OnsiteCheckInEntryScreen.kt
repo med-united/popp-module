@@ -64,18 +64,20 @@ fun OnsiteCheckInEntryScreen(
         val c = BrandTheme.colors
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(c.white)
-                .safeContentPadding(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(c.white)
+                    .safeContentPadding(),
         ) {
             BrandScreenHeader(title = stringResource(Res.string.checkin_entry_header), onClose = onClose)
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 18.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 18.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -152,10 +154,11 @@ private fun ActionCard(
             verticalArrangement = Arrangement.Top,
         ) {
             Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(c.deep),
+                modifier =
+                    Modifier
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(c.deep),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -265,17 +268,19 @@ private fun FavoriteRow(
     val c = BrandTheme.colors
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick(title, subtitle, category) }
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick(title, subtitle, category) }
+                .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(13.dp))
-                .background(c.violet100),
+            modifier =
+                Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(c.violet100),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

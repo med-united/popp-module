@@ -342,11 +342,12 @@ val mockInstitutions =
     )
 
 val InstitutionType.label: String
-    get() = when (this) {
-        InstitutionType.PHARMACY -> "Apotheke"
-        InstitutionType.PRACTICE -> "Hausarztpraxis"
-        InstitutionType.ONLINE -> "Online"
-    }
+    get() =
+        when (this) {
+            InstitutionType.PHARMACY -> "Apotheke"
+            InstitutionType.PRACTICE -> "Hausarztpraxis"
+            InstitutionType.ONLINE -> "Online"
+        }
 
 // ── Previews ──────────────────────────────────────────────────────────────────
 

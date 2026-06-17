@@ -18,10 +18,15 @@ object Routes {
     const val CONFIRM_INSTITUTION_ROUTE =
         "$CONFIRM_INSTITUTION?$ARG_NAME={$ARG_NAME}&$ARG_ADDRESS={$ARG_ADDRESS}&$ARG_CATEGORY={$ARG_CATEGORY}"
 
-    fun confirmInstitution(name: String, address: String, category: String) =
+    fun confirmInstitution(
+        name: String,
+        address: String,
+        category: String,
+    ) =
         "$CONFIRM_INSTITUTION?$ARG_NAME=${encode(name)}&$ARG_ADDRESS=${encode(address)}&$ARG_CATEGORY=${encode(category)}"
 
     fun integratedHome(scenario: String) = "$INTEGRATED_HOME?$ARG_SCENARIO=$scenario"
+
     fun appToAppHome(scenario: String) = "$APP_TO_APP_HOME?$ARG_SCENARIO=$scenario"
 
     private fun encode(s: String) = s.replace(" ", "%20").replace(",", "%2C")

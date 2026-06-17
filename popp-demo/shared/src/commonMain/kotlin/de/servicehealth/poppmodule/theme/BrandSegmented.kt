@@ -92,17 +92,20 @@ private val previewOptions =
         SegmentedOption("c", "Option C"),
     )
 
-@Preview @Composable
+@Preview
+@Composable
 private fun FirstSelectedBrandSegmentedPreview() {
-    BrandSegmented(options = previewOptions, selected = "a", onSelect = {})
+    PreviewBrandTheme { BrandSegmented(options = previewOptions, selected = "a", onSelect = {}) }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun MidSelectedBrandSegmentedPreview() {
-    BrandSegmented(options = previewOptions, selected = "b", onSelect = {})
+    PreviewBrandTheme { BrandSegmented(options = previewOptions, selected = "b", onSelect = {}) }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun DarkBrandSegmentedPreview() {
-    BrandSegmented(options = previewOptions, selected = "a", onSelect = {}, dark = true)
+    PreviewBrandTheme { BrandSegmented(options = previewOptions, selected = "a", onSelect = {}, dark = true) }
 }

@@ -89,27 +89,33 @@ fun BrandField(
     }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun EmptyBrandFieldPreview() {
-    BrandField(value = "", onValueChange = {}, placeholder = "Enter your name")
+    PreviewBrandTheme { BrandField(value = "", onValueChange = {}, placeholder = "Enter your name") }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun FilledBrandFieldPreview() {
-    BrandField(value = "Max Mustermann", onValueChange = {})
+    PreviewBrandTheme { BrandField(value = "Max Mustermann", onValueChange = {}) }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun LeadingIconBrandFieldPreview() {
-    BrandField(
-        value = "",
-        onValueChange = {},
-        placeholder = "Search…",
-        leadingIcon = { Text("🔍") },
-    )
+    PreviewBrandTheme {
+        BrandField(
+            value = "",
+            onValueChange = {},
+            placeholder = "Search…",
+            leadingIcon = { Text("🔍") },
+        )
+    }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun ReadOnlyBrandFieldPreview() {
-    BrandField(value = "Read-only value", onValueChange = {}, readOnly = true)
+    PreviewBrandTheme { BrandField(value = "Read-only value", onValueChange = {}, readOnly = true) }
 }

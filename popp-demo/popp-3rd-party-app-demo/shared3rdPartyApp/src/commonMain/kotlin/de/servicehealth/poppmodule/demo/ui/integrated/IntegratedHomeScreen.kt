@@ -10,12 +10,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.LocalPoppSdk
+import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 
 /** Placeholder for the Voll-integriert home. Replaced by the real screen in its own ticket. */
 @Composable
@@ -46,5 +50,12 @@ fun IntegratedHomeScreen(
                 Text("Search Institutions")
             }
         }
+    }
+}
+
+@Preview @Composable
+private fun IntegratedHomeScreenPreview() {
+    CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
+        PreviewBrandTheme { IntegratedHomeScreen(scenarioId = "scenario-1") }
     }
 }

@@ -33,12 +33,13 @@ fun App() {
                 }
                 composable(
                     route = "${Routes.INTEGRATED_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments = listOf(
-                        navArgument(Routes.ARG_SCENARIO) {
-                            type = NavType.StringType
-                            nullable = true
-                        },
-                    ),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_SCENARIO) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     IntegratedHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
@@ -47,12 +48,13 @@ fun App() {
                 }
                 composable(
                     route = "${Routes.APP_TO_APP_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments = listOf(
-                        navArgument(Routes.ARG_SCENARIO) {
-                            type = NavType.StringType
-                            nullable = true
-                        },
-                    ),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_SCENARIO) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     AppToAppHomeScreen(
                         scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
@@ -80,22 +82,33 @@ fun App() {
                 }
                 composable(
                     route = Routes.CONFIRM_INSTITUTION_ROUTE,
-                    arguments = listOf(
-                        navArgument(Routes.ARG_NAME) { type = NavType.StringType; nullable = true },
-                        navArgument(Routes.ARG_ADDRESS) { type = NavType.StringType; nullable = true },
-                        navArgument(Routes.ARG_CATEGORY) { type = NavType.StringType; nullable = true },
-                    ),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_NAME) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                            navArgument(Routes.ARG_ADDRESS) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                            navArgument(Routes.ARG_CATEGORY) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
                 ) { entry ->
                     val name = entry.arguments?.getString(Routes.ARG_NAME) ?: stubLeiData.name
                     val address = entry.arguments?.getString(Routes.ARG_ADDRESS) ?: stubLeiData.address
                     val category = entry.arguments?.getString(Routes.ARG_CATEGORY) ?: stubLeiData.institutionType
                     ConfirmInstitutionScreen(
-                        leiData = LeiData(
-                            institutionType = category,
-                            name = name,
-                            address = address,
-                            openingHours = stubLeiData.openingHours,
-                        ),
+                        leiData =
+                            LeiData(
+                                institutionType = category,
+                                name = name,
+                                address = address,
+                                openingHours = stubLeiData.openingHours,
+                            ),
                         onConfirm = { /* TODO: navigate to auth flow */ },
                         onBack = { nav.popBackStack() },
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },

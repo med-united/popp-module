@@ -1,13 +1,15 @@
 package de.servicehealth.poppmodule.demo.thirdparty.nfc
 
-import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.StartOffset
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -163,11 +169,13 @@ fun NfcScanContent(
             BrandProgressDots(stepCount = 4, currentStep = 3)
         }
 
+        val percent = (state as? NfcScanUiState.Reading)?.percent ?: 0
+        val reading = state is NfcScanUiState.Reading
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
+            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
         ) {
+            Spacer(Modifier.height(20.dp))
             Text(
                 text = stringResource(Res.string.nfc_title),
                 color = c.white,
@@ -183,11 +191,14 @@ fun NfcScanContent(
                 modifier = Modifier.testTag("nfc_status"),
             )
 
-            Spacer(Modifier.height(40.dp))
-            NfcPulseRing()
-            Spacer(Modifier.weight(1f))
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                NfcVisual(percent = percent, animate = supported)
+            }
 
-            if (state is NfcScanUiState.Reading) {
+            if (reading) {
                 Row(
                     modifier =
                         Modifier
@@ -199,7 +210,7 @@ fun NfcScanContent(
                     BrandSpinner(size = 16.dp, color = c.white)
                     Spacer(Modifier.width(10.dp))
                     Text(
-                        text = stringResource(Res.string.nfc_secure_transfer, state.percent),
+                        text = stringResource(Res.string.nfc_secure_transfer, percent),
                         color = c.white,
                         style = BrandTheme.typography.labelLarge,
                         modifier = Modifier.testTag("nfc_percent"),
@@ -218,40 +229,73 @@ fun NfcScanContent(
 }
 
 @Composable
-private fun NfcPulseRing() {
+private fun NfcVisual(
+    percent: Int,
+    animate: Boolean,
+) {
     val c = BrandTheme.colors
-    val transition = rememberInfiniteTransition(label = "nfc-pulse")
-    val scale by transition.animateFloat(
-        initialValue = 0.85f,
-        targetValue = 1.15f,
-        animationSpec = infiniteRepeatable(tween(1100), RepeatMode.Reverse),
-        label = "scale",
-    )
-    val alpha by transition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.9f,
-        animationSpec = infiniteRepeatable(tween(1100), RepeatMode.Reverse),
-        label = "alpha",
-    )
-    Box(modifier = Modifier.size(180.dp), contentAlignment = Alignment.Center) {
+    val trackColor = c.white.copy(alpha = 0.12f)
+    val ringColor = c.violet
+    val outer = 220.dp
+    Box(modifier = Modifier.size(outer), contentAlignment = Alignment.Center) {
+        // Radiating "sonar" waves — three rings expanding outward and fading, staggered.
+        if (animate) {
+            val transition = rememberInfiniteTransition(label = "nfc-waves")
+            repeat(3) { i ->
+                val t by transition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(2400, easing = LinearEasing),
+                            initialStartOffset = StartOffset(i * 800),
+                        ),
+                    label = "wave$i",
+                )
+                Box(
+                    modifier =
+                        Modifier
+                            .size(outer)
+                            .scale(0.42f + t * 0.58f)
+                            .alpha((1f - t) * 0.5f)
+                            .border(2.dp, c.violet300, CircleShape),
+                )
+            }
+        }
+        // Circular progress (center): faint track + violet arc filling with [percent].
+        Canvas(modifier = Modifier.size(176.dp)) {
+            val stroke = 6.dp.toPx()
+            val arcSize = Size(size.width - stroke, size.height - stroke)
+            val topLeft = Offset(stroke / 2f, stroke / 2f)
+            drawArc(
+                color = trackColor,
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = topLeft,
+                size = arcSize,
+                style = Stroke(width = stroke),
+            )
+            drawArc(
+                color = ringColor,
+                startAngle = -90f,
+                sweepAngle = 360f * (percent.coerceIn(0, 100) / 100f),
+                useCenter = false,
+                topLeft = topLeft,
+                size = arcSize,
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
+            )
+        }
+        // Center disc + contactless icon.
         Box(
-            modifier =
-                Modifier
-                    .size(150.dp)
-                    .scale(scale)
-                    .alpha(alpha)
-                    .clip(CircleShape)
-                    .background(c.violet.copy(alpha = 0.25f)),
-        )
-        Box(
-            modifier = Modifier.size(96.dp).clip(CircleShape).background(c.violet.copy(alpha = 0.35f)),
+            modifier = Modifier.size(150.dp).clip(CircleShape).background(c.white.copy(alpha = 0.06f)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Rounded.Contactless,
                 contentDescription = null,
                 tint = c.white,
-                modifier = Modifier.size(44.dp),
+                modifier = Modifier.size(60.dp),
             )
         }
     }

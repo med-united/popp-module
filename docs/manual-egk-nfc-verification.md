@@ -116,20 +116,60 @@ real `Success`, pre-seed the hash as in §6a.
 
 ## 6a. Getting a real Success: pre-seed the eGK hash (local stack)
 
-The PoPP server only issues a token when the card's certificate-pair hash is known
-(`egk_entries`); the **contactless** path does not auto-enrol, so a fresh card is always
-`UnknownCertificates`. Postgres is exposed on `localhost:5432`
-(`poppserver`/`verysafe`/`egk_hash_db`).
+The PoPP server only issues a token when the card's certificate-pair hash is known. On every
+tap it computes `cvcHash = SHA-256(end-entity CVC)` and `autHash = SHA-256(X.509 AUT cert)` —
+the raw card responses with the status word stripped (`ScenarioResultStep` keeps the SW in a
+separate field) — and looks the pair up in the `egk_entries` table
+(`AuthG2ScenarioResultProcessor.checkCertificatePair` → `EgkHashValidationService`). Found and
+not `BLOCKED` → `MATCH` → token. The **contactless** path does **not** auto-enrol an unknown
+card (unlike contact mode), and nothing is imported by default, so a fresh test eGK is always
+`UnknownCertificates`. The two hashes are **card-specific** — each tester seeds their own card.
 
-1. Temporarily log the hashes: in popp-sample-code `EgkHashValidationService.validateAndProcess`,
-   log `cvcHash`/`autHash` as hex, rebuild `popp-server`, tap once (still fails), read them
-   from `docker compose logs popp-server`.
-2. Insert a known row:
-   ```sql
-   INSERT INTO egk_entries (cvc_hash, aut_hash, state, not_after)
-   VALUES (decode('<cvcHex>','hex'), decode('<autHex>','hex'), 'imported', '2099-01-01 00:00:00');
-   ```
-3. Tap again → `MATCH` → `EgkCheckInResult.Success(token, pruefnachweis)` → Success screen.
+This procedure is verified end-to-end (RU test eGK, 2026-06-16). The DB row survives
+`popp-server` rebuilds/recreations (the `egk_hash_db` volume is separate) but is lost on
+`docker compose down -v`.
+
+**1. Make popp-server log the hashes (one-time, kept as a dev aid).**
+`popp-server` `EgkHashValidationService.validateAndProcess` already carries a `DEV AID` log line
+that prints them (commented, points back here). If your `popp-sample-code` checkout doesn't have
+it, add after the two `computeSHA256(...)` calls:
+```java
+import java.util.HexFormat;
+// DEV AID (local stack): log the cert-pair hashes so a real test eGK can be pre-seeded.
+log.info("| {} eGK cert-pair hashes (hex) — cvcHash={} autHash={}",
+    sessionId, HexFormat.of().formatHex(cvcHash), HexFormat.of().formatHex(autHash));
+```
+
+**2. Rebuild + recreate just popp-server** (Docker Desktop on this host → set `DOCKER_HOST`;
+the active context has no `/var/run/docker.sock`):
+```bash
+cd ~/git/popp-sample-code
+DOCKER_HOST=unix://$HOME/.docker/desktop/docker.sock \
+  ./mvnw -q install -pl popp-server -Dskip.dockerbuild=false -DskipTests=true
+docker compose -f docker/compose.yaml up -d --force-recreate --no-deps popp-server
+# wait until: curl -s -o /dev/null -w '%{http_code}' http://localhost:8443/  → 404
+```
+
+**3. Tap once to capture the hashes** (it still ends in `SERVER_REJECTED`), then read them:
+```bash
+docker logs popp-server 2>&1 | grep "cert-pair hashes" | tail -1
+# → ... cvcHash=<64 hex> autHash=<64 hex>
+```
+
+**4. Seed the row** (state `imported`, never-expiring; via the db container):
+```bash
+docker exec popp-server-db psql -U poppserver -d egk_hash_db -c \
+  "INSERT INTO egk_entries (cvc_hash, aut_hash, state, not_after) VALUES \
+   (decode('<cvcHex>','hex'), decode('<autHex>','hex'), 'imported', '2099-01-01 00:00:00');"
+```
+
+**5. Tap again → Success.** The server logs `Found entry in the database: EgkEntry(... state=IMPORTED)`
+then `Generated PoPP-Token for the client: eyJ...`; the app receives
+`EgkCheckInResult.Success(poppToken, pruefnachweis)` and shows the **Success** screen
+("Karte gelesen" / "Verifiziert").
+
+> Tip: re-assert `adb reverse tcp:8443 tcp:8443` and check `adb shell curl localhost:8443` (→ 404)
+> right before each tap — the UsbFfs reverse can silently drop and surfaces as a `NETWORK` error.
 
 ## 7. Negative checks
 

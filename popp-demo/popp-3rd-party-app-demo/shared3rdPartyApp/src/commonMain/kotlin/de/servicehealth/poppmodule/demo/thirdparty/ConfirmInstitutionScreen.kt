@@ -37,6 +37,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.servicehealth.poppmodule.demo.label
+import de.servicehealth.poppmodule.demo.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_back
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_choose_other
@@ -72,12 +74,14 @@ data class LeiData(
 
 // Stub - replace with real VZD result once POPPM-116 is implemented
 val stubLeiData =
-    LeiData(
-        institutionType = "Apotheke",
-        name = "Apotheke am Markt",
-        address = "Marktplatz 3, 52062 Aachen",
-        openingHours = "Mo-Fr 8:00-18:30 Sa 9:00-13:00",
-    )
+    mockInstitutions.first().let { institution ->
+        LeiData(
+            institutionType = institution.type.label,
+            name = institution.name,
+            address = institution.address,
+            openingHours = "Mo-Fr 8:00-18:30 Sa 9:00-13:00",
+        )
+    }
 
 // ---------------------------------------------------------------------------
 // Screen

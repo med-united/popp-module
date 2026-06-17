@@ -83,7 +83,12 @@ fun InstitutionSearchScreen(
         delay(400)
         isLoading = true
         errorMessage = null
-        results = emptyList() // TODO: call PoppSdk.searchInstitutions(query) — POPPM-116
+        // Filters the mock institutions until PoppSdk.searchInstitutions(query) is wired up — POPPM-116
+        results =
+            mockInstitutions.filter { institution ->
+                institution.name.contains(query, ignoreCase = true) ||
+                    institution.address.contains(query, ignoreCase = true)
+            }
         isLoading = false
         hasSearched = true
     }
@@ -313,32 +318,37 @@ private fun InstitutionRow(
     }
 }
 
-// ── Previews ──────────────────────────────────────────────────────────────────
+// ── Mock data ────────────────────────────────────────────────────────────────
+// Single source of truth for the demo's hardcoded institutions — shared by the
+// favorites list (OnsiteCheckInEntryScreen), this search screen, and the
+// confirmation screen's stub fallback.
 
-private val previewInstitutions =
+val mockInstitutions =
     listOf(
         Institution(
             id = "1",
             name = "Apotheke am Markt",
-            address = "Marktplatz 1, 10117 Berlin",
+            address = "Marktplatz 3, 52062 Aachen",
             type = InstitutionType.PHARMACY,
             telematicsId = "3-SMC-B-Testkarte-883110000117894",
         ),
         Institution(
             id = "2",
-            name = "Hausarztpraxis Dr. Müller",
-            address = "Hauptstraße 42, 80331 München",
+            name = "Hausarztpraxis Dr. Brandt",
+            address = "Theaterstraße 18, 52062 Aachen",
             type = InstitutionType.PRACTICE,
             telematicsId = "3-SMC-B-Testkarte-883110000229865",
         ),
-        Institution(
-            id = "3",
-            name = "Online-Arzt Digital GmbH",
-            address = "digital",
-            type = InstitutionType.ONLINE,
-            telematicsId = "3-SMC-B-Testkarte-883110000334521",
-        ),
     )
+
+val InstitutionType.label: String
+    get() = when (this) {
+        InstitutionType.PHARMACY -> "Apotheke"
+        InstitutionType.PRACTICE -> "Hausarztpraxis"
+        InstitutionType.ONLINE -> "Online"
+    }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
 
 @Preview
 @Composable
@@ -361,12 +371,12 @@ private fun InstitutionSearchScreen_ResultsPreview() {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = "${previewInstitutions.size} Ergebnisse",
+                text = "${mockInstitutions.size} Ergebnisse",
                 color = c.neutral700,
                 style = MaterialTheme.typography.bodySmall,
             )
             Spacer(Modifier.height(2.dp))
-            previewInstitutions.forEach { institution ->
+            mockInstitutions.forEach { institution ->
                 InstitutionRow(institution = institution, onClick = {})
             }
         }
@@ -377,7 +387,7 @@ private fun InstitutionSearchScreen_ResultsPreview() {
 @Composable
 private fun InstitutionRow_PharmacyPreview() {
     BrandTheme {
-        InstitutionRow(institution = previewInstitutions[0], onClick = {})
+        InstitutionRow(institution = mockInstitutions[0], onClick = {})
     }
 }
 
@@ -385,14 +395,6 @@ private fun InstitutionRow_PharmacyPreview() {
 @Composable
 private fun InstitutionRow_PracticePreview() {
     BrandTheme {
-        InstitutionRow(institution = previewInstitutions[1], onClick = {})
-    }
-}
-
-@Preview
-@Composable
-private fun InstitutionRow_OnlinePreview() {
-    BrandTheme {
-        InstitutionRow(institution = previewInstitutions[2], onClick = {})
+        InstitutionRow(institution = mockInstitutions[1], onClick = {})
     }
 }

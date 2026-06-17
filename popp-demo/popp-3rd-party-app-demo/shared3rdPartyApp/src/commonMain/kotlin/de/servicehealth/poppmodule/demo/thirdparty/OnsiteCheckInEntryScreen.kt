@@ -34,6 +34,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.servicehealth.poppmodule.demo.InstitutionType
+import de.servicehealth.poppmodule.demo.label
+import de.servicehealth.poppmodule.demo.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_count
@@ -224,29 +227,32 @@ private fun FavoritesSection(
         padding = PaddingValues(0.dp),
     ) {
         Column {
-            FavoriteRow(
-                icon = Icons.Rounded.LocalHospital,
-                title = "Apotheke am Markt",
-                subtitle = "Marktplatz 3, 52062 Aachen",
-                category = "Apotheke",
-                onClick = onFavoriteClick,
-            )
+            mockInstitutions.forEachIndexed { index, institution ->
+                FavoriteRow(
+                    icon = institution.type.favoriteIcon(),
+                    title = institution.name,
+                    subtitle = institution.address,
+                    category = institution.type.label,
+                    onClick = onFavoriteClick,
+                )
 
-            HorizontalDivider(
-                modifier = Modifier.padding(start = 72.dp),
-                color = c.mist,
-            )
-
-            FavoriteRow(
-                icon = Icons.Rounded.MedicalServices,
-                title = "Hausarztpraxis Dr. Brandt",
-                subtitle = "Theaterstraße 18, 52062 Aachen",
-                category = "Hausarztpraxis",
-                onClick = onFavoriteClick,
-            )
+                if (index != mockInstitutions.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 72.dp),
+                        color = c.mist,
+                    )
+                }
+            }
         }
     }
 }
+
+private fun InstitutionType.favoriteIcon(): ImageVector =
+    when (this) {
+        InstitutionType.PHARMACY -> Icons.Rounded.LocalHospital
+        InstitutionType.PRACTICE -> Icons.Rounded.MedicalServices
+        InstitutionType.ONLINE -> Icons.Rounded.MedicalServices
+    }
 
 @Composable
 private fun FavoriteRow(

@@ -69,7 +69,19 @@ fun App() {
                     )
                 }
                 composable(Routes.INSTITUTION_SEARCH) {
-                    InstitutionSearchScreen({ nav.popBackStack() }, onBack = { nav.popBackStack() })
+                    InstitutionSearchScreen(
+                        onClose = { nav.popBackStack() },
+                        onBack = { nav.popBackStack() },
+                        onInstitutionSelected = { institution ->
+                            nav.navigate(
+                                Routes.confirmInstitution(
+                                    institution.name,
+                                    institution.address,
+                                    institution.type.label,
+                                ),
+                            )
+                        },
+                    )
                 }
                 composable(Routes.CHECK_IN_QR) {
                     OnsiteCheckInQrScannerScreen(

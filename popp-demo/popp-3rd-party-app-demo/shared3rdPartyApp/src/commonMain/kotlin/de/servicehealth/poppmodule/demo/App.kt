@@ -2,6 +2,10 @@ package de.servicehealth.poppmodule.demo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +29,8 @@ fun App() {
     BrandTheme {
         CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
             val nav = rememberNavController()
+            // In-memory for now — persisting to device storage is a separate step (POPPM-116 follow-up).
+            var favoriteIds by remember { mutableStateOf<Set<String>>(emptySet()) }
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {
                     PoppLauncherScreen(
@@ -65,6 +71,7 @@ fun App() {
                         onClose = { nav.popBackStack() },
                         onSearchClick = { nav.navigate(Routes.INSTITUTION_SEARCH) },
                         onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
+                        favorites = mockInstitutions.filter { it.id in favoriteIds },
                         onFavoriteClick = { name, address, category ->
                             nav.navigate(Routes.confirmInstitution(name, address, category))
                         },
@@ -113,6 +120,8 @@ fun App() {
                     val name = entry.arguments?.getString(Routes.ARG_NAME) ?: stubLeiData.name
                     val address = entry.arguments?.getString(Routes.ARG_ADDRESS) ?: stubLeiData.address
                     val category = entry.arguments?.getString(Routes.ARG_CATEGORY) ?: stubLeiData.institutionType
+                    // Resolve back to the mock Institution so favorites can be tracked by id.
+                    val institution = mockInstitutions.find { it.name == name } ?: mockInstitutions.first()
                     ConfirmInstitutionScreen(
                         leiData =
                             LeiData(
@@ -121,6 +130,15 @@ fun App() {
                                 address = address,
                                 openingHours = stubLeiData.openingHours,
                             ),
+                        isFavorite = institution.id in favoriteIds,
+                        onToggleFavorite = {
+                            favoriteIds =
+                                if (institution.id in favoriteIds) {
+                                    favoriteIds - institution.id
+                                } else {
+                                    favoriteIds + institution.id
+                                }
+                        },
                         onConfirm = { /* TODO: navigate to auth flow */ },
                         onBack = { nav.popBackStack() },
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },

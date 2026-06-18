@@ -25,21 +25,23 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.servicehealth.poppmodule.demo.Institution
 import de.servicehealth.poppmodule.demo.InstitutionType
 import de.servicehealth.poppmodule.demo.label
-import de.servicehealth.poppmodule.demo.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_count
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_empty_hint
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_header
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_subtitle
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_title
@@ -58,6 +60,7 @@ fun OnsiteCheckInEntryScreen(
     onClose: () -> Unit,
     onSearchClick: () -> Unit,
     onQrScanClick: () -> Unit,
+    favorites: List<Institution> = emptyList(),
     onFavoriteClick: (name: String, address: String, category: String) -> Unit = { _, _, _ -> },
 ) {
     BrandTheme {
@@ -127,7 +130,7 @@ fun OnsiteCheckInEntryScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                FavoritesSection(onFavoriteClick = onFavoriteClick)
+                FavoritesSection(favorites = favorites, onFavoriteClick = onFavoriteClick)
             }
         }
     }
@@ -192,6 +195,7 @@ private fun ActionCard(
 
 @Composable
 private fun FavoritesSection(
+    favorites: List<Institution>,
     onFavoriteClick: (String, String, String) -> Unit,
 ) {
     val c = BrandTheme.colors
@@ -217,7 +221,7 @@ private fun FavoritesSection(
         Spacer(Modifier.width(5.dp))
 
         Text(
-            text = stringResource(Res.string.checkin_entry_favorites_count),
+            text = "${favorites.size} gespeichert",
             color = c.neutral700,
             style = BrandTheme.typography.bodySmall,
         )
@@ -225,25 +229,46 @@ private fun FavoritesSection(
 
     Spacer(Modifier.height(10.dp))
 
-    BrandCard(
-        raised = true,
-        padding = PaddingValues(0.dp),
-    ) {
-        Column {
-            mockInstitutions.forEachIndexed { index, institution ->
-                FavoriteRow(
-                    icon = institution.type.favoriteIcon(),
-                    title = institution.name,
-                    subtitle = institution.address,
-                    category = institution.type.label,
-                    onClick = onFavoriteClick,
-                )
-
-                if (index != mockInstitutions.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 72.dp),
-                        color = c.mist,
+    if (favorites.isEmpty()) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = 48.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.StarBorder,
+                contentDescription = null,
+                tint = c.silver,
+                modifier = Modifier.size(48.dp),
+            )
+            Text(
+                text = stringResource(Res.string.checkin_entry_favorites_empty_hint),
+                color = c.neutral700,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
+        }
+    } else {
+        BrandCard(
+            raised = true,
+            padding = PaddingValues(0.dp),
+        ) {
+            Column {
+                favorites.forEachIndexed { index, institution ->
+                    FavoriteRow(
+                        icon = institution.type.favoriteIcon(),
+                        title = institution.name,
+                        subtitle = institution.address,
+                        category = institution.type.label,
+                        onClick = onFavoriteClick,
                     )
+
+                    if (index != favorites.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 72.dp),
+                            color = c.mist,
+                        )
+                    }
                 }
             }
         }

@@ -1,6 +1,7 @@
 package de.servicehealth.poppmodule.demo.thirdparty
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,13 +17,17 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.LocalHospital
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +48,9 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_back
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_choose_other
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_confirm_button
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_favorite_add
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_favorite_added
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_favorite_hint
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_header
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_address
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_hours
@@ -93,19 +101,23 @@ val stubLeiData =
  * Displays VZD-looked-up LEI data and collects explicit user consent before
  * transmitting insured data. Gematik refs: A_28488, A_27621.
  *
- * @param leiData       Institution data to display (AC2). Use [stubLeiData] until POPPM-116.
- * @param currentStep   0-based index for BrandProgressDots (AC4).
- * @param totalSteps    Total steps in the check-in flow (AC4).
- * @param onConfirm     Grants consent and triggers the auth flow (AC3 primary button).
- * @param onBack        Navigates to previous screen (AC4 back button).
- * @param onChooseOther Returns to search/scanner (AC3 secondary button).
- * @param onClose       Closes the VOR-ORT-CHECK-IN flow entirely.
+ * @param leiData         Institution data to display (AC2). Use [stubLeiData] until POPPM-116.
+ * @param currentStep     0-based index for BrandProgressDots (AC4).
+ * @param totalSteps      Total steps in the check-in flow (AC4).
+ * @param isFavorite      Whether [leiData]'s institution is currently saved as a favorite.
+ * @param onToggleFavorite Toggles [leiData]'s institution in the favorites list.
+ * @param onConfirm       Grants consent and triggers the auth flow (AC3 primary button).
+ * @param onBack          Navigates to previous screen (AC4 back button).
+ * @param onChooseOther   Returns to search/scanner (AC3 secondary button).
+ * @param onClose         Closes the VOR-ORT-CHECK-IN flow entirely.
  */
 @Composable
 fun ConfirmInstitutionScreen(
     leiData: LeiData = stubLeiData,
     currentStep: Int = 2,
     totalSteps: Int = 4,
+    isFavorite: Boolean = false,
+    onToggleFavorite: () -> Unit = {},
     onConfirm: () -> Unit,
     onBack: () -> Unit,
     onChooseOther: () -> Unit,
@@ -186,6 +198,11 @@ fun ConfirmInstitutionScreen(
 
             // AC2: LEI card
             LeiCard(data = leiData)
+
+            Spacer(Modifier.height(16.dp))
+
+            // AC5: favorites toggle - presented below institution details, before consent button
+            FavoriteToggleRow(isFavorite = isFavorite, onToggle = onToggleFavorite)
 
             Spacer(Modifier.height(32.dp))
         }
@@ -356,6 +373,88 @@ private fun LeiDetailRow(
     }
 }
 
+// ---------------------------------------------------------------------------
+// AC5: favorites toggle
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun FavoriteToggleRow(
+    isFavorite: Boolean,
+    onToggle: () -> Unit,
+) {
+    val c = BrandTheme.colors
+    val shape = RoundedCornerShape(16.dp)
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(if (isFavorite) c.yellow100 else c.white)
+                .border(1.5.dp, if (isFavorite) c.yellow else c.mist, shape)
+                .clickable(onClick = onToggle)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (isFavorite) c.yellow else c.mist),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                contentDescription = null,
+                tint = if (isFavorite) Color.White else c.neutral700,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text =
+                    stringResource(
+                        if (isFavorite) {
+                            Res.string.confirm_institution_favorite_added
+                        } else {
+                            Res.string.confirm_institution_favorite_add
+                        },
+                    ),
+                color = c.ink,
+                style = BrandTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = stringResource(Res.string.confirm_institution_favorite_hint),
+                color = c.neutral700,
+                style = BrandTheme.typography.bodySmall,
+            )
+        }
+
+        if (isFavorite) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(c.success),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun LeiDetailRowPreview() {
@@ -372,6 +471,18 @@ private fun LeiDetailRowPreview() {
 @Composable
 private fun ConfirmInstitutionScreenPreview() {
     ConfirmInstitutionScreen(
+        onConfirm = {},
+        onBack = {},
+        onChooseOther = {},
+        onClose = {},
+    )
+}
+
+@Preview
+@Composable
+private fun ConfirmInstitutionScreenFavoritedPreview() {
+    ConfirmInstitutionScreen(
+        isFavorite = true,
         onConfirm = {},
         onBack = {},
         onChooseOther = {},

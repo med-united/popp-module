@@ -60,10 +60,6 @@ kotlin {
             implementation(libs.androidx.security.crypto)
             // Ktor JVM/Android engine for the WebSocket scenario transport.
             implementation(libs.ktor.client.cio)
-            api(libs.androidx.camera.core) // because AndroidQrScanner exposes SurfaceRequest publicly
-            implementation(libs.androidx.camera.camera2)
-            implementation(libs.androidx.camera.lifecycle)
-            implementation(libs.mlkit.barcode.scanning)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -164,7 +164,7 @@ internal fun brandTypography(): Typography {
 @Preview
 @Composable
 private fun BrandTypographyPreview() {
-    BrandTheme {
+    PreviewBrandTheme {
         val t = BrandTheme.typography
         val c = BrandTheme.colors
         Column(

@@ -20,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.model.IntegrationMode
 import de.servicehealth.poppmodule.demo.model.demoScenarios
@@ -34,6 +35,7 @@ import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
 import de.servicehealth.poppmodule.theme.BrandSegmented
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import de.servicehealth.poppmodule.theme.SegmentedOption
 import org.jetbrains.compose.resources.stringResource
 
@@ -140,4 +142,9 @@ fun PoppLauncherScreen(
             }
         }
     }
+}
+
+@Preview @Composable
+private fun PoppLauncherScreenPreview() {
+    PreviewBrandTheme { PoppLauncherScreen(onStartDemo = { _, _ -> }) }
 }

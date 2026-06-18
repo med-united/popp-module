@@ -52,24 +52,26 @@ POPP_WS_URL="ws://localhost:8443/ws" ./gradlew --no-daemon \
 (`--no-daemon` matters: a pre-existing Gradle daemon caches its own environment and the
 test would silently skip.) If this is green, every later failure is on the NFC side.
 
-## 3. SDK wiring — no patching needed (POPPM-161)
+## 3. SDK wiring — no patching needed (POPPM-119 + POPPM-161)
 
-This flow is productised: there are **no TEMP patches**. The SDK exposes a fenced
-DEV/TEST factory in `popp-sdk` commonMain:
+This flow is productised: there are **no TEMP patches**. The 3rd-party demo's `MainActivity`
+constructs the SDK from the `local` product flavor's `BuildConfig.POPP_SERVER_FQDN` and
+configures it:
 
 ```kotlin
-@PoppDevTransport // @RequiresOptIn(ERROR) — greppable, production can't call it by accident
-fun directTransport(fqdn: String, trustedCaPem: String? = null): PoppSdk
+val poppSdk = PoppSdk(PoppSdkContext(applicationContext))
+poppSdk.init(BuildConfig.POPP_SERVER_FQDN)
+// → App(poppSdk = poppSdk, canStore = …)
 ```
 
-It runs the real eGK read loop straight against `fqdn` (reusing the real WebSocket
-transport), skipping only the ZETA handshake via an internal no-op engine — so
-`checkInWithEgk` works without `PoppSdk.start()`. ZETA-authenticated eGK transport is a
-separate follow-up; until then the local stack is reached directly at
-`ws://localhost:8443/ws`.
+`checkInWithEgk` then runs the real eGK read loop straight against the configured FQDN over
+the **direct** WebSocket transport — it needs only `init(fqdn)`, not a started ZETA engine,
+because ZETA routing for the eGK loop is dormant (a separate follow-up, POPPM-180). Until that
+lands the local stack is reached directly at `ws://localhost:8443/ws`. Nothing to edit.
 
-The 3rd-party demo's `MainActivity` builds it from the `local` product flavor's
-`BuildConfig.POPP_SERVER_FQDN` and injects it into `App(poppSdk = …)`. Nothing to edit.
+> Earlier revisions used a fenced `PoppSdk.directTransport(...)` (`@PoppDevTransport`) factory.
+> That was dropped when POPPM-119 landed: `checkInWithEgk` is already ZETA-free, so the bypass
+> was redundant — plain `init(fqdn)` is the path now.
 
 ## 4. The real screen (replaces the old ad-hoc activity)
 
@@ -184,7 +186,7 @@ then `Generated PoPP-Token for the client: eyJ...`; the app receives
 
 | Symptom | Cause / fix |
 | --- | --- |
-| `PoppSdkError.Configuration: PoppSdk not started` | The injected SDK wasn't built via `PoppSdk.directTransport(...)`; check `MainActivity`/`BuildConfig.POPP_SERVER_FQDN` (run the `local` flavor). |
+| `PoppSdkError.Configuration: PoppSdk not initialised — call init(fqdn) first` | `MainActivity` didn't call `init(...)`, or wasn't run with the `local` flavor; check `poppSdk.init(BuildConfig.POPP_SERVER_FQDN)`. |
 | Error screen `NETWORK` / `…Connection refused` | `adb reverse tcp:8443 tcp:8443` not active (re-run it) or the docker stack is down. |
 | HTTP 401 on connect | You pointed at the ingress (`wss://…443/ws`); use `ws://localhost:8443/ws` directly. |
 | `not an eGK? NFC tag does not support ISO-DEP…` | Wrong card type tapped (the message is accurate). |
@@ -196,8 +198,8 @@ then `Generated PoPP-Token for the client: eyJ...`; the app receives
 
 ## Cleanup
 
-No source to revert (the flow is productised — `directTransport` is permanent, fenced
-DEV/TEST API). Just stop the stack when done:
+No source to revert (the flow is productised — `init(fqdn)` + `checkInWithEgk` over the
+direct transport). Just stop the stack when done:
 
 ```bash
 cd ~/git/popp-sample-code && docker compose -f docker/compose.yaml down

@@ -37,17 +37,48 @@ on iOS the `iosXApp` Xcode project embeds the `sharedXApp` framework.
 ## Running the apps
 
 3rd-party demo:
-- Android: `./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installDebug`,
+- Android: `./gradlew :popp-demo:popp-3rd-party-app-demo:android3rdPartyApp:installRiseDebug`,
   then `adb shell monkey -p de.servicehealth.poppmodule.demo.thirdparty -c android.intent.category.LAUNCHER 1`
 - iOS: open `popp-demo/popp-3rd-party-app-demo/ios3rdPartyApp/iosApp.xcodeproj` in Xcode and run.
 
 Insurance demo:
-- Android: `./gradlew :popp-demo:popp-insurance-app-demo:androidInsuranceApp:installDebug`,
+- Android: `./gradlew :popp-demo:popp-insurance-app-demo:androidInsuranceApp:installRiseDebug`,
   then `adb shell monkey -p de.servicehealth.poppmodule.demo.insurance -c android.intent.category.LAUNCHER 1`
 - iOS: open `popp-demo/popp-insurance-app-demo/iosInsuranceApp/iosApp.xcodeproj` in Xcode and run.
 
 Running on a physical iOS device requires setting your signing `TEAM_ID` in the app's
 `Configuration/Config.xcconfig`; a simulator needs no signing.
+
+### Selecting the PoPP-Server (Android product flavors)
+
+Both Android demo apps (`android3rdPartyApp` and `androidInsuranceApp`) define a
+`popp_server` flavor dimension that controls which PoPP-Server the app connects to.
+The selected flavor injects a `BuildConfig.POPP_SERVER_FQDN` string, which the app
+passes to `PoppSdk.init(fqdn)` at startup.
+
+| Flavor | Target environment | FQDN |
+|--------|--------------------|------|
+| `local` | Local docker-compose stack (`popp-sample-code`) with ZetaGuard + PoPP-Server | `wss://popp-zeta-ingress:443/ws` |
+| `rise` | RISE intermediate PoPP-Server (dev environment) | `wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc` |
+| `ru` | gematik RU PoPP-Server | TBD |
+| `pu` | gematik PU PoPP-Server | TBD |
+
+The flavor name is inserted between the module path and the build type when invoking
+Gradle tasks, following the standard Android convention
+`<flavorName><BuildType>` (e.g. `riseDebug`).
+
+**Available `install*` tasks for each app** (`./gradlew tasks --group install` to list all):
+
+| Task suffix           | Flavor + build type |
+|-----------------------|---------------------|
+| `installLocalDebug`   | `local` + `debug`   |
+| `installRiseDebug`    | `rise` + `debug`    |
+| `installRuDebug`      | `ru` + `debug`      |
+| `installPuRelease`    | `pu` + `release`    |
+| …                     | …                   |
+
+> **Tip:** In Android Studio, open the *Build Variants* panel (`View → Tool Windows → Build Variants`)
+> and select the desired variant (e.g. `riseDebug`) before running or debugging the app.
 
 ## Running tests
 
@@ -57,7 +88,67 @@ Running on a physical iOS device requires setting your signing `TEAM_ID` in the 
 - 3rd-party app, Android host JVM: `./gradlew :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
 - All host tests at once: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest`
 
-## Code coverage (Kover) & CI
+### On-device tests
+
+Verify implementations on a connected device or emulator. This is the complement to the host JVM tests, which use a
+software-backed stub to keep CI fast.
+
+**Prerequisites:** a device or emulator connected via adb (`adb devices` to confirm).
+
+```bash
+./gradlew :popp-sdk:connectedAndroidDeviceTest
+```
+
+> **Note:** These tests are not part of CI (CI has no connected device). Run them manually
+> before changing code that relies on the device.
+
+### Integration testing
+
+Integration tests live in `popp-sdk/src/androidHostTest` alongside the unit tests but are
+excluded from the default `testAndroidHostTest` task. They exercise the full SDK stack —
+ZETA registration, authentication, and the `hello()` call — against a real PoPP-Server over
+the network.
+
+#### Running integration tests
+
+Pass `-Pintegration` (Gradle project property) together with `-Dpopp.integration.fqdn=<wss://...>`:
+
+* RISE dev server (publicly trusted certificate — no extra flags needed):
+  ```bash
+  ./gradlew :popp-sdk:testAndroidHostTest \
+    -Pintegration \
+    -Dpopp.integration.fqdn="wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc"
+  ```
+
+* Local docker-compose stack (self-signed certificate — supply the CA cert):
+  ```bash
+  ./gradlew :popp-sdk:testAndroidHostTest \
+    -Pintegration \
+    -Dpopp.integration.fqdn="wss://popp-zeta-ingress:443/ws" \
+    -Dpopp.integration.ca.pem.file="/absolute/path/to/ca.pem"
+  ```
+
+The FQDN values match the Android product flavors defined in the demo apps (see [Selecting the PoPP-Server](#selecting-the-popp-server-android-product-flavors)).
+
+##### Obtaining the CA certificate for the local stack
+
+The docker-compose stack uses a self-signed CA. Export it once and pass the **absolute** path via `-Dpopp.integration.ca.pem.file`. Note the local stack cert currently has no Subject Alternative Names, which causes OkHttp hostname verification to fail — the cert needs to be regenerated with `DNS:popp-zeta-ingress` as a SAN before local stack tests will pass.
+
+```bash
+openssl s_client -connect popp-zeta-ingress:443 -showcerts \
+  </dev/null 2>/dev/null | openssl x509 -outform PEM > /absolute/path/to/ca.pem
+```
+
+#### How separation works
+
+- Without `-Pintegration`, `testAndroidHostTest` applies `exclude("**/*IntegrationTest*")`,
+  so only unit tests run. CI is unaffected.
+- With `-Pintegration`, the task switches to `include("**/*IntegrationTest*")`, running only
+  integration tests.
+- If `-Dpopp.integration.fqdn` is omitted the test fails immediately with a clear message,
+  so accidentally running with `-Pintegration` alone is safe.
+
+### Code coverage (Kover) & CI
 
 - Local aggregated report: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport`
   → XML `build/reports/kover/report.xml`, HTML `build/reports/kover/html/`.

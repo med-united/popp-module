@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -77,7 +79,7 @@ fun OnsiteCheckInQrScannerScreen(
             }
         }
 
-        Box(
+        Column(
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -100,11 +102,13 @@ fun OnsiteCheckInQrScannerScreen(
             Column(
                 modifier =
                     Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(horizontal = 32.dp)
-                        .padding(top = 210.dp),
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Spacer(Modifier.weight(0.8f))
+
                 Text(
                     text = stringResource(Res.string.checkin_scanner_title),
                     color = c.white,
@@ -130,7 +134,17 @@ fun OnsiteCheckInQrScannerScreen(
 
                 Spacer(Modifier.height(28.dp))
 
-                ScanStatus(result = scanResult)
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(80.dp),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    ScanStatus(result = scanResult)
+                }
+
+                Spacer(Modifier.weight(1.2f))
             }
         }
     }
@@ -273,7 +287,9 @@ private fun QrScanFrame(
     Box(
         modifier =
             Modifier
-                .size(260.dp)
+                .widthIn(max = 260.dp)
+                .fillMaxWidth()
+                .aspectRatio(1f)
                 .clip(RoundedCornerShape(8.dp))
                 .background(c.white.copy(alpha = 0.10f)),
         contentAlignment = Alignment.Center,

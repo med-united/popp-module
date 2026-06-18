@@ -146,16 +146,18 @@ internal class SecureMessaging(private val paceKey: PaceKey) {
         do8E: DERTaggedObject,
         header: ByteArray,
     ): CommandApdu {
-        val tempData = data
+        // Snapshot the body size BEFORE appending the MAC; aliasing `data` would let the
+        // always-present 10-byte DO8E mask the empty-body cases below.
+        val dataSizeBeforeMac = data.size()
         // write do8E to output
         do8E.encodeTo(data)
 
         val ne =
-            if (tempData.size() < 1 && le == -1) {
+            if (dataSizeBeforeMac < 1 && le == -1) {
                 EXPECTED_LENGTH_WILDCARD_SHORT
-            } else if (tempData.size() < 1 && le > -1) {
+            } else if (dataSizeBeforeMac < 1 && le > -1) {
                 EXPECTED_LENGTH_WILDCARD_EXTENDED
-            } else if (tempData.size() > 0 && le < 0) {
+            } else if (dataSizeBeforeMac > 0 && le < 0) {
                 if (data.size() <= 255) {
                     EXPECTED_LENGTH_WILDCARD_SHORT
                 } else {
@@ -253,9 +255,8 @@ internal class SecureMessaging(private val paceKey: PaceKey) {
 
         require(tag == DO_8E_TAG.toByte()) { MALFORMED_SECURE_MESSAGING_APDU }
 
-        if (inputStream.read() == MAC_SIZE) {
-            inputStream.readAndCheckExpectedLength(macBytes, MAC_SIZE)
-        }
+        require(inputStream.read() == MAC_SIZE) { MALFORMED_SECURE_MESSAGING_APDU }
+        inputStream.readAndCheckExpectedLength(macBytes, MAC_SIZE)
 
         require(inputStream.available() == 2) { MALFORMED_SECURE_MESSAGING_APDU }
 

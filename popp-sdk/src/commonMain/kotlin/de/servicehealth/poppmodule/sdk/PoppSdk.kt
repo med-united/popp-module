@@ -9,7 +9,11 @@ import de.servicehealth.poppmodule.sdk.egk.transport.WebSocketScenarioTransport
 import de.servicehealth.poppmodule.sdk.egk.transport.createPoppWebSocketClient
 import de.servicehealth.poppmodule.sdk.internal.ZetaEngine
 import de.servicehealth.poppmodule.sdk.internal.createZetaEngine
+import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 import de.servicehealth.poppmodule.sdk.storage.createSecureStorage
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.concurrent.Volatile
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -18,127 +22,193 @@ import kotlin.uuid.Uuid
  *
  * All HTTP/WebSocket requests required by the TI 2.0 / PoPP flow (VZD search, eGK / GID
  * check-in, token retrieval, …) must go through the ZETA Guard proxy on the
- * device. This façade owns the lifecycle of the underlying ZETA client and
+ * device. This façade owns the lifecycle of the underlying ZETA clients and
  * exposes a small surface to host apps; under the hood it delegates to the
- * platform-specific [ZetaEngine] (real on Android, stubbed on iOS until
- * gematik publishes a native variant).
+ * platform-specific [ZetaEngine].
+ *
+ * Two ZETA engine instances are managed internally:
+ * - device engine: authenticates via device attestation only
+ * - user engine: authenticates via the eGK or GesundheitsId credential
  */
 class PoppSdk internal constructor(
-    private val engine: ZetaEngine?,
-    private val fqdn: String?,
-    private val trustedCaPem: String?,
-    private val transportFactory: (url: String, trustedCaPem: String?) -> PoppServiceTransport,
-    private val newSessionId: () -> String,
+    private val context: PoppSdkContext? = null,
+    internal val storageOverride: SecureStorage? = null,
+    private val engineFactory: (PoppSdkConfig, SecureStorage) -> ZetaEngine = ::createZetaEngine,
+    private val transportFactory: (url: String, trustedCaPem: String?) -> PoppServiceTransport = ::defaultTransportFactory,
+    private val trustedCaPem: String? = null,
+    private val newSessionId: () -> String = ::defaultSessionId,
 ) {
-    constructor() : this(
-        engine = null,
-        fqdn = null,
-        trustedCaPem = null,
-        transportFactory = ::defaultTransportFactory,
-        newSessionId = ::defaultSessionId,
-    )
+    @Volatile
+    private var configuredFqdn: String? = null
 
-    /** Current ZETA client status, as reported by the underlying SDK. */
+    private val deviceStorage by lazy {
+        storageOverride ?: context?.let { createSecureStorage(it, DEVICE_STORAGE_NAMESPACE) }
+    }
+
+    private val userStorage by lazy {
+        storageOverride ?: context?.let { createSecureStorage(it, USER_STORAGE_NAMESPACE) }
+    }
+
+    private val deviceMutex = Mutex()
+
+    @Volatile
+    private var deviceEngine: ZetaEngine? = null
+
+    private val userMutex = Mutex()
+
+    @Volatile
+    private var userEngine: ZetaEngine? = null
+
+    /** Current ZETA client status, as reported by the device engine. */
     suspend fun status(): String =
-        engine?.status()
-            ?: throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
+        ensureDeviceEngine().status()
 
     fun version(): String = "popp-sdk $VERSION"
 
     fun platformInfo(): String = getPlatform().name
 
     /**
+     * Configures the FQDN of the PoPP service endpoint used by the ZETA clients.
+     * Must be called once during app initialization, before any API calls.
+     *
+     * Spec ref: gemSpec_PoPP_Modul §3.3.4
+     *
+     * @param fqdn Fully Qualified Domain Name (including scheme and path)
+     *   of the PoPP service, e.g.
+     *   `wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc`
+     */
+    fun init(fqdn: String) {
+        require(fqdn.isNotBlank()) { "fqdn must not be blank" }
+        val previous = configuredFqdn
+        if (previous != null) {
+            if (previous == fqdn) return
+            throw PoppSdkError.Configuration(
+                "PoppSdk already initialised with $previous — re-initialisation with a different FQDN is not supported",
+            )
+        }
+        configuredFqdn = fqdn
+    }
+
+    /** Smoke-tests connectivity to the PoPP service via the device ZETA engine. */
+    suspend fun hello() {
+        ensureDeviceEngine().hello()
+    }
+
+    /**
      * Runs the eGK scenario read loop (POPPM-118, gemSpec_PoPP_Modul §3.3.7) against the
-     * PoPP-Service at [PoppSdkConfig.fqdn] and returns a PoPP token. Requires a started SDK.
+     * PoPP-Service at the FQDN passed to [init] and returns a PoPP token.
      * Drives [channel] for each command APDU; reports [onProgress].
      *
      * Business failure (server `Error`) → [EgkCheckInResult.Failed]. Infrastructure failure (socket,
      * TLS, serialization, status-word mismatch, timeout) → [PoppSdkError].
      *
-     * @throws PoppSdkError.Configuration if the SDK is not started.
+     * @throws PoppSdkError.Configuration if [init] was not called first.
      */
     suspend fun checkInWithEgk(
         channel: EgkApduChannel,
         onProgress: (EgkProgress) -> Unit = {},
     ): EgkCheckInResult {
-        if (engine == null || fqdn == null) {
-            throw PoppSdkError.Configuration("PoppSdk not started — call PoppSdk.start() first")
-        }
+        val fqdn =
+            configuredFqdn
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
+        // Direct WebSocket transport for now. TODO(POPPM-119 follow-up): route through ZETA via
+        // ensureDeviceEngine().scenarioTransport() once a real device / eGK (user) token exists — the
+        // placeholder DeviceOnly token is rejected (400 "keine Berechtigung") on the eGK ws resource.
         val transport = transportFactory(fqdn, trustedCaPem)
         return EgkReadDriver(transport, channel, newSessionId).run(onProgress)
     }
 
-    companion object {
-        private const val STORAGE_NAMESPACE = "popp-sdk"
-        const val VERSION: String = "0.0.1"
-
-        /**
-         * Bootstraps the SDK against the ZETA Guard. Triggers the registration
-         * and attestation handshake required by the spec, then returns a
-         * usable [PoppSdk] instance.
-         *
-         * The call is `suspend` and is automatically exposed to Swift as
-         * `async`/`await` via Kotlin/Native's Obj-C interop on iOS.
-         *
-         * @throws PoppSdkError on any ZETA-, network- or configuration-level
-         *   failure. iOS callers currently always receive
-         *   [PoppSdkError.PlatformUnsupported] — see [ZetaEngine].
-         */
-        suspend fun start(
-            context: PoppSdkContext,
-            config: PoppSdkConfig,
-        ): PoppSdk {
-            val storage = createSecureStorage(context, STORAGE_NAMESPACE)
-            val engine = createZetaEngine(context, config, storage)
-            try {
-                engine.start()
-            } catch (e: PoppSdkError) {
-                throw e
-            } catch (e: Throwable) {
-                throw PoppSdkError.Unknown("Failed to start ZETA client", e)
-            }
-            return PoppSdk(
-                engine = engine,
-                fqdn = config.fqdn,
-                trustedCaPem = config.trustedCaPem,
-                transportFactory = ::defaultTransportFactory,
-                newSessionId = ::defaultSessionId,
-            )
+    private suspend fun ensureDeviceEngine(): ZetaEngine {
+        deviceEngine?.let { return it }
+        return deviceMutex.withLock {
+            deviceEngine ?: createDeviceEngine().also { deviceEngine = it }
         }
-
-        /**
-         * DEV/TEST ONLY ([PoppDevTransport]): a PoppSdk that runs [checkInWithEgk] straight against
-         * the PoPP-Service WebSocket at [fqdn], bypassing the ZETA Guard handshake. Reuses the real
-         * transport — only registration/attestation is skipped. Production must use [start].
-         *
-         * RECONCILE ON POPPM-115 MERGE: POPPM-115 rewrites this class (new `PoppSdk(context)` +
-         * fire-and-forget `init(fqdn)` ZETA lifecycle, device/user engines, `DeviceOnlyTokenProvider`)
-         * and drops `checkInWithEgk`. When it lands, reconcile so a single started SDK both inits ZETA
-         * and runs the eGK loop. Note the demo's `local` flavor FQDN split: 115 points `local` at the
-         * ZETA ingress (`wss://popp-zeta-ingress:443/ws`) for `init`, but the eGK read loop can't use
-         * the ZETA-gated ingress yet (HTTP 401) so it needs the direct `ws://…:8443/ws` — until a
-         * ZETA-authenticated eGK transport exists, keep these two endpoints distinct.
-         */
-        @PoppDevTransport
-        fun directTransport(
-            fqdn: String,
-            trustedCaPem: String? = null,
-        ): PoppSdk =
-            PoppSdk(
-                engine = NoZetaEngine,
-                fqdn = fqdn,
-                trustedCaPem = trustedCaPem,
-                transportFactory = ::defaultTransportFactory,
-                newSessionId = ::defaultSessionId,
-            )
     }
-}
 
-/** DEV/TEST no-op engine: satisfies the started-SDK guard for [PoppSdk.directTransport] without ZETA. */
-internal object NoZetaEngine : ZetaEngine {
-    override suspend fun start() = Unit
+    private suspend fun ensureUserEngine(): ZetaEngine {
+        userEngine?.let { return it }
+        return userMutex.withLock {
+            userEngine ?: createUserEngine().also { userEngine = it }
+        }
+    }
 
-    override suspend fun status(): String = "DIRECT (no ZETA)"
+    private suspend fun createDeviceEngine(): ZetaEngine {
+        val fqdn =
+            configuredFqdn
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
+        val storage =
+            deviceStorage
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
+
+        val engineConfig =
+            PoppSdkConfig(
+                fqdn = fqdn,
+                productId = PRODUCT_ID,
+                productVersion = VERSION,
+                clientName = "service-health-popp-module",
+                platformIdentity =
+                    PlatformIdentity.Android(
+                        packageName = "de.servicehealth.poppmodule",
+                        sha256CertFingerprints = listOf("AA:BB:CC"),
+                    ),
+                scopes = listOf("openid"),
+                requiredRoleOid = REQUIRED_ROLE_OID,
+                tokenProvider = DeviceOnly,
+            )
+
+        val e = engineFactory(engineConfig, storage)
+        try {
+            e.start()
+        } catch (e: PoppSdkError) {
+            throw e
+        } catch (e: Throwable) {
+            throw PoppSdkError.Unknown("Failed to start device ZETA engine", e)
+        }
+        return e
+    }
+
+    private suspend fun createUserEngine(): ZetaEngine {
+        val fqdn =
+            configuredFqdn
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call init(fqdn) first")
+        val storage =
+            userStorage
+                ?: throw PoppSdkError.Configuration("PoppSdk not initialised — call PoppSdk(context) first")
+        val engineConfig =
+            PoppSdkConfig(
+                fqdn = fqdn,
+                productId = PRODUCT_ID,
+                productVersion = VERSION,
+                clientName = "service-health-popp-module",
+                platformIdentity =
+                    PlatformIdentity.Android(
+                        packageName = "de.servicehealth.poppmodule",
+                        sha256CertFingerprints = listOf("AA:BB:CC"),
+                    ),
+                scopes = listOf("openid"),
+                requiredRoleOid = REQUIRED_ROLE_OID,
+                tokenProvider = TokenProviderConfig.Egk { error("eGK not yet implemented") },
+            )
+        val e = engineFactory(engineConfig, storage)
+        try {
+            e.start()
+        } catch (e: PoppSdkError) {
+            throw e
+        } catch (e: Throwable) {
+            throw PoppSdkError.Unknown("Failed to start user ZETA engine", e)
+        }
+        return e
+    }
+
+    companion object {
+        operator fun invoke(context: PoppSdkContext? = null): PoppSdk = PoppSdk(context = context)
+
+        private const val PRODUCT_ID = "de.servicehealth.popp"
+        private const val REQUIRED_ROLE_OID = "1.2.276.0.76.4.156"
+        private const val DEVICE_STORAGE_NAMESPACE = "popp-sdk-device"
+        private const val USER_STORAGE_NAMESPACE = "popp-sdk-user"
+        const val VERSION: String = "0.0.1"
+    }
 }
 
 private fun defaultTransportFactory(

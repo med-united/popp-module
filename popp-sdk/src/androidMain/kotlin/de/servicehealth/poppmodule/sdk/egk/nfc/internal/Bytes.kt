@@ -23,8 +23,6 @@
 
 package de.servicehealth.poppmodule.sdk.egk.nfc.internal
 
-import java.math.BigInteger
-
 internal object Bytes {
     private const val PAD = 0x80.toByte()
 
@@ -57,20 +55,5 @@ internal object Bytes {
             }
         }
         return paddedData
-    }
-
-    /**
-     * Converts a BigInteger into a ByteArray. A leading byte with the value 0 is truncated.
-     *
-     * @param bigInteger The BigInteger object to convert.
-     * @return The ByteArray without leading 0-byte
-     */
-    fun bigIntToByteArray(bigInteger: BigInteger): ByteArray {
-        val bigIntArray = bigInteger.toByteArray()
-        return if (bigIntArray[0] == 0.toByte()) {
-            bigIntArray.copyOfRange(1, bigIntArray.size)
-        } else {
-            bigIntArray
-        }
     }
 }

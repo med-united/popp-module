@@ -37,11 +37,11 @@ android {
         versionName = "1.0"
     }
     flavorDimensions += "popp_server"
-    // RECONCILE ON POPPM-115 MERGE: POPPM-115 sets `local` = wss://popp-zeta-ingress:443/ws for its
-    // ZETA `init(fqdn)`, but the eGK read loop (PoppSdk.directTransport → checkInWithEgk) can't use the
-    // ZETA-gated ingress yet (HTTP 401), so `local` here is the direct ws://…:8443/ws endpoint. When
-    // 115 lands these are genuinely different endpoints for different purposes — reconcile the split
-    // (e.g. two BuildConfig fields, or route the eGK transport through a ZETA-authenticated transport).
+    // The 3rd-party demo drives the eGK read loop via checkInWithEgk, which runs over the *direct*
+    // WebSocket transport (ZETA routing is dormant — see PoppSdk.checkInWithEgk TODO + POPPM-180). That
+    // direct transport can't use the ZETA-gated ingress yet (HTTP 401), so `local` points at the direct
+    // ws://localhost:8443/ws endpoint here — unlike the insurance demo, whose `local` uses the ZETA
+    // ingress because it only calls init(fqdn) and never runs the eGK loop.
     productFlavors {
         // Local dockerized PoPP-Server, reached directly (eGK read loop bypasses the ZETA ingress).
         // On a phone use `adb reverse tcp:8443 tcp:8443` so localhost:8443 reaches the host stack.
@@ -50,14 +50,17 @@ android {
             isDefault = true
             buildConfigField("String", "POPP_SERVER_FQDN", "\"ws://localhost:8443/ws\"")
         }
+        // RISE intermediate PoPP-Server (dev environment)
         create("rise") {
             dimension = "popp_server"
             buildConfigField("String", "POPP_SERVER_FQDN", "\"wss://popp.dev.poppservice.de:443/popp/practitioner/api/v1/token-generation-ehc\"")
         }
+        // gematik RU PoPP-Server (todo: update URL when available)
         create("ru") {
             dimension = "popp_server"
             buildConfigField("String", "POPP_SERVER_FQDN", "\"wss://TODO_RU_POPP_SERVER_FQDN\"")
         }
+        // gematik PU PoPP-Server (todo: update URL when available) — select explicitly for release builds
         create("pu") {
             dimension = "popp_server"
             buildConfigField("String", "POPP_SERVER_FQDN", "\"wss://TODO_PU_POPP_SERVER_FQDN\"")

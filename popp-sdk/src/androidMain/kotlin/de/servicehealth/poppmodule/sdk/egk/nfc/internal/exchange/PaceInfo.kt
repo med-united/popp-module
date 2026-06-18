@@ -53,9 +53,7 @@ internal class PaceInfo(cardAccess: ByteArray) {
             protocol = seq.getObjectAt(0) as ASN1ObjectIdentifier
             parameterID = (seq.getObjectAt(2) as ASN1Integer).value.toInt()
 
-            protocol.encoded.let {
-                it.copyOfRange(2, it.size)
-            }
+            CardUtilities.stripDerTlvHeader(protocol.encoded)
         }
 
     /**
@@ -69,7 +67,7 @@ internal class PaceInfo(cardAccess: ByteArray) {
                 PARAMETER256 -> "BrainpoolP256r1"
                 PARAMETER384 -> "BrainpoolP384r1"
                 PARAMETER512 -> "BrainpoolP512r1"
-                else -> ""
+                else -> throw IllegalArgumentException("Unsupported PACE parameterID: $parameterID")
             },
         )
 

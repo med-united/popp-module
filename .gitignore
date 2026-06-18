@@ -33,8 +33,12 @@ replay_pid*
 
 # IDE configuration files
 .idea/
-/iosApp/iosApp.xcodeproj/project.xcworkspace/xcuserdata/
-/iosApp/iosApp.xcodeproj/xcuserdata/
+
+**/xcuserdata/
+*.xcuserstate
+
+# macOS
+.DS_Store
 
 # Local project configuration
 local.properties

@@ -69,8 +69,14 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
 
         transmitSuccessfully("SELECT EF.CardAccess", PaceCommands.selectEfCardAccess())
 
-        // No status check, as upstream: a warning SW (e.g. end-of-file) still carries the data.
-        val paceInfo = PaceInfo(transmit(PaceCommands.readBinary(isExtendedLengthSupported)).data)
+        // No status check on warning SWs (e.g. end-of-file 0x62xx), which still carry the data.
+        // But an error SW (e.g. 0x6A82 File Not Found) returns no data; surface the real SW
+        // instead of letting PaceInfo's ASN.1 parser fail with an opaque NPE downstream.
+        val readBinaryResponse = transmit(PaceCommands.readBinary(isExtendedLengthSupported))
+        if (readBinaryResponse.data.isEmpty()) {
+            throw CardResponseException(readBinaryResponse.sw, "READ BINARY EF.CardAccess")
+        }
+        val paceInfo = PaceInfo(readBinaryResponse.data)
 
         transmitSuccessfully(
             "MSE:SET AT (PACE with CAN)",
@@ -183,7 +189,7 @@ internal suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: Stri
         return paceKey
     }
 
-    fun step4VerifyPcdAndPiccMac(
+    suspend fun step4VerifyPcdAndPiccMac(
         piccMacDerived: ByteArray,
         pcdMac: ByteArray,
     ): Boolean {

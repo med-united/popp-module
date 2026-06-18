@@ -44,4 +44,17 @@ class PaceInfoTest {
             paceInfoProtocolBytes,
         )
     }
+
+    @Test
+    fun unsupportedParameterIdIsRejectedWithMeaningfulError() {
+        // Same EF.CardAccess structure but with an unknown PACE parameter id (0x63) instead of 0x0D.
+        // The curve lookup must fail fast with a clear error rather than a downstream NPE.
+        val cardAccessBytes: ByteArray = Hex.decode("31143012060A04007F00070202040202020102020163")
+        try {
+            PaceInfo(cardAccessBytes)
+            Assert.fail("Unknown PACE parameterID should be rejected")
+        } catch (e: IllegalArgumentException) {
+            Assert.assertTrue(e.message!!.contains("parameterID"))
+        }
+    }
 }

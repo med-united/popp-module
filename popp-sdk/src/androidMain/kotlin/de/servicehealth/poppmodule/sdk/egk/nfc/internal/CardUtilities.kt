@@ -73,6 +73,24 @@ internal object CardUtilities {
         ASN1InputStream(asn1Input).use { asn1InputStream ->
             val seq = asn1InputStream.readObject() as ASN1TaggedObject
             val seqObj: ASN1Object = seq.baseObject
-            seqObj.encoded.copyOfRange(2, seqObj.encoded.size)
+            stripDerTlvHeader(seqObj.encoded)
         }
+
+    /**
+     * Strips the DER TLV header (tag + length octets) from [encoded], returning the value bytes.
+     * Handles both short form (length < 128, a single length octet) and long form (length >= 128,
+     * a leading `0x8n` octet followed by `n` length octets). A fixed 2-byte strip corrupts values
+     * of 128 bytes or more — e.g. a BrainpoolP512r1 EC point (a 129-byte octet string needs two
+     * length octets).
+     */
+    fun stripDerTlvHeader(encoded: ByteArray): ByteArray {
+        val lengthOctet = encoded[1].toInt() and 0xFF
+        val headerSize =
+            if (lengthOctet and 0x80 == 0) {
+                2 // tag + single short-form length octet
+            } else {
+                2 + (lengthOctet and 0x7F) // tag + leading 0x8n octet + n long-form length octets
+            }
+        return encoded.copyOfRange(headerSize, encoded.size)
+    }
 }

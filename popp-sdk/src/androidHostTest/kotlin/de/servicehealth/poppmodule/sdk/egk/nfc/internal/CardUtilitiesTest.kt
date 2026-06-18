@@ -26,6 +26,9 @@
 package de.servicehealth.poppmodule.sdk.egk.nfc.internal
 
 import de.servicehealth.poppmodule.sdk.egk.nfc.internal.CardUtilities.byteArrayToECPoint
+import org.bouncycastle.asn1.BERTags
+import org.bouncycastle.asn1.DEROctetString
+import org.bouncycastle.asn1.DERTaggedObject
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
 import org.bouncycastle.math.ec.ECCurve
@@ -63,5 +66,22 @@ internal class CardUtilitiesTest {
             Hex.decode("041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")
         val keyArray: ByteArray = CardUtilities.extractKeyObjectEncoded(asn1InputArray)
         Assert.assertArrayEquals(expectedKeyArray, keyArray)
+    }
+
+    @Test
+    fun shouldExtractKeyObjectWhenLengthIsLongForm() {
+        // A BrainpoolP512r1 uncompressed point is 0x04 || X(64) || Y(64) = 129 bytes, whose DER
+        // octet-string length needs long-form (0x81 0x81) encoding. A fixed 2-byte header strip
+        // would leave a stray 0x81 prefix; the header length must be derived from the length octet.
+        val point = ByteArray(129) { i -> if (i == 0) 0x04.toByte() else i.toByte() }
+        val asn1Input: ByteArray =
+            DERTaggedObject(
+                true,
+                BERTags.APPLICATION,
+                28,
+                DERTaggedObject(false, 0x84 and 0x1F, DEROctetString(point)),
+            ).encoded
+        val keyArray: ByteArray = CardUtilities.extractKeyObjectEncoded(asn1Input)
+        Assert.assertArrayEquals(point, keyArray)
     }
 }

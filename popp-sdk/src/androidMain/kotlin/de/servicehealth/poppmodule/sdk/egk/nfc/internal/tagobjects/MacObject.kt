@@ -51,7 +51,7 @@ internal class MacObject(
     private val kMac: ByteArray,
     private val ssc: ByteArray,
 ) {
-    private var _mac: ByteArray = ByteArray(BLOCK_SIZE)
+    private val _mac: ByteArray = calculateMac()
     val mac: ByteArray
         get() = _mac.copyOf()
 
@@ -59,11 +59,7 @@ internal class MacObject(
         get() =
             DERTaggedObject(false, DO_8E_TAG, DEROctetString(_mac))
 
-    init {
-        calculateMac()
-    }
-
-    private fun calculateMac() {
+    private fun calculateMac(): ByteArray {
         val cbcMac = getCMac(ssc, kMac)
 
         if (header != null) {
@@ -74,9 +70,11 @@ internal class MacObject(
             val paddedData = padData(commandOutput.toByteArray(), BLOCK_SIZE)
             cbcMac.update(paddedData, 0, paddedData.size)
         }
-        cbcMac.doFinal(_mac, 0)
+        // CMAC writes a full AES block; keep only the leading MAC_SIZE bytes.
+        val fullMac = ByteArray(BLOCK_SIZE)
+        cbcMac.doFinal(fullMac, 0)
 
-        _mac = _mac.copyOfRange(0, MAC_SIZE)
+        return fullMac.copyOfRange(0, MAC_SIZE)
     }
 
     private fun getCMac(

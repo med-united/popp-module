@@ -18,6 +18,8 @@ class PoppSdkCheckInTest {
         override suspend fun start() = Unit
 
         override suspend fun status(): String = "READY"
+
+        override suspend fun hello(): String = "HELLO"
     }
 
     private fun startedSdk(transport: FakeTransport): PoppSdk =

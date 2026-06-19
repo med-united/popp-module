@@ -1,6 +1,6 @@
 # ADR-002: Optional QR scanning module (`:popp-sdk-qr`)
 
-* **Status:** **Proposed**
+* **Status:** **Accepted**
 * **Date:** 2026-06-18
 * **Driver:** Beatriz Correia
 

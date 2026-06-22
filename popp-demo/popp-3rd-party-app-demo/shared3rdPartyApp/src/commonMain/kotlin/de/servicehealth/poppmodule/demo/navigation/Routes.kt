@@ -17,6 +17,12 @@ object Routes {
     const val CHECK_IN_SUCCESS = "check_in_success"
     const val CHECK_IN_ERROR = "check_in_error"
     const val ARG_FAILURE = "failure"
+    const val ARG_PROOF_TIME = "proofTime"
+
+    const val CHECK_IN_SUCCESS_ROUTE = "$CHECK_IN_SUCCESS?$ARG_PROOF_TIME={$ARG_PROOF_TIME}"
+
+    fun checkInSuccess(proofTimeEpochSeconds: Long?) =
+        "$CHECK_IN_SUCCESS?$ARG_PROOF_TIME=${proofTimeEpochSeconds ?: ""}"
 
     fun checkInError(failure: String) = "$CHECK_IN_ERROR?$ARG_FAILURE=$failure"
 

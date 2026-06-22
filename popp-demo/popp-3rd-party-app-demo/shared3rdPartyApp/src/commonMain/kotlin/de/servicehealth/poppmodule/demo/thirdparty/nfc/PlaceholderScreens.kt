@@ -17,31 +17,9 @@ import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_error_subtitle
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_error_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_badge
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_subtitle
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_title
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.stringResource
-
-/** Placeholder for POPPM-159 (Success). Thin: AC title/text only. */
-@Composable
-fun SuccessPlaceholderScreen(onClose: () -> Unit) {
-    val c = BrandTheme.colors
-    Column(
-        modifier = Modifier.fillMaxSize().background(c.deep).safeContentPadding().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(stringResource(Res.string.checkin_success_title), color = c.white, style = BrandTheme.typography.headlineSmall, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(8.dp))
-        Text(stringResource(Res.string.checkin_success_subtitle), color = c.white.copy(alpha = 0.8f), style = BrandTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(8.dp))
-        Text(stringResource(Res.string.checkin_success_badge), color = c.white, style = BrandTheme.typography.labelLarge)
-        Spacer(Modifier.height(24.dp))
-        BrandButton(text = "OK", onClick = onClose)
-    }
-}
 
 /** Placeholder for POPPM-160 (Error). Thin: AC title/text + the failure category. */
 @Composable

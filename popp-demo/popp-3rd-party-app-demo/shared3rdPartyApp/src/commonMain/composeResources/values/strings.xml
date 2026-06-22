@@ -60,6 +60,13 @@
     <string name="checkin_success_title">Karte gelesen</string>
     <string name="checkin_success_subtitle">Anwesenheit erfolgreich nachgewiesen</string>
     <string name="checkin_success_badge">Verifiziert</string>
+    <string name="checkin_success_headline">EINGECHECKT</string>
+    <string name="checkin_success_location">Sie sind jetzt vor Ort bei %1$s angemeldet.</string>
+    <string name="checkin_success_proof_hint">Nachweis erbracht über das PoPP-Modul</string>
+    <string name="checkin_success_active">AKTIV</string>
+    <string name="checkin_success_time_label">Zeitpunkt</string>
+    <string name="checkin_success_proof_label">Nachweis-ID</string>
+    <string name="checkin_success_done">Fertig</string>
     <string name="checkin_error_title">Karte lesen fehlgeschlagen</string>
     <string name="checkin_error_subtitle">Anwesenheit konnte nicht nachgewiesen werden</string>
 </resources>

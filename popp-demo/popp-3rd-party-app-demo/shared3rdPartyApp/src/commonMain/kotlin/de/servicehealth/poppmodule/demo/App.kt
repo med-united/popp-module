@@ -11,17 +11,18 @@ import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInSuccessScreen
 import de.servicehealth.poppmodule.demo.thirdparty.can.CanInputScreen
 import de.servicehealth.poppmodule.demo.thirdparty.can.CanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.InMemoryCanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.LocalCanStore
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.ErrorPlaceholderScreen
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanScreen
-import de.servicehealth.poppmodule.demo.thirdparty.nfc.SuccessPlaceholderScreen
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
+import de.servicehealth.poppmodule.sdk.egk.parsePoppTokenClaims
 import de.servicehealth.poppmodule.theme.BrandTheme
 
 /** Cross-platform entry point: a single BrandTheme wrapping the demo navigation graph. */
@@ -99,8 +100,9 @@ fun App(
                     NfcScanScreen(
                         onBack = { nav.popBackStack() },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
-                        onSuccess = { _, _ ->
-                            nav.navigate(Routes.CHECK_IN_SUCCESS) {
+                        onSuccess = { poppToken, _ ->
+                            val proofTime = parsePoppTokenClaims(poppToken)?.patientProofTimeEpochSeconds
+                            nav.navigate(Routes.checkInSuccess(proofTime)) {
                                 popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
                             }
                         },
@@ -111,8 +113,24 @@ fun App(
                         },
                     )
                 }
-                composable(Routes.CHECK_IN_SUCCESS) {
-                    SuccessPlaceholderScreen(onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) })
+                composable(
+                    route = Routes.CHECK_IN_SUCCESS_ROUTE,
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_PROOF_TIME) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
+                ) { entry ->
+                    val proofTime =
+                        entry.arguments
+                            ?.read { getStringOrNull(Routes.ARG_PROOF_TIME) }
+                            ?.toLongOrNull()
+                    OnsiteCheckInSuccessScreen(
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        proofEpochSeconds = proofTime,
+                    )
                 }
                 composable(
                     route = "${Routes.CHECK_IN_ERROR}?${Routes.ARG_FAILURE}={${Routes.ARG_FAILURE}}",

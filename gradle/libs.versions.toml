@@ -22,6 +22,7 @@ material3 = "1.11.0-alpha07"
 navigationCompose = "2.9.2"
 zetaSdk = "1.0.1"
 ktor = "3.5.0"
+nimbus-jose-jwt = "9.40"
 kotlinx-serialization = "1.11.0"
 desugar = "2.1.5"
 camerax = "1.5.3"
@@ -62,6 +63,8 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbus-jose-jwt" }
 gematik-zetaSdk = { module = "de.gematik.zeta:zeta-sdk", version.ref = "zetaSdk" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }

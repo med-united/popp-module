@@ -60,10 +60,15 @@ kotlin {
             implementation(libs.androidx.security.crypto)
             // Ktor JVM/Android engine for the WebSocket scenario transport.
             implementation(libs.ktor.client.cio)
+            implementation(libs.nimbus.jose.jwt)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,16 +16,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.LocalPharmacy
 import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandField
 import de.servicehealth.poppmodule.theme.BrandProgressDots
@@ -120,21 +121,7 @@ fun InstitutionSearchScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Zurück",
-                        tint = c.violet,
-                        modifier =
-                            Modifier
-                                .size(24.dp)
-                                .clickable { onBack() },
-                    )
-                    Text(
-                        text = "Zurück",
-                        color = c.violet,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.clickable { onBack() },
-                    )
+                    BrandBackButton(label = "Zurück", onClick = onBack)
                     Spacer(Modifier.weight(1f))
                     BrandProgressDots(stepCount = 4, currentStep = 1)
                 }
@@ -246,12 +233,24 @@ fun InstitutionSearchScreen(
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Spacer(Modifier.height(10.dp))
-                        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(results) { institution ->
-                                InstitutionRow(
-                                    institution = institution,
-                                    onClick = { onInstitutionSelected(institution) },
-                                )
+                        LazyColumn {
+                            item {
+                                BrandCard(padding = PaddingValues(0.dp)) {
+                                    Column {
+                                        results.forEachIndexed { index, institution ->
+                                            InstitutionRow(
+                                                institution = institution,
+                                                onClick = { onInstitutionSelected(institution) },
+                                            )
+                                            if (index != results.lastIndex) {
+                                                HorizontalDivider(
+                                                    modifier = Modifier.padding(start = 72.dp),
+                                                    color = c.mist,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             item { Spacer(Modifier.height(24.dp)) }
                         }
@@ -270,52 +269,55 @@ private fun InstitutionRow(
     onClick: () -> Unit,
 ) {
     val c = BrandTheme.colors
-    BrandCard(onClick = onClick) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(c.violet100),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(13.dp))
-                        .background(c.violet100),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = institution.type.icon(),
-                    contentDescription = null,
-                    tint = c.violet,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = institution.name,
-                    color = c.ink,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = institution.address,
-                    color = c.neutral700,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                imageVector = institution.type.icon(),
                 contentDescription = null,
-                tint = c.silver,
-                modifier = Modifier.size(20.dp),
+                tint = c.violet,
+                modifier = Modifier.size(24.dp),
             )
         }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = institution.name,
+                color = c.ink,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = institution.address,
+                color = c.neutral700,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = c.silver,
+            modifier = Modifier.size(20.dp),
+        )
     }
 }
 
@@ -385,8 +387,18 @@ private fun InstitutionSearchScreen_ResultsPreview() {
                 style = MaterialTheme.typography.bodySmall,
             )
             Spacer(Modifier.height(2.dp))
-            mockInstitutions.forEach { institution ->
-                InstitutionRow(institution = institution, onClick = {})
+            BrandCard(padding = PaddingValues(0.dp)) {
+                Column {
+                    mockInstitutions.forEachIndexed { index, institution ->
+                        InstitutionRow(institution = institution, onClick = {})
+                        if (index != mockInstitutions.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 72.dp),
+                                color = c.mist,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -396,7 +408,9 @@ private fun InstitutionSearchScreen_ResultsPreview() {
 @Composable
 private fun InstitutionRow_PharmacyPreview() {
     BrandTheme {
-        InstitutionRow(institution = mockInstitutions[0], onClick = {})
+        BrandCard(padding = PaddingValues(0.dp)) {
+            InstitutionRow(institution = mockInstitutions[0], onClick = {})
+        }
     }
 }
 
@@ -404,6 +418,8 @@ private fun InstitutionRow_PharmacyPreview() {
 @Composable
 private fun InstitutionRow_PracticePreview() {
     BrandTheme {
-        InstitutionRow(institution = mockInstitutions[1], onClick = {})
+        BrandCard(padding = PaddingValues(0.dp)) {
+            InstitutionRow(institution = mockInstitutions[1], onClick = {})
+        }
     }
 }

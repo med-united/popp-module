@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.LocalHospital
 import androidx.compose.material.icons.rounded.LocationOn
@@ -56,6 +55,7 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_i
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_hours
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_subtitle
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_title
+import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
@@ -151,29 +151,13 @@ fun ConfirmInstitutionScreen(
                 // AC4: back button + progress dots
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .clickable(onClick = onBack),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
-                            contentDescription = stringResource(Res.string.confirm_institution_back),
-                            tint = c.violet,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(Res.string.confirm_institution_back),
-                            color = c.violet,
-                            style = BrandTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
+                    BrandBackButton(
+                        label = stringResource(Res.string.confirm_institution_back),
+                        onClick = onBack,
+                    )
+                    Spacer(Modifier.weight(1f))
                     BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
                 }
 

@@ -90,6 +90,7 @@ fun App() {
                                 ),
                             )
                         },
+                        favoriteIds = favoriteIds,
                     )
                 }
                 composable(Routes.CHECK_IN_QR) {

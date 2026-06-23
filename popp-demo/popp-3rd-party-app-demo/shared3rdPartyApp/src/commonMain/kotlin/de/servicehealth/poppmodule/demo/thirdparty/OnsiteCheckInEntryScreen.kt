@@ -256,10 +256,7 @@ private fun FavoritesSection(
                     )
 
                     if (index != favorites.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 72.dp),
-                            color = c.mist,
-                        )
+                        HorizontalDivider(color = c.mist)
                     }
                 }
             }

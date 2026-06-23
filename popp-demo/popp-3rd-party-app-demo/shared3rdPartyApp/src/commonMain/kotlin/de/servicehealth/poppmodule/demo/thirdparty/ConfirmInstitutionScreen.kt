@@ -89,7 +89,7 @@ val stubLeiData =
             institutionTypeIcon = institution.type.icon(),
             name = institution.name,
             address = institution.address,
-            openingHours = "Mo-Fr 8:00-18:30 Sa 9:00-13:00",
+            openingHours = "Mo-Fr 8:00-18:30 · Sa 9:00-13:00",
         )
     }
 
@@ -220,11 +220,14 @@ fun ConfirmInstitutionScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                BrandButton(
+                Text(
                     text = stringResource(Res.string.confirm_institution_choose_other),
-                    onClick = onChooseOther,
-                    variant = BrandButtonVariant.Ghost,
-                    size = BrandButtonSize.Md,
+                    color = c.neutral700,
+                    style = BrandTheme.typography.labelLarge,
+                    modifier =
+                        Modifier
+                            .clickable(onClick = onChooseOther)
+                            .padding(vertical = 13.dp),
                 )
             }
         }
@@ -423,15 +426,16 @@ private fun FavoriteToggleRow(
             )
         }
 
-        if (isFavorite) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(c.success),
-                contentAlignment = Alignment.Center,
-            ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(if (isFavorite) c.success else Color.Transparent)
+                    .border(1.5.dp, if (isFavorite) c.success else c.silver, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isFavorite) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = null,

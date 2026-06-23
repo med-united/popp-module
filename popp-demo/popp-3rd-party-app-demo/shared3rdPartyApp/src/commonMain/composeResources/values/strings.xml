@@ -15,7 +15,7 @@
     <string name="confirm_institution_header">VOR-ORT-CHECK-IN</string>
     <string name="confirm_institution_back">Zurück</string>
     <string name="confirm_institution_title">Einrichtung bestätigen</string>
-    <string name="confirm_institution_subtitle">Wir haben diese Einrichtung erkannt. Bitte prüfen und bestätigen Sie.</string>
+    <string name="confirm_institution_subtitle">Bitte prüfen Sie die Einrichtung, bei der Sie einchecken.</string>
     <string name="confirm_institution_confirm_button">Bestätigen &amp; anmelden</string>
     <string name="confirm_institution_choose_other">Andere Einrichtung wählen</string>
     <string name="confirm_institution_label_address">ADRESSE</string>

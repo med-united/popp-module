@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.LocalPharmacy
 import androidx.compose.material.icons.rounded.MedicalServices
+import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,9 +72,10 @@ fun InstitutionSearchScreen(
     onClose: () -> Unit,
     onBack: () -> Unit = {},
     onInstitutionSelected: (Institution) -> Unit = {},
+    favoriteIds: Set<String> = emptySet(),
 ) {
     val c = BrandTheme.colors
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     var results by remember { mutableStateOf<List<Institution>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var hasSearched by remember { mutableStateOf(false) }
@@ -123,7 +127,7 @@ fun InstitutionSearchScreen(
                 ) {
                     BrandBackButton(label = "Zurück", onClick = onBack)
                     Spacer(Modifier.weight(1f))
-                    BrandProgressDots(stepCount = 4, currentStep = 1)
+                    BrandProgressDots(stepCount = 4, currentStep = 0)
                 }
             }
 
@@ -240,13 +244,11 @@ fun InstitutionSearchScreen(
                                         results.forEachIndexed { index, institution ->
                                             InstitutionRow(
                                                 institution = institution,
+                                                isFavorite = institution.id in favoriteIds,
                                                 onClick = { onInstitutionSelected(institution) },
                                             )
                                             if (index != results.lastIndex) {
-                                                HorizontalDivider(
-                                                    modifier = Modifier.padding(start = 72.dp),
-                                                    color = c.mist,
-                                                )
+                                                HorizontalDivider(color = c.mist)
                                             }
                                         }
                                     }
@@ -267,6 +269,7 @@ fun InstitutionSearchScreen(
 private fun InstitutionRow(
     institution: Institution,
     onClick: () -> Unit,
+    isFavorite: Boolean = false,
 ) {
     val c = BrandTheme.colors
     Row(
@@ -295,13 +298,26 @@ private fun InstitutionRow(
         }
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = institution.name,
-                color = c.ink,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = institution.name,
+                    color = c.ink,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+
+                if (isFavorite) {
+                    Spacer(Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Rounded.StarBorder,
+                        contentDescription = null,
+                        tint = c.yellow,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+            }
             Spacer(Modifier.height(2.dp))
             Text(
                 text = institution.address,
@@ -390,12 +406,9 @@ private fun InstitutionSearchScreen_ResultsPreview() {
             BrandCard(padding = PaddingValues(0.dp)) {
                 Column {
                     mockInstitutions.forEachIndexed { index, institution ->
-                        InstitutionRow(institution = institution, onClick = {})
+                        InstitutionRow(institution = institution, isFavorite = index == 0, onClick = {})
                         if (index != mockInstitutions.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(start = 72.dp),
-                                color = c.mist,
-                            )
+                            HorizontalDivider(color = c.mist)
                         }
                     }
                 }
@@ -409,7 +422,7 @@ private fun InstitutionSearchScreen_ResultsPreview() {
 private fun InstitutionRow_PharmacyPreview() {
     BrandTheme {
         BrandCard(padding = PaddingValues(0.dp)) {
-            InstitutionRow(institution = mockInstitutions[0], onClick = {})
+            InstitutionRow(institution = mockInstitutions[0], isFavorite = true, onClick = {})
         }
     }
 }

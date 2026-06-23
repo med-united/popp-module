@@ -1,6 +1,8 @@
 package de.servicehealth.poppmodule.demo.thirdparty
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -17,8 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Storefront
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -27,6 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,7 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_active
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_done
@@ -49,8 +54,6 @@ import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
 import de.servicehealth.poppmodule.theme.BrandCard
-import de.servicehealth.poppmodule.theme.BrandTag
-import de.servicehealth.poppmodule.theme.BrandTagTone
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.jetbrains.compose.resources.stringResource
 
@@ -68,11 +71,19 @@ fun OnsiteCheckInSuccessScreen(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(c.success700)
+                .background(
+                    Brush.verticalGradient(
+                        colors =
+                            listOf(
+                                c.success.copy(alpha = 0.98f),
+                                c.success700,
+                            ),
+                    ),
+                )
                 .safeContentPadding(),
     ) {
         val scale = (maxHeight / 844.dp).coerceIn(0.82f, 1.08f)
-        val horizontalPadding = (24.dp * scale).coerceIn(20.dp, 30.dp)
+        val horizontalPadding = (13.dp * scale).coerceIn(11.dp, 18.dp)
 
         fun s(value: Dp): Dp = value * scale
 
@@ -89,15 +100,20 @@ fun OnsiteCheckInSuccessScreen(
                 modifier =
                     Modifier
                         .size(s(112.dp))
+                        .shadow(
+                            elevation = s(26.dp),
+                            shape = CircleShape,
+                            ambientColor = c.success700.copy(alpha = 0.45f),
+                            spotColor = c.success700.copy(alpha = 0.35f),
+                        )
                         .clip(CircleShape)
                         .background(c.white),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Check,
-                    contentDescription = null,
-                    tint = c.success,
+                ThickCheckmark(
                     modifier = Modifier.size(s(58.dp)),
+                    color = c.success,
+                    strokeWidth = s(7.dp),
                 )
             }
 
@@ -106,9 +122,7 @@ fun OnsiteCheckInSuccessScreen(
             Text(
                 text = stringResource(Res.string.checkin_success_headline),
                 color = c.white,
-                fontSize = (38f * scale).coerceIn(32f, 42f).sp,
-                lineHeight = (42f * scale).coerceIn(36f, 46f).sp,
-                fontWeight = FontWeight.ExtraBold,
+                style = BrandTheme.typography.displayMedium,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 softWrap = false,
@@ -119,8 +133,7 @@ fun OnsiteCheckInSuccessScreen(
             Text(
                 text = locationAnnotatedText(institutionName),
                 color = c.white.copy(alpha = 0.88f),
-                fontSize = (18f * scale).coerceIn(16f, 20f).sp,
-                lineHeight = (27f * scale).coerceIn(23f, 30f).sp,
+                style = BrandTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
             )
 
@@ -141,15 +154,17 @@ fun OnsiteCheckInSuccessScreen(
                     imageVector = Icons.Rounded.VerifiedUser,
                     contentDescription = null,
                     tint = c.white.copy(alpha = 0.75f),
-                    modifier = Modifier.size(s(18.dp)),
+                    modifier = Modifier.size(s(17.dp)),
                 )
 
-                Spacer(Modifier.width(s(10.dp)))
+                Spacer(Modifier.width(s(9.dp)))
 
                 Text(
                     text = stringResource(Res.string.checkin_success_proof_hint),
                     color = c.white.copy(alpha = 0.75f),
-                    fontSize = (16f * scale).coerceIn(14f, 17f).sp,
+                    style = BrandTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
@@ -162,11 +177,10 @@ fun OnsiteCheckInSuccessScreen(
                 variant = BrandButtonVariant.Accent,
                 size = BrandButtonSize.Lg,
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Rounded.Check,
-                        contentDescription = null,
-                        tint = c.ink,
+                    ThickCheckmark(
                         modifier = Modifier.size(s(20.dp)),
+                        color = c.ink,
+                        strokeWidth = s(3.dp),
                     )
                 },
             )
@@ -208,10 +222,10 @@ private fun ProofCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Storefront,
+                        imageVector = Icons.Outlined.Storefront,
                         contentDescription = null,
                         tint = c.violet,
-                        modifier = Modifier.size(s(28.dp)),
+                        modifier = Modifier.size(s(27.dp)),
                     )
                 }
 
@@ -221,27 +235,23 @@ private fun ProofCard(
                     Text(
                         text = institutionName,
                         color = c.ink,
-                        fontSize = (21f * scale).coerceIn(18f, 22f).sp,
-                        lineHeight = (24f * scale).coerceIn(21f, 26f).sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        style = BrandTheme.typography.titleLarge,
                     )
 
+                    Spacer(Modifier.height(s(3.dp)))
+
                     Text(
-                        text = "$institutionCategory · $institutionCategory",
+                        text = institutionCategory,
                         color = c.neutral700,
-                        fontSize = (16f * scale).coerceIn(14f, 17f).sp,
-                        lineHeight = (20f * scale).coerceIn(18f, 22f).sp,
-                        maxLines = 1,
+                        style = BrandTheme.typography.bodyMedium,
                     )
                 }
 
                 Spacer(Modifier.width(s(8.dp)))
 
-                BrandTag(
+                ActivePill(
                     text = stringResource(Res.string.checkin_success_active),
-                    tone = BrandTagTone.Success,
+                    scale = scale,
                 )
             }
 
@@ -254,7 +264,6 @@ private fun ProofCard(
             ProofRow(
                 label = stringResource(Res.string.checkin_success_time_label),
                 value = proofTime,
-                scale = scale,
             )
 
             Spacer(Modifier.height(s(8.dp)))
@@ -262,7 +271,6 @@ private fun ProofCard(
             ProofRow(
                 label = stringResource(Res.string.checkin_success_proof_label),
                 value = proofId,
-                scale = scale,
             )
         }
     }
@@ -272,7 +280,6 @@ private fun ProofCard(
 private fun ProofRow(
     label: String,
     value: String,
-    scale: Float,
 ) {
     val c = BrandTheme.colors
 
@@ -280,16 +287,79 @@ private fun ProofRow(
         Text(
             text = label,
             color = c.neutral700,
-            fontSize = (17f * scale).coerceIn(15f, 18f).sp,
+            style = BrandTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f),
         )
 
         Text(
             text = value,
             color = c.ink,
-            fontSize = (17f * scale).coerceIn(15f, 18f).sp,
-            fontWeight = FontWeight.Bold,
+            style = BrandTheme.typography.titleMedium,
             textAlign = TextAlign.End,
+            modifier = Modifier.weight(1.45f),
+        )
+    }
+}
+
+@Composable
+private fun ThickCheckmark(
+    modifier: Modifier,
+    color: Color,
+    strokeWidth: Dp,
+) {
+    Canvas(modifier = modifier) {
+        drawLine(
+            color = color,
+            start = Offset(size.width * 0.22f, size.height * 0.53f),
+            end = Offset(size.width * 0.43f, size.height * 0.74f),
+            strokeWidth = strokeWidth.toPx(),
+            cap = StrokeCap.Round,
+        )
+
+        drawLine(
+            color = color,
+            start = Offset(size.width * 0.43f, size.height * 0.74f),
+            end = Offset(size.width * 0.80f, size.height * 0.28f),
+            strokeWidth = strokeWidth.toPx(),
+            cap = StrokeCap.Round,
+        )
+    }
+}
+
+@Composable
+private fun ActivePill(
+    text: String,
+    scale: Float,
+) {
+    val c = BrandTheme.colors
+
+    Row(
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(999.dp))
+                .background(c.success.copy(alpha = 0.12f))
+                .padding(
+                    horizontal = (10.dp * scale).coerceIn(8.dp, 11.dp),
+                    vertical = (5.dp * scale).coerceIn(4.dp, 6.dp),
+                ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size((7.dp * scale).coerceIn(6.dp, 8.dp))
+                    .clip(CircleShape)
+                    .background(c.success),
+        )
+
+        Spacer(Modifier.width((6.dp * scale).coerceIn(5.dp, 7.dp)))
+
+        Text(
+            text = text,
+            color = c.success,
+            style = BrandTheme.typography.labelMedium,
+            maxLines = 1,
         )
     }
 }

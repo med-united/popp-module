@@ -84,34 +84,40 @@ fun BrandTag(
 
 @Preview @Composable
 private fun TonesBrandTagPreview() {
-    Column(
-        modifier = Modifier.padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        BrandTag(text = "Violet", tone = BrandTagTone.Violet)
-        BrandTag(text = "Solid", tone = BrandTagTone.Solid)
-        BrandTag(text = "Yellow", tone = BrandTagTone.Yellow)
-        BrandTag(text = "Success", tone = BrandTagTone.Success)
-        BrandTag(text = "Warning", tone = BrandTagTone.Warning)
-        BrandTag(text = "Neutral", tone = BrandTagTone.Neutral)
+    PreviewBrandTheme {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            BrandTag(text = "Violet", tone = BrandTagTone.Violet)
+            BrandTag(text = "Solid", tone = BrandTagTone.Solid)
+            BrandTag(text = "Yellow", tone = BrandTagTone.Yellow)
+            BrandTag(text = "Success", tone = BrandTagTone.Success)
+            BrandTag(text = "Warning", tone = BrandTagTone.Warning)
+            BrandTag(text = "Neutral", tone = BrandTagTone.Neutral)
+        }
     }
 }
 
 @Preview @Composable
 private fun OnDarkBrandTagPreview() {
-    Box(Modifier.background(BrandColors().deep).padding(12.dp)) {
-        BrandTag(text = "On Dark", tone = BrandTagTone.OnDark)
+    PreviewBrandTheme {
+        Box(Modifier.background(BrandColors().deep).padding(12.dp)) {
+            BrandTag(text = "On Dark", tone = BrandTagTone.OnDark)
+        }
     }
 }
 
 @Preview @Composable
 private fun DotBrandTagPreview() {
-    Column(
-        modifier = Modifier.padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        BrandTag(text = "Active", tone = BrandTagTone.Success, dot = true)
-        BrandTag(text = "Warning", tone = BrandTagTone.Warning, dot = true)
-        BrandTag(text = "Label", tone = BrandTagTone.Violet, dot = true)
+    PreviewBrandTheme {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            BrandTag(text = "Active", tone = BrandTagTone.Success, dot = true)
+            BrandTag(text = "Warning", tone = BrandTagTone.Warning, dot = true)
+            BrandTag(text = "Label", tone = BrandTagTone.Violet, dot = true)
+        }
     }
 }

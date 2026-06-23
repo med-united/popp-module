@@ -1,4 +1,4 @@
-TEAM_ID=
+TEAM_ID=YX6NS7XNPL
 
 PRODUCT_NAME=PoPP-3rdParty
 PRODUCT_BUNDLE_IDENTIFIER=de.servicehealth.poppmodule.demo.thirdparty$(TEAM_ID)

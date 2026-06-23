@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.Institution
@@ -51,6 +52,7 @@ import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -61,75 +63,73 @@ fun OnsiteCheckInEntryScreen(
     favorites: List<Institution> = emptyList(),
     onFavoriteClick: (name: String, address: String, category: String) -> Unit = { _, _, _ -> },
 ) {
-    BrandTheme {
-        val c = BrandTheme.colors
+    val c = BrandTheme.colors
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(c.white)
+                .safeContentPadding(),
+    ) {
+        BrandScreenHeader(title = stringResource(Res.string.checkin_entry_header), onClose = onClose)
 
         Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(c.white)
-                    .safeContentPadding(),
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp),
         ) {
-            BrandScreenHeader(title = stringResource(Res.string.checkin_entry_header), onClose = onClose)
-
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 18.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    BrandProgressDots(stepCount = 4, currentStep = 0)
-                }
-
-                Spacer(Modifier.height(22.dp))
-
-                Text(
-                    text = stringResource(Res.string.checkin_entry_question),
-                    color = c.ink,
-                    style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Text(
-                    text = stringResource(Res.string.checkin_entry_subtitle),
-                    color = c.neutral700,
-                    style = BrandTheme.typography.bodyMedium,
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    ActionCard(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Rounded.Search,
-                        title = stringResource(Res.string.checkin_entry_search_title),
-                        subtitle = stringResource(Res.string.checkin_entry_search_subtitle),
-                        onClick = onSearchClick,
-                    )
-
-                    ActionCard(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Rounded.QrCodeScanner,
-                        title = stringResource(Res.string.checkin_entry_qr_title),
-                        subtitle = stringResource(Res.string.checkin_entry_qr_subtitle),
-                        onClick = onQrScanClick,
-                    )
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                FavoritesSection(favorites = favorites, onFavoriteClick = onFavoriteClick)
+                BrandProgressDots(stepCount = 4, currentStep = 0)
             }
+
+            Spacer(Modifier.height(22.dp))
+
+            Text(
+                text = stringResource(Res.string.checkin_entry_question),
+                color = c.ink,
+                style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(Res.string.checkin_entry_subtitle),
+                color = c.neutral700,
+                style = BrandTheme.typography.bodyMedium,
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ActionCard(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Rounded.Search,
+                    title = stringResource(Res.string.checkin_entry_search_title),
+                    subtitle = stringResource(Res.string.checkin_entry_search_subtitle),
+                    onClick = onSearchClick,
+                )
+
+                ActionCard(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Rounded.QrCodeScanner,
+                    title = stringResource(Res.string.checkin_entry_qr_title),
+                    subtitle = stringResource(Res.string.checkin_entry_qr_subtitle),
+                    onClick = onQrScanClick,
+                )
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            FavoritesSection(favorites = favorites, onFavoriteClick = onFavoriteClick)
         }
     }
 }
@@ -337,6 +337,17 @@ private fun FavoriteRow(
             contentDescription = null,
             tint = c.silver,
             modifier = Modifier.size(20.dp),
+        )
+    }
+}
+
+@Preview @Composable
+private fun OnsiteCheckInEntryScreenPreview() {
+    PreviewBrandTheme {
+        OnsiteCheckInEntryScreen(
+            onClose = {},
+            onSearchClick = {},
+            onQrScanClick = {},
         )
     }
 }

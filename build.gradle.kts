@@ -21,6 +21,7 @@ allprojects {
 
 dependencies {
     kover(projects.poppSdk)
+    kover(projects.poppSdkQr)
     kover(projects.poppDemo.shared)
     kover(projects.poppDemo.popp3rdPartyAppDemo.shared3rdPartyApp)
 }

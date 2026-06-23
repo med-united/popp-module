@@ -25,9 +25,9 @@ import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 
 @Composable
-fun App() {
+fun App(poppSdk: PoppSdk) {
     BrandTheme {
-        CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
+        CompositionLocalProvider(LocalPoppSdk provides poppSdk) {
             val nav = rememberNavController()
             // In-memory for now — persisting to device storage is a separate step (POPPM-116 follow-up).
             var favoriteIds by remember { mutableStateOf<Set<String>>(emptySet()) }

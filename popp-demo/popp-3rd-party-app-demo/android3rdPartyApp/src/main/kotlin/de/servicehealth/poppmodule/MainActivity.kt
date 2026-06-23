@@ -7,20 +7,23 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import de.servicehealth.poppmodule.demo.App
+import de.servicehealth.poppmodule.sdk.PoppSdk
+import de.servicehealth.poppmodule.sdk.PoppSdkContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        setContent {
-            App()
-        }
+        val poppSdk = PoppSdk(PoppSdkContext(applicationContext))
+        poppSdk.init(BuildConfig.POPP_SERVER_FQDN)
+
+        setContent { App(poppSdk = poppSdk) }
     }
 }
 
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    App(poppSdk = PoppSdk())
 }

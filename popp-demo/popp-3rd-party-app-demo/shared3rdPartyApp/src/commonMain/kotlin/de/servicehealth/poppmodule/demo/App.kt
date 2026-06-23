@@ -126,6 +126,7 @@ fun App() {
                         leiData =
                             LeiData(
                                 institutionType = category,
+                                institutionTypeIcon = institution.type.icon(),
                                 name = name,
                                 address = address,
                                 openingHours = stubLeiData.openingHours,

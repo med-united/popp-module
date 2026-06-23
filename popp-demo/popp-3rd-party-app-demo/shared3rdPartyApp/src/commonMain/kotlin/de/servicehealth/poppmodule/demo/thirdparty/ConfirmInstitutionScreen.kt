@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.servicehealth.poppmodule.demo.icon
 import de.servicehealth.poppmodule.demo.label
 import de.servicehealth.poppmodule.demo.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
@@ -85,6 +86,7 @@ val stubLeiData =
     mockInstitutions.first().let { institution ->
         LeiData(
             institutionType = institution.type.label,
+            institutionTypeIcon = institution.type.icon(),
             name = institution.name,
             address = institution.address,
             openingHours = "Mo-Fr 8:00-18:30 Sa 9:00-13:00",

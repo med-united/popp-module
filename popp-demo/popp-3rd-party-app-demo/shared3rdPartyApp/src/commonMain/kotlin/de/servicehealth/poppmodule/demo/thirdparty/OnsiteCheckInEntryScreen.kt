@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.LocalHospital
-import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.StarBorder
@@ -37,7 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.Institution
-import de.servicehealth.poppmodule.demo.InstitutionType
+import de.servicehealth.poppmodule.demo.icon
 import de.servicehealth.poppmodule.demo.label
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
@@ -250,7 +248,7 @@ private fun FavoritesSection(
             Column {
                 favorites.forEachIndexed { index, institution ->
                     FavoriteRow(
-                        icon = institution.type.favoriteIcon(),
+                        icon = institution.type.icon(),
                         title = institution.name,
                         subtitle = institution.address,
                         category = institution.type.label,
@@ -268,13 +266,6 @@ private fun FavoritesSection(
         }
     }
 }
-
-private fun InstitutionType.favoriteIcon(): ImageVector =
-    when (this) {
-        InstitutionType.PHARMACY -> Icons.Rounded.LocalHospital
-        InstitutionType.PRACTICE -> Icons.Rounded.MedicalServices
-        InstitutionType.ONLINE -> Icons.Rounded.MedicalServices
-    }
 
 @Composable
 private fun FavoriteRow(

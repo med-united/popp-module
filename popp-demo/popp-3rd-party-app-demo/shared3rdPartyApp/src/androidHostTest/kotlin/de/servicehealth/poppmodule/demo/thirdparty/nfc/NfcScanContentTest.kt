@@ -48,4 +48,23 @@ class NfcScanContentTest {
             }
             onNodeWithTag("nfc_percent").assertIsDisplayed()
         }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun completed_shows_verified_and_hides_reading_pill() =
+        runComposeUiTest {
+            mainClock.autoAdvance = false
+            setContent {
+                BrandTheme {
+                    NfcScanContent(
+                        state = NfcScanUiState.Succeeded("jwt", "pn"),
+                        supported = true,
+                        onBack = {},
+                        onClose = {},
+                    )
+                }
+            }
+            onNodeWithTag("nfc_verified").assertIsDisplayed()
+            onNodeWithTag("nfc_percent").assertDoesNotExist()
+        }
 }

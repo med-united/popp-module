@@ -9,7 +9,7 @@ package de.servicehealth.poppmodule.demo.thirdparty.nfc
  * 100 % is reserved for a confirmed [NfcScanUiState.Succeeded] and is set by the controller.
  */
 class NfcProgressEstimator(
-    private val stepCap: Int = 95,
+    private val stepCap: Int = 99,
     private val perStep: Int = 12,
 ) {
     private var percent = 0

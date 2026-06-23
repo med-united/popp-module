@@ -6,11 +6,13 @@ import de.servicehealth.poppmodule.sdk.egk.EgkApduChannel
 import de.servicehealth.poppmodule.sdk.egk.EgkCheckInResult
 import de.servicehealth.poppmodule.sdk.egk.EgkProgress
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NfcCheckInControllerTest {
@@ -29,6 +31,10 @@ class NfcCheckInControllerTest {
             controller.start("123456")
             runCurrent()
 
+            assertEquals(NfcScanUiState.Reading(100), controller.state.value)
+
+            advanceTimeBy(2.seconds)
+            runCurrent()
             assertEquals(NfcScanUiState.Succeeded("jwt", "pn"), controller.state.value)
         }
 
@@ -112,6 +118,8 @@ class NfcCheckInControllerTest {
             val channel = FakeEgkApduChannel()
             captured!!(channel)
             captured!!(channel) // a second tap must be ignored
+            runCurrent()
+            advanceTimeBy(2.seconds)
             runCurrent()
 
             assertEquals(1, runs)

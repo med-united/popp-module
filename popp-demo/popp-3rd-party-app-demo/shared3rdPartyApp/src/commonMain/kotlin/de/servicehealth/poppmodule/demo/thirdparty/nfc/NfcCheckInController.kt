@@ -4,11 +4,14 @@ import de.servicehealth.poppmodule.sdk.PoppSdkError
 import de.servicehealth.poppmodule.sdk.egk.EgkApduChannel
 import de.servicehealth.poppmodule.sdk.egk.EgkCheckInResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.concurrent.Volatile
+
+private const val COMPLETED_HOLD_MILLIS = 1000L
 
 /**
  * Orchestrates the eGK scan: binds an [EgkChannelSource] to a [CheckInRunner] and exposes the
@@ -61,8 +64,11 @@ class NfcCheckInController(
                                 _state.value = NfcScanUiState.Reading(estimator.onStep())
                             }
                     ) {
-                        is EgkCheckInResult.Success ->
+                        is EgkCheckInResult.Success -> {
+                            _state.value = NfcScanUiState.Reading(100)
+                            delay(COMPLETED_HOLD_MILLIS)
                             NfcScanUiState.Succeeded(result.poppToken, result.pruefnachweis)
+                        }
 
                         is EgkCheckInResult.Failed ->
                             NfcScanUiState.Failed(NfcScanFailure.SERVER_REJECTED, result.detail)

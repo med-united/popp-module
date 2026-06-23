@@ -28,4 +28,13 @@ class NfcProgressEstimatorTest {
         repeat(50) { e.onStep() }
         assertEquals(95, e.onStep())
     }
+
+    @Test
+    fun default_config_never_reaches_100() {
+        val e = NfcProgressEstimator()
+        var max = 0
+        repeat(50) { max = maxOf(max, e.onStep()) }
+        assertEquals(99, max, "default estimator should saturate at 99, never 100")
+        assertTrue(max < 100, "estimator must never reach 100 during reading")
+    }
 }

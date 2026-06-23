@@ -235,12 +235,6 @@ private fun FavoritesSection(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Icon(
-                imageVector = Icons.Rounded.StarBorder,
-                contentDescription = null,
-                tint = c.silver,
-                modifier = Modifier.size(48.dp),
-            )
             Text(
                 text = stringResource(Res.string.checkin_entry_favorites_empty_hint),
                 color = c.neutral700,

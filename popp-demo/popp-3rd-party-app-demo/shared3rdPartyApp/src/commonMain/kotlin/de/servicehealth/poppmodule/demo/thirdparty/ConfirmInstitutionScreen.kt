@@ -114,7 +114,7 @@ val stubLeiData =
 @Composable
 fun ConfirmInstitutionScreen(
     leiData: LeiData = stubLeiData,
-    currentStep: Int = 2,
+    currentStep: Int = 1,
     totalSteps: Int = 4,
     isFavorite: Boolean = false,
     onToggleFavorite: () -> Unit = {},
@@ -123,122 +123,124 @@ fun ConfirmInstitutionScreen(
     onChooseOther: () -> Unit,
     onClose: () -> Unit,
 ) {
-    val c = BrandTheme.colors
+    BrandTheme {
+        val c = BrandTheme.colors
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(c.white)
-                .safeContentPadding(),
-    ) {
-        // Top bar
-        BrandScreenHeader(
-            title = stringResource(Res.string.confirm_institution_header),
-            onClose = onClose,
-        )
-
-        // Scrollable body
         Column(
             modifier =
                 Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 18.dp),
+                    .fillMaxSize()
+                    .background(c.white)
+                    .safeContentPadding(),
         ) {
-            // AC4: back button + progress dots
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+            // Top bar
+            BrandScreenHeader(
+                title = stringResource(Res.string.confirm_institution_header),
+                onClose = onClose,
+            )
+
+            // Scrollable body
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 18.dp),
             ) {
+                // AC4: back button + progress dots
                 Row(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .clickable(onClick = onBack),
-                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = stringResource(Res.string.confirm_institution_back),
-                        tint = c.violet,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(Res.string.confirm_institution_back),
-                        color = c.violet,
-                        style = BrandTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    Row(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .clickable(onClick = onBack),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = stringResource(Res.string.confirm_institution_back),
+                            tint = c.violet,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(Res.string.confirm_institution_back),
+                            color = c.violet,
+                            style = BrandTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
                 }
-                BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
+
+                Spacer(Modifier.height(22.dp))
+
+                // AC1: title
+                Text(
+                    text = stringResource(Res.string.confirm_institution_title),
+                    color = c.ink,
+                    style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // AC1: subtitle
+                Text(
+                    text = stringResource(Res.string.confirm_institution_subtitle),
+                    color = c.neutral700,
+                    style = BrandTheme.typography.bodyMedium,
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                // AC2: LEI card
+                LeiCard(data = leiData)
+
+                Spacer(Modifier.height(16.dp))
+
+                // AC5: favorites toggle - presented below institution details, before consent button
+                FavoriteToggleRow(isFavorite = isFavorite, onToggle = onToggleFavorite)
+
+                Spacer(Modifier.height(32.dp))
             }
 
-            Spacer(Modifier.height(22.dp))
+            // AC3: action buttons - pinned to bottom
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                BrandButton(
+                    text = stringResource(Res.string.confirm_institution_confirm_button),
+                    onClick = onConfirm,
+                    modifier = Modifier.fillMaxWidth(),
+                    variant = BrandButtonVariant.Primary,
+                    size = BrandButtonSize.Lg,
+                    trailingIcon = {
+                        Text(
+                            text = "->",
+                            color = c.white,
+                            fontSize = 17.sp,
+                        )
+                    },
+                )
 
-            // AC1: title
-            Text(
-                text = stringResource(Res.string.confirm_institution_title),
-                color = c.ink,
-                style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
-            )
+                Spacer(Modifier.height(16.dp))
 
-            Spacer(Modifier.height(8.dp))
-
-            // AC1: subtitle
-            Text(
-                text = stringResource(Res.string.confirm_institution_subtitle),
-                color = c.neutral700,
-                style = BrandTheme.typography.bodyMedium,
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            // AC2: LEI card
-            LeiCard(data = leiData)
-
-            Spacer(Modifier.height(16.dp))
-
-            // AC5: favorites toggle - presented below institution details, before consent button
-            FavoriteToggleRow(isFavorite = isFavorite, onToggle = onToggleFavorite)
-
-            Spacer(Modifier.height(32.dp))
-        }
-
-        // AC3: action buttons - pinned to bottom
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            BrandButton(
-                text = stringResource(Res.string.confirm_institution_confirm_button),
-                onClick = onConfirm,
-                modifier = Modifier.fillMaxWidth(),
-                variant = BrandButtonVariant.Primary,
-                size = BrandButtonSize.Lg,
-                trailingIcon = {
-                    Text(
-                        text = "->",
-                        color = c.white,
-                        fontSize = 17.sp,
-                    )
-                },
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            BrandButton(
-                text = stringResource(Res.string.confirm_institution_choose_other),
-                onClick = onChooseOther,
-                variant = BrandButtonVariant.Ghost,
-                size = BrandButtonSize.Md,
-            )
+                BrandButton(
+                    text = stringResource(Res.string.confirm_institution_choose_other),
+                    onClick = onChooseOther,
+                    variant = BrandButtonVariant.Ghost,
+                    size = BrandButtonSize.Md,
+                )
+            }
         }
     }
 }

@@ -32,7 +32,7 @@
     <string name="checkin_entry_qr_title">QR-Code\nscannen</string>
     <string name="checkin_entry_qr_subtitle">Code vor Ort scannen</string>
     <string name="checkin_entry_favorites">FAVORITEN</string>
-    <string name="checkin_entry_favorites_empty_hint">Sie können Favoriten ihrer letzten Anmeldungen nach erfolgreicher Bestätigung der Einrichtung hinterlegen. Bisher wurden noch keine Favoriten hinzugefügt.</string>
+    <string name="checkin_entry_favorites_empty_hint">Noch keine Favoriten gespeichert</string>
 
     <string name="checkin_scanner_title">QR-Code scannen</string>
     <string name="checkin_scanner_instruction">Richten Sie die Kamera auf den Check-in-\nCode der Einrichtung.</string>

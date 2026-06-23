@@ -16,12 +16,15 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.LocalPharmacy
+import androidx.compose.material.icons.rounded.MedicalServices
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -275,18 +279,15 @@ private fun InstitutionRow(
                 modifier =
                     Modifier
                         .size(44.dp)
-                        .clip(CircleShape)
+                        .clip(RoundedCornerShape(13.dp))
                         .background(c.violet100),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text =
-                        when (institution.type) {
-                            InstitutionType.PHARMACY -> "\uD83C\uDFE0"
-                            InstitutionType.PRACTICE -> "\uD83E\uDE7A"
-                            InstitutionType.ONLINE -> "\uD83D\uDCF9"
-                        },
-                    style = MaterialTheme.typography.titleMedium,
+                Icon(
+                    imageVector = institution.type.icon(),
+                    contentDescription = null,
+                    tint = c.violet,
+                    modifier = Modifier.size(24.dp),
                 )
             }
 
@@ -348,6 +349,13 @@ val InstitutionType.label: String
             InstitutionType.PRACTICE -> "Hausarztpraxis"
             InstitutionType.ONLINE -> "Online"
         }
+
+fun InstitutionType.icon(): ImageVector =
+    when (this) {
+        InstitutionType.PHARMACY -> Icons.Rounded.LocalPharmacy
+        InstitutionType.PRACTICE -> Icons.Rounded.MedicalServices
+        InstitutionType.ONLINE -> Icons.Rounded.Videocam
+    }
 
 // ── Previews ──────────────────────────────────────────────────────────────────
 

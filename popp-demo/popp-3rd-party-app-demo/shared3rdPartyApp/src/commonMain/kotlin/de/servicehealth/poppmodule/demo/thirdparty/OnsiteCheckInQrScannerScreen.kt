@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_back
@@ -59,6 +60,7 @@ import de.servicehealth.poppmodule.sdk.qr.ScanResult
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -66,77 +68,75 @@ fun OnsiteCheckInQrScannerScreen(
     onBack: () -> Unit,
     onClose: () -> Unit,
 ) {
-    BrandTheme {
-        val c = BrandTheme.colors
-        var scanResult by remember { mutableStateOf<ScanResult?>(null) }
+    val c = BrandTheme.colors
+    var scanResult by remember { mutableStateOf<ScanResult?>(null) }
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            c.deep,
+                            c.deep,
+                            c.deep.copy(alpha = 0.96f),
+                        ),
+                    ),
+                )
+                .safeContentPadding(),
+    ) {
+        QrScannerHeader(
+            onBack = onBack,
+            onClose = onClose,
+        )
 
         Column(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                c.deep,
-                                c.deep,
-                                c.deep.copy(alpha = 0.96f),
-                            ),
-                        ),
-                    )
-                    .safeContentPadding(),
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QrScannerHeader(
-                onBack = onBack,
-                onClose = onClose,
+            Spacer(Modifier.weight(0.8f))
+
+            Text(
+                text = stringResource(Res.string.checkin_scanner_title),
+                color = c.white,
+                style = BrandTheme.typography.headlineLarge,
             )
 
-            Column(
+            Spacer(Modifier.height(10.dp))
+
+            Text(
+                text = stringResource(Res.string.checkin_scanner_instruction),
+                color = c.white.copy(alpha = 0.76f),
+                style = BrandTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(Modifier.height(36.dp))
+
+            QrScanFrame(
+                succeeded = scanResult is ScanResult.Valid,
+                onResult = { scanResult = it },
+            )
+
+            Spacer(Modifier.height(28.dp))
+
+            Box(
                 modifier =
                     Modifier
-                        .weight(1f)
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                        .height(80.dp),
+                contentAlignment = Alignment.TopCenter,
             ) {
-                Spacer(Modifier.weight(0.8f))
-
-                Text(
-                    text = stringResource(Res.string.checkin_scanner_title),
-                    color = c.white,
-                    style = BrandTheme.typography.headlineLarge,
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                Text(
-                    text = stringResource(Res.string.checkin_scanner_instruction),
-                    color = c.white.copy(alpha = 0.76f),
-                    style = BrandTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(Modifier.height(36.dp))
-
-                QrScanFrame(
-                    succeeded = scanResult is ScanResult.Valid,
-                    onResult = { scanResult = it },
-                )
-
-                Spacer(Modifier.height(28.dp))
-
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(80.dp),
-                    contentAlignment = Alignment.TopCenter,
-                ) {
-                    ScanStatus(result = scanResult)
-                }
-
-                Spacer(Modifier.weight(1.2f))
+                ScanStatus(result = scanResult)
             }
+
+            Spacer(Modifier.weight(1.2f))
         }
     }
 }
@@ -373,6 +373,16 @@ private fun ScanLine(color: Color) {
                 ),
             topLeft = Offset(0f, y - 24.dp.toPx()),
             size = Size(w, 48.dp.toPx()),
+        )
+    }
+}
+
+@Preview @Composable
+private fun OnsiteCheckInQrScannerScreenPreview() {
+    PreviewBrandTheme {
+        OnsiteCheckInQrScannerScreen(
+            onBack = {},
+            onClose = {},
         )
     }
 }

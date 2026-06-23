@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -70,6 +71,7 @@ fun BrandField(
                 )
             }
             BasicTextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = value,
                 onValueChange = onValueChange,
                 singleLine = singleLine,
@@ -89,27 +91,33 @@ fun BrandField(
     }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun EmptyBrandFieldPreview() {
-    BrandField(value = "", onValueChange = {}, placeholder = "Enter your name")
+    PreviewBrandTheme { BrandField(value = "", onValueChange = {}, placeholder = "Enter your name") }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun FilledBrandFieldPreview() {
-    BrandField(value = "Max Mustermann", onValueChange = {})
+    PreviewBrandTheme { BrandField(value = "Max Mustermann", onValueChange = {}) }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun LeadingIconBrandFieldPreview() {
-    BrandField(
-        value = "",
-        onValueChange = {},
-        placeholder = "Search…",
-        leadingIcon = { Text("🔍") },
-    )
+    PreviewBrandTheme {
+        BrandField(
+            value = "",
+            onValueChange = {},
+            placeholder = "Search…",
+            leadingIcon = { Text("🔍") },
+        )
+    }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun ReadOnlyBrandFieldPreview() {
-    BrandField(value = "Read-only value", onValueChange = {}, readOnly = true)
+    PreviewBrandTheme { BrandField(value = "Read-only value", onValueChange = {}, readOnly = true) }
 }

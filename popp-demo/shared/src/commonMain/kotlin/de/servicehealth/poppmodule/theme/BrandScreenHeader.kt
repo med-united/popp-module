@@ -102,17 +102,20 @@ fun BrandScreenHeader(
     }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun BrandScreenHeaderPreview() {
-    BrandScreenHeader(title = "Versicherungsnachweis")
+    PreviewBrandTheme { BrandScreenHeader(title = "Versicherungsnachweis") }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun BrandScreenHeaderWithClosePreview() {
-    BrandScreenHeader(title = "Versicherungsnachweis", onClose = {})
+    PreviewBrandTheme { BrandScreenHeader(title = "Versicherungsnachweis", onClose = {}) }
 }
 
-@Preview @Composable
+@Preview
+@Composable
 private fun BrandScreenHeaderLongTitlePreview() {
-    BrandScreenHeader(title = "Ein sehr langer Titel der garantiert abgeschnitten wird", onClose = {})
+    PreviewBrandTheme { BrandScreenHeader(title = "Ein sehr langer Titel der garantiert abgeschnitten wird", onClose = {}) }
 }

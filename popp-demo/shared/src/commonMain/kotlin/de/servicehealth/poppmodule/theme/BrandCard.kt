@@ -65,20 +65,20 @@ fun BrandCard(
 
 @Preview @Composable
 private fun DefaultBrandCardPreview() {
-    BrandCard { Text("Default card") }
+    PreviewBrandTheme { BrandCard { Text("Default card") } }
 }
 
 @Preview @Composable
 private fun RaisedBrandCardPreview() {
-    BrandCard(raised = true) { Text("Raised card") }
+    PreviewBrandTheme { BrandCard(raised = true) { Text("Raised card") } }
 }
 
 @Preview @Composable
 private fun SelectedBrandCardPreview() {
-    BrandCard(selected = true) { Text("Selected card") }
+    PreviewBrandTheme { BrandCard(selected = true) { Text("Selected card") } }
 }
 
 @Preview @Composable
 private fun ClickableBrandCardPreview() {
-    BrandCard(onClick = {}) { Text("Clickable card") }
+    PreviewBrandTheme { BrandCard(onClick = {}) { Text("Clickable card") } }
 }

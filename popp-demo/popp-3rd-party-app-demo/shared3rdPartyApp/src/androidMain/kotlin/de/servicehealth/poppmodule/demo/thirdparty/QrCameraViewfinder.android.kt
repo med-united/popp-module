@@ -24,7 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -45,6 +47,12 @@ actual fun QrCameraViewfinder(
     onActiveChange: (Boolean) -> Unit,
     modifier: Modifier,
 ) {
+    if (LocalInspectionMode.current) {
+        LaunchedEffect(Unit) { onActiveChange(true) }
+        Box(modifier.background(Color.Black))
+        return
+    }
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModel = viewModel { QrScannerViewModel(context.applicationContext) }

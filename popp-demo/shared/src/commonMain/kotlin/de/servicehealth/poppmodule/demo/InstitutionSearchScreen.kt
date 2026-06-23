@@ -43,6 +43,7 @@ import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import kotlinx.coroutines.delay
 
 // ── Data model ──────────────────────────────────────────────────────────────
@@ -88,164 +89,162 @@ fun InstitutionSearchScreen(
         hasSearched = true
     }
 
-    BrandTheme {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(c.white)
+                .safeContentPadding(),
+    ) {
+        // ── Header -──────────────────────────────────────────────────
+        BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
+
+        // ── Navigation ───────────────────────────────────────────────
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Zurück",
+                    tint = c.violet,
+                    modifier =
+                        Modifier
+                            .size(24.dp)
+                            .clickable { onBack() },
+                )
+                Text(
+                    text = "Zurück",
+                    color = c.violet,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.clickable { onBack() },
+                )
+                Spacer(Modifier.weight(1f))
+                BrandProgressDots(stepCount = 4, currentStep = 1)
+            }
+        }
+
+        // ── Content ──────────────────────────────────────────────────
         Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(c.white)
-                    .safeContentPadding(),
+                    .imePadding()
+                    .padding(horizontal = 20.dp),
         ) {
-            // ── Header -──────────────────────────────────────────────────
-            BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
+            Spacer(Modifier.height(24.dp))
 
-            // ── Navigation ───────────────────────────────────────────────
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 18.dp),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+            Text(
+                text = "Einrichtung suchen",
+                color = c.ink,
+                style = MaterialTheme.typography.displaySmall,
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            BrandField(
+                value = query,
+                onValueChange = { query = it },
+                placeholder = "Apotheke oder Praxis suchen\u2026",
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Zurück",
-                        tint = c.violet,
-                        modifier =
-                            Modifier
-                                .size(24.dp)
-                                .clickable { onBack() },
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = if (query.isNotEmpty()) c.violet else c.silver,
+                        modifier = Modifier.size(20.dp),
                     )
-                    Text(
-                        text = "Zurück",
-                        color = c.violet,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.clickable { onBack() },
-                    )
-                    Spacer(Modifier.weight(1f))
-                    BrandProgressDots(stepCount = 4, currentStep = 1)
+                },
+                trailingIcon =
+                    if (query.isNotEmpty()) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Löschen",
+                                tint = c.silver,
+                                modifier =
+                                    Modifier
+                                        .size(18.dp)
+                                        .clickable { query = "" },
+                            )
+                        }
+                    } else {
+                        null
+                    },
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            when {
+                isLoading -> {
+                    Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
+                        BrandSpinner(color = c.violet)
+                    }
                 }
-            }
 
-            // ── Content ──────────────────────────────────────────────────
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .imePadding()
-                        .padding(horizontal = 20.dp),
-            ) {
-                Spacer(Modifier.height(24.dp))
-
-                Text(
-                    text = "Einrichtung suchen",
-                    color = c.ink,
-                    style = MaterialTheme.typography.displaySmall,
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                BrandField(
-                    value = query,
-                    onValueChange = { query = it },
-                    placeholder = "Apotheke oder Praxis suchen\u2026",
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = {
+                query.isBlank() -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = if (query.isNotEmpty()) c.violet else c.silver,
-                            modifier = Modifier.size(20.dp),
+                            tint = c.silver,
+                            modifier = Modifier.size(48.dp),
                         )
-                    },
-                    trailingIcon =
-                        if (query.isNotEmpty()) {
-                            {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Löschen",
-                                    tint = c.silver,
-                                    modifier =
-                                        Modifier
-                                            .size(18.dp)
-                                            .clickable { query = "" },
-                                )
-                            }
-                        } else {
-                            null
-                        },
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                when {
-                    isLoading -> {
-                        Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
-                            BrandSpinner(color = c.violet)
-                        }
-                    }
-
-                    query.isBlank() -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = c.silver,
-                                modifier = Modifier.size(48.dp),
-                            )
-                            Text(
-                                text = "Tippen Sie z.\u00a0B. \u201eApotheke\u201c, \u201eMarkt\u201c\noder einen Praxisnamen, um\nEinrichtungen zu finden.",
-                                color = c.neutral700,
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            )
-                        }
-                    }
-
-                    hasSearched && results.isEmpty() -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = c.silver,
-                                modifier = Modifier.size(48.dp),
-                            )
-                            Text(
-                                text = "Keine Einrichtung gefunden.",
-                                color = c.neutral700,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    }
-
-                    results.isNotEmpty() -> {
                         Text(
-                            text = "${results.size} Ergebnis${if (results.size != 1) "se" else ""}",
+                            text = "Tippen Sie z.\u00a0B. \u201eApotheke\u201c, \u201eMarkt\u201c\noder einen Praxisnamen, um\nEinrichtungen zu finden.",
                             color = c.neutral700,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         )
-                        Spacer(Modifier.height(10.dp))
-                        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(results) { institution ->
-                                InstitutionRow(
-                                    institution = institution,
-                                    onClick = { onInstitutionSelected(institution) },
-                                )
-                            }
-                            item { Spacer(Modifier.height(24.dp)) }
+                    }
+                }
+
+                hasSearched && results.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = c.silver,
+                            modifier = Modifier.size(48.dp),
+                        )
+                        Text(
+                            text = "Keine Einrichtung gefunden.",
+                            color = c.neutral700,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+
+                results.isNotEmpty() -> {
+                    Text(
+                        text = "${results.size} Ergebnis${if (results.size != 1) "se" else ""}",
+                        color = c.neutral700,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(results) { institution ->
+                            InstitutionRow(
+                                institution = institution,
+                                onClick = { onInstitutionSelected(institution) },
+                            )
                         }
+                        item { Spacer(Modifier.height(24.dp)) }
                     }
                 }
             }
@@ -343,14 +342,14 @@ private val previewInstitutions =
 @Preview
 @Composable
 private fun InstitutionSearchScreen_EmptyPreview() {
-    InstitutionSearchScreen(onClose = {})
+    PreviewBrandTheme { InstitutionSearchScreen(onClose = {}) }
 }
 
 @Preview
 @Composable
 private fun InstitutionSearchScreen_ResultsPreview() {
     val c = BrandTheme.colors
-    BrandTheme {
+    PreviewBrandTheme {
         Column(
             modifier =
                 Modifier
@@ -376,23 +375,17 @@ private fun InstitutionSearchScreen_ResultsPreview() {
 @Preview
 @Composable
 private fun InstitutionRow_PharmacyPreview() {
-    BrandTheme {
-        InstitutionRow(institution = previewInstitutions[0], onClick = {})
-    }
+    PreviewBrandTheme { InstitutionRow(institution = previewInstitutions[0], onClick = {}) }
 }
 
 @Preview
 @Composable
 private fun InstitutionRow_PracticePreview() {
-    BrandTheme {
-        InstitutionRow(institution = previewInstitutions[1], onClick = {})
-    }
+    PreviewBrandTheme { InstitutionRow(institution = previewInstitutions[1], onClick = {}) }
 }
 
 @Preview
 @Composable
 private fun InstitutionRow_OnlinePreview() {
-    BrandTheme {
-        InstitutionRow(institution = previewInstitutions[2], onClick = {})
-    }
+    PreviewBrandTheme { InstitutionRow(institution = previewInstitutions[2], onClick = {}) }
 }

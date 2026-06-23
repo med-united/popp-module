@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,7 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
 import de.servicehealth.poppmodule.theme.BrandButtonVariant
@@ -41,6 +44,7 @@ import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTag
 import de.servicehealth.poppmodule.theme.BrandTagTone
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import de.servicehealth.poppmodule.theme.SegmentedOption
 
 /**
@@ -50,44 +54,42 @@ import de.servicehealth.poppmodule.theme.SegmentedOption
  */
 @Composable
 fun BrandShowcaseScreen(onOpenCheckIn: (() -> Unit)? = null) {
-    BrandTheme {
-        val c = BrandTheme.colors
+    val c = BrandTheme.colors
+    Column(
+        modifier =
+            Modifier
+                .background(c.mist)
+                .fillMaxSize(),
+    ) {
+        ShowcaseHeader()
         Column(
             modifier =
                 Modifier
-                    .background(c.mist)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .safeContentPadding()
+                    .padding(horizontal = 20.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
-            ShowcaseHeader()
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .safeContentPadding()
-                        .padding(horizontal = 20.dp, vertical = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(28.dp),
-            ) {
-                if (onOpenCheckIn != null) {
-                    BrandButton(
-                        text = "Vor-Ort-Check-In öffnen",
-                        onClick = onOpenCheckIn,
-                        variant = BrandButtonVariant.Primary,
-                        size = BrandButtonSize.Lg,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                SdkSection()
-                ColorSection(c)
-                TypographySection()
-                ButtonSection()
-                TagSection()
-                CardSection()
-                FieldSection()
-                SegmentedSection()
-                SpinnerSection()
-                Spacer(Modifier.height(16.dp))
+            if (onOpenCheckIn != null) {
+                BrandButton(
+                    text = "Vor-Ort-Check-In öffnen",
+                    onClick = onOpenCheckIn,
+                    variant = BrandButtonVariant.Primary,
+                    size = BrandButtonSize.Lg,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
+            SdkSection()
+            ColorSection(c)
+            TypographySection()
+            ButtonSection()
+            TagSection()
+            CardSection()
+            FieldSection()
+            SegmentedSection()
+            SpinnerSection()
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -502,5 +504,12 @@ private fun SpinnerSection() {
                 }
             }
         }
+    }
+}
+
+@Preview @Composable
+private fun BrandShowcaseScreenPreview() {
+    CompositionLocalProvider(LocalPoppSdk provides PoppSdk()) {
+        PreviewBrandTheme { BrandShowcaseScreen() }
     }
 }

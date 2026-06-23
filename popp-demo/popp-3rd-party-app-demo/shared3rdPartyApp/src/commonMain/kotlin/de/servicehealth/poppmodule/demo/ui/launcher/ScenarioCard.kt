@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 
 /**
  * A single-select scenario tile. Wraps [BrandCard] with `selected` styling and a
@@ -60,5 +62,29 @@ fun ScenarioCard(
                 }
             }
         }
+    }
+}
+
+@Preview @Composable
+private fun UnselectedScenarioCardPreview() {
+    PreviewBrandTheme {
+        ScenarioCard(
+            title = "Szenario A",
+            subtitle = "Beschreibung des Szenarios",
+            selected = false,
+            onClick = {},
+        )
+    }
+}
+
+@Preview @Composable
+private fun SelectedScenarioCardPreview() {
+    PreviewBrandTheme {
+        ScenarioCard(
+            title = "Szenario A",
+            subtitle = "Beschreibung des Szenarios",
+            selected = true,
+            onClick = {},
+        )
     }
 }

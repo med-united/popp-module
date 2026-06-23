@@ -60,6 +60,8 @@ kotlin {
             implementation(libs.androidx.security.crypto)
             // Ktor JVM/Android engine for the WebSocket scenario transport.
             implementation(libs.ktor.client.cio)
+            // PACE + secure messaging for the NFC eGK channel (POPPM-119).
+            implementation(libs.bouncycastle.bcprov)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -1,6 +1,6 @@
 package de.servicehealth.poppmodule.sdk.federation.http
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 
-internal actual fun createFederationHttpClient(): HttpClient = HttpClient(CIO)
+internal actual fun createFederationHttpClient(): HttpClient = HttpClient(OkHttp)

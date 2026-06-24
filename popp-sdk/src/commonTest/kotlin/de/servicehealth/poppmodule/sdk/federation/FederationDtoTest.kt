@@ -11,21 +11,21 @@ class FederationDtoTest {
             """
             {
               "metadata": {
-                "federation_master": {
+                "federation_entity": {
                   "idp_list_endpoint": "https://fed.example/idp_list"
                 }
               }
             }
             """.trimIndent()
         val statement = FederationJson.instance.decodeFromString<FederationEntityStatement>(json)
-        assertEquals("https://fed.example/idp_list", statement.metadata.federationMaster?.idpListEndpoint)
+        assertEquals("https://fed.example/idp_list", statement.metadata.federationEntity?.idpListEndpoint)
     }
 
     @Test
-    fun entityStatement_missing_federation_master_yields_null() {
+    fun entityStatement_missing_federation_entity_yields_null() {
         val json = """{"metadata": {}}"""
         val statement = FederationJson.instance.decodeFromString<FederationEntityStatement>(json)
-        assertNull(statement.metadata.federationMaster)
+        assertNull(statement.metadata.federationEntity)
     }
 
     @Test
@@ -36,7 +36,7 @@ class FederationDtoTest {
               "iss": "https://fed.example",
               "exp": 9999999999,
               "metadata": {
-                "federation_master": {
+                "federation_entity": {
                   "idp_list_endpoint": "https://fed.example/idp_list",
                   "future_field": "ignored"
                 }
@@ -44,7 +44,7 @@ class FederationDtoTest {
             }
             """.trimIndent()
         val statement = FederationJson.instance.decodeFromString<FederationEntityStatement>(json)
-        assertEquals("https://fed.example/idp_list", statement.metadata.federationMaster?.idpListEndpoint)
+        assertEquals("https://fed.example/idp_list", statement.metadata.federationEntity?.idpListEndpoint)
     }
 
     @Test

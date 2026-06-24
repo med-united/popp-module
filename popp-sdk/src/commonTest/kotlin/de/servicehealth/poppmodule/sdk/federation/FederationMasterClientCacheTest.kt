@@ -17,7 +17,7 @@ class FederationMasterClientCacheTest {
         """
         {
           "metadata": {
-            "federation_master": {
+            "federation_entity": {
               "idp_list_endpoint": "https://fed.example/idp_list"
             }
           }

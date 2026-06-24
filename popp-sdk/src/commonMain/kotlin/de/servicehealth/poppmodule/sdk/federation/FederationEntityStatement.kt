@@ -11,12 +11,12 @@ internal data class FederationEntityStatement(
 
 @Serializable
 internal data class FederationMetadata(
-    @SerialName("federation_master")
-    val federationMaster: FederationMasterMetadata? = null,
+    @SerialName("federation_entity")
+    val federationEntity: FederationEntityMetadata? = null,
 )
 
 @Serializable
-internal data class FederationMasterMetadata(
+internal data class FederationEntityMetadata(
     @SerialName("idp_list_endpoint")
     val idpListEndpoint: String,
 )

@@ -60,6 +60,7 @@ kotlin {
             implementation(libs.androidx.security.crypto)
             // Ktor JVM/Android engine for the WebSocket scenario transport.
             implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.nimbus.jose.jwt)
         }
         iosMain.dependencies {

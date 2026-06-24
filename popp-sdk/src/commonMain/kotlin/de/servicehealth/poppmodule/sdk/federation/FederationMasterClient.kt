@@ -102,9 +102,9 @@ class FederationMasterClient(
             }
 
         val idpListEndpoint =
-            entityStatement.metadata.federationMaster?.idpListEndpoint
+            entityStatement.metadata.federationEntity?.idpListEndpoint
                 ?: throw PoppSdkError.Protocol(
-                    "idp_list_endpoint missing in metadata.federation_master — check the Federation Master entity statement",
+                    "idp_list_endpoint missing in metadata.federation_entity — check the Federation Master entity statement",
                 )
         if (!idpListEndpoint.startsWith("https://")) {
             throw PoppSdkError.Protocol(

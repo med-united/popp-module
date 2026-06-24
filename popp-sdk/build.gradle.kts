@@ -61,6 +61,8 @@ kotlin {
             // Ktor JVM/Android engine for the WebSocket scenario transport.
             implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.okhttp)
+            // PACE + secure messaging for the NFC eGK channel (POPPM-119).
+            implementation(libs.bouncycastle.bcprov)
             implementation(libs.nimbus.jose.jwt)
         }
         iosMain.dependencies {

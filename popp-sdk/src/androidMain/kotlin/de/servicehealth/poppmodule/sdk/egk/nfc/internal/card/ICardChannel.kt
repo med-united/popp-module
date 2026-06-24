@@ -1,0 +1,59 @@
+/*
+ * Copyright (Change Date see Readme), gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+ * Modified by the PoPP-Module project (POPPM-119) — see NOTICE.md at the repository root.
+ */
+
+package de.servicehealth.poppmodule.sdk.egk.nfc.internal.card
+
+import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.CommandApdu
+import de.servicehealth.poppmodule.sdk.egk.nfc.internal.command.ResponseApdu
+
+/**
+ * Interface to a (logical) channel of a smart card.
+ * A channel object is used to send commands to and to receive answers from a smartcard.
+ * This is done by sending so called A-PDUs [CommandApdu] to smartcard. A smartcard returns
+ * a [ResponseApdu]
+ */
+internal interface ICardChannel {
+    /**
+     * Max transceive length
+     */
+    val maxTransceiveLength: Int
+
+    /**
+     * Transmits the specified [CommandApdu] to the associated smartcard and returns the
+     * [ResponseApdu].
+     *
+     * The CLA byte of the [CommandApdu] is automatically adjusted to match the channel number of this card channel
+     * since the channel number is coded into CLA byte of a command APDU according to ISO 7816-4.
+     *
+     * Implementations should transparently handle artifacts of the transmission protocol.
+     *
+     * The ResponseAPDU returned by this method is the result after this processing has been performed.
+     */
+    fun transmit(command: CommandApdu): ResponseApdu
+
+    /**
+     * Identify whether a channel supports APDU extended length commands and
+     * appropriate responses
+     */
+    val isExtendedLengthSupported: Boolean
+}

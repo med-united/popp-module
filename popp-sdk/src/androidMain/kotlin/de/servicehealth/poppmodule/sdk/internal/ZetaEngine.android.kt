@@ -16,6 +16,8 @@ import de.servicehealth.poppmodule.sdk.PoppSdkConfig
 import de.servicehealth.poppmodule.sdk.PoppSdkError
 import de.servicehealth.poppmodule.sdk.PoppSubjectTokenProvider
 import de.servicehealth.poppmodule.sdk.TokenProviderConfig
+import de.servicehealth.poppmodule.sdk.egk.PoppServiceTransport
+import de.servicehealth.poppmodule.sdk.egk.transport.ZetaWsTransport
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 import de.gematik.zeta.sdk.BuildConfig as ZetaBuildConfig
 import de.gematik.zeta.sdk.attestation.model.AttestationConfig as ZetaAttestationConfig
@@ -46,6 +48,14 @@ internal class AndroidZetaEngine(
         val httpClient = zetaClient.httpClient {}
         return httpClient.get("/hellozeta").bodyAsText()
     }
+
+    override fun scenarioTransport(): PoppServiceTransport =
+        ZetaWsTransport(
+            zetaClient,
+            config.fqdn,
+            // DEV/TEST CA, mirroring toZetaBuildConfig below. Null in production (platform trust store).
+            caPem = System.getProperty("popp.integration.ca.pem.file")?.let { java.io.File(it).readText() },
+        )
 }
 
 internal actual fun createZetaEngine(

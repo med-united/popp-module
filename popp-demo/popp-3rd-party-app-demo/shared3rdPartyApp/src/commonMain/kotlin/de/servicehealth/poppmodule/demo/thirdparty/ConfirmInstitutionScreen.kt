@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.LocalHospital
 import androidx.compose.material.icons.rounded.LocationOn
@@ -209,10 +210,11 @@ fun ConfirmInstitutionScreen(
                     variant = BrandButtonVariant.Primary,
                     size = BrandButtonSize.Lg,
                     trailingIcon = {
-                        Text(
-                            text = "->",
-                            color = c.white,
-                            fontSize = 17.sp,
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                            contentDescription = null,
+                            tint = c.white,
+                            modifier = Modifier.size(20.dp),
                         )
                     },
                 )

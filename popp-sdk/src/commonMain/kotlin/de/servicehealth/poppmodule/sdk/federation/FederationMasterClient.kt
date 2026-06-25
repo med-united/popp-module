@@ -10,6 +10,7 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.yield
 import kotlin.concurrent.Volatile
 
 class FederationMasterClient(
@@ -44,6 +45,9 @@ class FederationMasterClient(
     suspend fun fetchIdpList(forceRefresh: Boolean = false): List<FederationIdp> {
         if (!forceRefresh) cachedList?.let { return it }
         val snapshot = cachedList
+        // Yield so that other concurrent forceRefresh callers capture the same stale snapshot
+        // before any of them acquires the mutex and updates the cache.
+        yield()
         return fetchMutex.withLock {
             val current = cachedList
             when {

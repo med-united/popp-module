@@ -44,6 +44,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.demo.generated.resources.Res
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_back
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_clear
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_empty_hint
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_field_placeholder
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_header
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_no_results
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_results_one
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_results_other
+import de.servicehealth.poppmodule.demo.generated.resources.institution_search_title
 import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandField
@@ -52,6 +62,7 @@ import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 // ── Data model ──────────────────────────────────────────────────────────────
 
@@ -111,7 +122,7 @@ fun InstitutionSearchScreen(
                     .safeContentPadding(),
         ) {
             // ── Header -──────────────────────────────────────────────────
-            BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
+            BrandScreenHeader(title = stringResource(Res.string.institution_search_header), onClose = onClose)
 
             // ── Navigation ───────────────────────────────────────────────
             Column(
@@ -125,7 +136,7 @@ fun InstitutionSearchScreen(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    BrandBackButton(label = "Zurück", onClick = onBack)
+                    BrandBackButton(label = stringResource(Res.string.institution_search_back), onClick = onBack)
                     Spacer(Modifier.weight(1f))
                     BrandProgressDots(stepCount = 4, currentStep = 0)
                 }
@@ -142,9 +153,9 @@ fun InstitutionSearchScreen(
                 Spacer(Modifier.height(24.dp))
 
                 Text(
-                    text = "Einrichtung suchen",
+                    text = stringResource(Res.string.institution_search_title),
                     color = c.ink,
-                    style = MaterialTheme.typography.displaySmall,
+                    style = BrandTheme.typography.displaySmall,
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -152,7 +163,7 @@ fun InstitutionSearchScreen(
                 BrandField(
                     value = query,
                     onValueChange = { query = it },
-                    placeholder = "Apotheke oder Praxis suchen\u2026",
+                    placeholder = stringResource(Res.string.institution_search_field_placeholder),
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
                         Icon(
@@ -167,7 +178,7 @@ fun InstitutionSearchScreen(
                             {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Löschen",
+                                    contentDescription = stringResource(Res.string.institution_search_clear),
                                     tint = c.silver,
                                     modifier =
                                         Modifier
@@ -202,7 +213,7 @@ fun InstitutionSearchScreen(
                                 modifier = Modifier.size(48.dp),
                             )
                             Text(
-                                text = "Tippen Sie z.\u00a0B. \u201eApotheke\u201c, \u201eMarkt\u201c\noder einen Praxisnamen, um\nEinrichtungen zu finden.",
+                                text = stringResource(Res.string.institution_search_empty_hint),
                                 color = c.neutral700,
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -223,7 +234,7 @@ fun InstitutionSearchScreen(
                                 modifier = Modifier.size(48.dp),
                             )
                             Text(
-                                text = "Keine Einrichtung gefunden.",
+                                text = stringResource(Res.string.institution_search_no_results),
                                 color = c.neutral700,
                                 style = MaterialTheme.typography.bodyMedium,
                             )
@@ -232,7 +243,12 @@ fun InstitutionSearchScreen(
 
                     results.isNotEmpty() -> {
                         Text(
-                            text = "${results.size} Ergebnis${if (results.size != 1) "se" else ""}",
+                            text =
+                                if (results.size == 1) {
+                                    stringResource(Res.string.institution_search_results_one, results.size)
+                                } else {
+                                    stringResource(Res.string.institution_search_results_other, results.size)
+                                },
                             color = c.neutral700,
                             style = MaterialTheme.typography.bodySmall,
                         )

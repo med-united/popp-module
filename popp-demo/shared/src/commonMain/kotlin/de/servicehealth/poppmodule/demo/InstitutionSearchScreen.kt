@@ -113,165 +113,163 @@ fun InstitutionSearchScreen(
         hasSearched = true
     }
 
-    BrandTheme {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(c.white)
+                .safeContentPadding(),
+    ) {
+        // ── Header -──────────────────────────────────────────────────
+        BrandScreenHeader(title = stringResource(Res.string.institution_search_header), onClose = onClose)
+
+        // ── Navigation ───────────────────────────────────────────────
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                BrandBackButton(label = stringResource(Res.string.institution_search_back), onClick = onBack)
+                Spacer(Modifier.weight(1f))
+                BrandProgressDots(stepCount = 4, currentStep = 0)
+            }
+        }
+
+        // ── Content ──────────────────────────────────────────────────
         Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(c.white)
-                    .safeContentPadding(),
+                    .imePadding()
+                    .padding(horizontal = 20.dp),
         ) {
-            // ── Header -──────────────────────────────────────────────────
-            BrandScreenHeader(title = stringResource(Res.string.institution_search_header), onClose = onClose)
+            Spacer(Modifier.height(24.dp))
 
-            // ── Navigation ───────────────────────────────────────────────
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 18.dp),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    BrandBackButton(label = stringResource(Res.string.institution_search_back), onClick = onBack)
-                    Spacer(Modifier.weight(1f))
-                    BrandProgressDots(stepCount = 4, currentStep = 0)
+            Text(
+                text = stringResource(Res.string.institution_search_title),
+                color = c.ink,
+                style = BrandTheme.typography.displaySmall,
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            BrandField(
+                value = query,
+                onValueChange = { query = it },
+                placeholder = stringResource(Res.string.institution_search_field_placeholder),
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = if (query.isNotEmpty()) c.violet else c.silver,
+                        modifier = Modifier.size(20.dp),
+                    )
+                },
+                trailingIcon =
+                    if (query.isNotEmpty()) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(Res.string.institution_search_clear),
+                                tint = c.silver,
+                                modifier =
+                                    Modifier
+                                        .size(18.dp)
+                                        .clickable { query = "" },
+                            )
+                        }
+                    } else {
+                        null
+                    },
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            when {
+                isLoading -> {
+                    Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
+                        BrandSpinner(color = c.violet)
+                    }
                 }
-            }
 
-            // ── Content ──────────────────────────────────────────────────
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .imePadding()
-                        .padding(horizontal = 20.dp),
-            ) {
-                Spacer(Modifier.height(24.dp))
-
-                Text(
-                    text = stringResource(Res.string.institution_search_title),
-                    color = c.ink,
-                    style = BrandTheme.typography.displaySmall,
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                BrandField(
-                    value = query,
-                    onValueChange = { query = it },
-                    placeholder = stringResource(Res.string.institution_search_field_placeholder),
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = {
+                query.isBlank() -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = if (query.isNotEmpty()) c.violet else c.silver,
-                            modifier = Modifier.size(20.dp),
+                            tint = c.silver,
+                            modifier = Modifier.size(48.dp),
                         )
-                    },
-                    trailingIcon =
-                        if (query.isNotEmpty()) {
-                            {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(Res.string.institution_search_clear),
-                                    tint = c.silver,
-                                    modifier =
-                                        Modifier
-                                            .size(18.dp)
-                                            .clickable { query = "" },
-                                )
-                            }
-                        } else {
-                            null
-                        },
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                when {
-                    isLoading -> {
-                        Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
-                            BrandSpinner(color = c.violet)
-                        }
-                    }
-
-                    query.isBlank() -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = c.silver,
-                                modifier = Modifier.size(48.dp),
-                            )
-                            Text(
-                                text = stringResource(Res.string.institution_search_empty_hint),
-                                color = c.neutral700,
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            )
-                        }
-                    }
-
-                    hasSearched && results.isEmpty() -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = c.silver,
-                                modifier = Modifier.size(48.dp),
-                            )
-                            Text(
-                                text = stringResource(Res.string.institution_search_no_results),
-                                color = c.neutral700,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    }
-
-                    results.isNotEmpty() -> {
                         Text(
-                            text =
-                                if (results.size == 1) {
-                                    stringResource(Res.string.institution_search_results_one, results.size)
-                                } else {
-                                    stringResource(Res.string.institution_search_results_other, results.size)
-                                },
+                            text = stringResource(Res.string.institution_search_empty_hint),
                             color = c.neutral700,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         )
-                        Spacer(Modifier.height(10.dp))
-                        LazyColumn {
-                            item {
-                                BrandCard(padding = PaddingValues(0.dp)) {
-                                    Column {
-                                        results.forEachIndexed { index, institution ->
-                                            InstitutionRow(
-                                                institution = institution,
-                                                isFavorite = institution.id in favoriteIds,
-                                                onClick = { onInstitutionSelected(institution) },
-                                            )
-                                            if (index != results.lastIndex) {
-                                                HorizontalDivider(color = c.mist)
-                                            }
+                    }
+                }
+
+                hasSearched && results.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = c.silver,
+                            modifier = Modifier.size(48.dp),
+                        )
+                        Text(
+                            text = stringResource(Res.string.institution_search_no_results),
+                            color = c.neutral700,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+
+                results.isNotEmpty() -> {
+                    Text(
+                        text =
+                            if (results.size == 1) {
+                                stringResource(Res.string.institution_search_results_one, results.size)
+                            } else {
+                                stringResource(Res.string.institution_search_results_other, results.size)
+                            },
+                        color = c.neutral700,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    LazyColumn {
+                        item {
+                            BrandCard(padding = PaddingValues(0.dp)) {
+                                Column {
+                                    results.forEachIndexed { index, institution ->
+                                        InstitutionRow(
+                                            institution = institution,
+                                            isFavorite = institution.id in favoriteIds,
+                                            onClick = { onInstitutionSelected(institution) },
+                                        )
+                                        if (index != results.lastIndex) {
+                                            HorizontalDivider(color = c.mist)
                                         }
                                     }
                                 }
                             }
-                            item { Spacer(Modifier.height(24.dp)) }
                         }
+                        item { Spacer(Modifier.height(24.dp)) }
                     }
                 }
             }

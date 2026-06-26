@@ -133,7 +133,7 @@ fun InstitutionSearchScreen(
                         .padding(top = 18.dp),
             ) {
                 Row(
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     BrandBackButton(label = stringResource(Res.string.institution_search_back), onClick = onBack)

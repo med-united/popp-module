@@ -13,7 +13,7 @@
     <string name="mode_app2app_desc">Die Demo-App überträgt die Authentifizierung an die Versicherungs-App.</string>
     <string name="start_demo_button">Starte die Demo</string>
 
-    <string name="checkin_entry_header">VOR-ORT-CHECK-IN</string>
+    <string name="application_title">VOR-ORT-CHECK-IN</string>
     <string name="checkin_entry_question">Wo möchten Sie\neinchecken?</string>
     <string name="checkin_entry_subtitle">Wählen Sie die Einrichtung (LEI), bei der Sie sich vor Ort anmelden.</string>
     <string name="checkin_entry_search_title">Suchen</string>

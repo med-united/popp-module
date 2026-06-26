@@ -65,6 +65,7 @@ fun InstitutionSearchScreen(
     onClose: () -> Unit,
     onBack: () -> Unit = {},
     onInstitutionSelected: (Institution) -> Unit = {},
+    applicationTitle: String,
 ) {
     val c = BrandTheme.colors
     var query by remember { mutableStateOf("") }
@@ -97,7 +98,7 @@ fun InstitutionSearchScreen(
                 .safeContentPadding(),
     ) {
         // ── Header -──────────────────────────────────────────────────
-        BrandScreenHeader(title = "VOR-ORT-CHECK-IN", onClose = onClose)
+        BrandScreenHeader(title = applicationTitle, onClose = onClose)
 
         // ── Navigation ───────────────────────────────────────────────
         Column(
@@ -342,7 +343,7 @@ private val previewInstitutions =
 @Preview
 @Composable
 private fun InstitutionSearchScreen_EmptyPreview() {
-    PreviewBrandTheme { InstitutionSearchScreen(onClose = {}) }
+    PreviewBrandTheme { InstitutionSearchScreen(onClose = {}, applicationTitle = "Preview Application") }
 }
 
 @Preview

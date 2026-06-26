@@ -20,6 +20,9 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }
+        androidResources {
+            enable = true
+        }
         withHostTest {
             isIncludeAndroidResources = true
         }
@@ -44,6 +47,8 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.coil3.compose)
+            implementation(libs.coil3.network.ktor3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

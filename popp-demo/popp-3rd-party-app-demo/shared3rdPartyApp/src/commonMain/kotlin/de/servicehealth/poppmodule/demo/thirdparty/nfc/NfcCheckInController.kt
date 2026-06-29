@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.concurrent.Volatile
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val COMPLETED_HOLD_MILLIS = 1000L
 
@@ -18,6 +21,7 @@ private const val COMPLETED_HOLD_MILLIS = 1000L
  * resulting [NfcScanUiState] as a [StateFlow]. Single-shot — the first card (or source error) is
  * consumed; later taps are ignored until [stop] (the reader is disabled on dispose).
  */
+@OptIn(ExperimentalAtomicApi::class)
 class NfcCheckInController(
     private val source: EgkChannelSource,
     private val runner: CheckInRunner,
@@ -30,23 +34,20 @@ class NfcCheckInController(
     @Volatile
     private var started = false
 
-    @Volatile
-    private var consumed = false
+    private val consumed = AtomicBoolean(false)
 
     fun start(can: String) {
-        if (started || consumed) return
+        if (started || consumed.load()) return
         started = true
         source.start(
             can = can,
             onCard = { channel ->
-                if (!consumed) {
-                    consumed = true
+                if (consumed.compareAndSet(expectedValue = false, newValue = true)) {
                     runCheckIn(channel)
                 }
             },
             onError = { error ->
-                if (!consumed) {
-                    consumed = true
+                if (consumed.compareAndSet(expectedValue = false, newValue = true)) {
                     _state.value = NfcScanUiState.Failed(error.toNfcScanFailure(), error.message)
                 }
             },
@@ -73,8 +74,12 @@ class NfcCheckInController(
                         is EgkCheckInResult.Failed ->
                             NfcScanUiState.Failed(NfcScanFailure.SERVER_REJECTED, result.detail)
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: PoppSdkError) {
                     NfcScanUiState.Failed(e.toNfcScanFailure(), e.message)
+                } catch (e: Exception) {
+                    NfcScanUiState.Failed(NfcScanFailure.UNKNOWN, e.message)
                 }
         }
     }

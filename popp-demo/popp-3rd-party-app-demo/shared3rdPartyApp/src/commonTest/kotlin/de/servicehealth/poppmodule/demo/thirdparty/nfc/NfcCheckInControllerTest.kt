@@ -73,6 +73,22 @@ class NfcCheckInControllerTest {
         }
 
     @Test
+    fun non_sdk_runner_exception_maps_to_unknown() =
+        runTest {
+            val source = FakeEgkChannelSource()
+            val runner = CheckInRunner { _, _ -> throw IllegalStateException("malformed server JSON") }
+            val controller = NfcCheckInController(source, runner, scope = backgroundScope)
+
+            controller.start("123456")
+            runCurrent()
+
+            assertEquals(
+                NfcScanUiState.Failed(NfcScanFailure.UNKNOWN, "malformed server JSON"),
+                controller.state.value,
+            )
+        }
+
+    @Test
     fun source_error_is_surfaced() =
         runTest {
             val source = FakeEgkChannelSource(error = PoppSdkError.PlatformUnsupported("no NFC"))

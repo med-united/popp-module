@@ -65,8 +65,6 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-// ── Data model ──────────────────────────────────────────────────────────────
-
 enum class InstitutionType { PHARMACY, PRACTICE, ONLINE }
 
 data class Institution(
@@ -76,8 +74,6 @@ data class Institution(
     val type: InstitutionType,
     val telematicsId: String,
 )
-
-// ── Screen ───────────────────────────────────────────────────────────────────
 
 @Composable
 fun InstitutionSearchScreen(
@@ -93,7 +89,6 @@ fun InstitutionSearchScreen(
     var hasSearched by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Debounced search — fires 400ms after user stops typing
     LaunchedEffect(query) {
         if (query.isBlank()) {
             results = emptyList()
@@ -104,7 +99,6 @@ fun InstitutionSearchScreen(
         delay(400)
         isLoading = true
         errorMessage = null
-        // Filters the mock institutions until PoppSdk.searchInstitutions(query) is wired up — POPPM-116
         results =
             mockInstitutions.filter { institution ->
                 institution.name.contains(query, ignoreCase = true) ||
@@ -121,10 +115,8 @@ fun InstitutionSearchScreen(
                 .background(c.white)
                 .safeContentPadding(),
     ) {
-        // ── Header -──────────────────────────────────────────────────
         BrandScreenHeader(title = stringResource(Res.string.institution_search_header), onClose = onClose)
 
-        // ── Navigation ───────────────────────────────────────────────
         Column(
             modifier =
                 Modifier
@@ -142,7 +134,6 @@ fun InstitutionSearchScreen(
             }
         }
 
-        // ── Content ──────────────────────────────────────────────────
         Column(
             modifier =
                 Modifier
@@ -273,8 +264,6 @@ fun InstitutionSearchScreen(
     }
 }
 
-// ── Row item ─────────────────────────────────────────────────────────────────
-
 @Composable
 private fun InstitutionRow(
     institution: Institution,
@@ -347,11 +336,6 @@ private fun InstitutionRow(
     }
 }
 
-// ── Mock data ────────────────────────────────────────────────────────────────
-// Single source of truth for the demo's hardcoded institutions — shared by the
-// favorites list (OnsiteCheckInEntryScreen), this search screen, and the
-// confirmation screen's stub fallback.
-
 val mockInstitutions =
     listOf(
         Institution(
@@ -384,8 +368,6 @@ fun InstitutionType.icon(): ImageVector =
         InstitutionType.PRACTICE -> Icons.Rounded.MedicalServices
         InstitutionType.ONLINE -> Icons.Rounded.Videocam
     }
-
-// ── Previews ──────────────────────────────────────────────────────────────────
 
 @Preview
 @Composable

@@ -82,15 +82,11 @@ fun CanInputScreen(
         }
     }
 
-    // Fresh entry: persist + auto-advance once the 6th digit is typed.
-    // NOTE: `navigated` must NOT be a key here. It is written inside the effect, so keying
-    // on it would cancel this coroutine mid-`delay` before `onComplete()` runs. The inner
-    // `!navigated` check still guards against re-entry.
     LaunchedEffect(state.isComplete, prefilled) {
         if (state.isComplete && !prefilled && !navigated) {
-            navigated = true
             canStore.save(state.digits)
             delay(AUTO_ADVANCE_DELAY_MS)
+            navigated = true
             onComplete()
         }
     }

@@ -20,6 +20,9 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }
+        androidResources {
+            enable = true
+        }
         withHostTest {
             isIncludeAndroidResources = true
         }
@@ -48,6 +51,20 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        val androidHostTest by getting {
+            dependencies {
+                implementation(libs.robolectric)
+                implementation(libs.roborazzi.core)
+                implementation(libs.roborazzi.compose)
+                implementation(libs.roborazzi.preview.scanner)
+                implementation(libs.compose.ui.test.manifest)
+                implementation(libs.compose.ui.test)
+                implementation(libs.compose.ui.test.junit4)
+                implementation(libs.androidx.testExt.junit)
+                // Required at runtime by AndroidComposePreviewTester to scan @Preview functions
+                runtimeOnly(libs.composable.preview.scanner.android)
+            }
+        }
     }
 }
 
@@ -57,4 +74,20 @@ compose.resources {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+}
+
+// Mode control — read at configuration time (configuration-cache safe)
+tasks.withType<Test>().configureEach {
+    val requestedTasks = gradle.startParameter.taskNames
+    val mode =
+        when {
+            requestedTasks.any { it.contains("recordSnapshots") } -> "record"
+            requestedTasks.any { it.contains("verifySnapshots") } -> "verify"
+            else -> project.findProperty("roborazziMode")?.toString()
+        }
+    when (mode) {
+        "record" -> systemProperty("roborazzi.test.record", "true")
+        "verify" -> systemProperty("roborazzi.test.verify", "true")
+        else -> systemProperty("roborazzi.test.compare", "true")
+    }
 }

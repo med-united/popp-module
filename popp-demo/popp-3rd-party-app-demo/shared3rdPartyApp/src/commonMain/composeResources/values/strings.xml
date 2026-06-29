@@ -53,6 +53,7 @@
 
     <string name="nfc_title">Gesundheitskarte anlegen</string>
     <string name="nfc_title_done">Karte gelesen</string>
+    <string name="nfc_title_unsupported">NFC erforderlich</string>
     <string name="nfc_waiting">Halten Sie Ihre eGK an die Rückseite des Gerätes und halten Sie sie ruhig.</string>
     <string name="nfc_reading">Karte erkannt – bitte nicht bewegen. Daten werden sicher gelesen…</string>
     <string name="nfc_secure_transfer">Sichere Übertragung · %1$d %</string>
@@ -60,7 +61,7 @@
     <string name="nfc_verified">Verifiziert</string>
     <string name="nfc_success">Anwesenheit erfolgreich nachgewiesen.</string>
     <string name="nfc_footer">Ende-zu-Ende verschlüsselt · CAN-gesichert</string>
-    <string name="nfc_unsupported">NFC wird auf diesem Gerät nicht unterstützt.</string>
+    <string name="nfc_unsupported">NFC ist nicht verfügbar. Bitte aktivieren Sie NFC in den Einstellungen, falls Ihr Gerät NFC unterstützt.</string>
     <string name="checkin_success_title">Karte gelesen</string>
     <string name="checkin_success_subtitle">Anwesenheit erfolgreich nachgewiesen</string>
     <string name="checkin_success_badge">Verifiziert</string>

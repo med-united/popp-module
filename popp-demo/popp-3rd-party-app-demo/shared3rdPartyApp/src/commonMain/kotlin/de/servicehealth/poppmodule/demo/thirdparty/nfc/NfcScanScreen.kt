@@ -33,7 +33,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,8 +52,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import de.servicehealth.poppmodule.demo.LocalPoppSdk
 import de.servicehealth.poppmodule.demo.thirdparty.can.LocalCanStore
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
@@ -67,12 +68,14 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_secur
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_success
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_title_done
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_title_unsupported
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_unsupported
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_verified
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.nfc_waiting
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
@@ -108,10 +111,10 @@ fun NfcScanScreen(
 
     LaunchedEffect(Unit) { can = canStore.load() }
 
-    DisposableEffect(can) {
-        can?.let { controller.start(it) }
-        // Only stop if we actually started (skips a spurious disableReaderMode on the null→CAN load).
-        onDispose { if (can != null) controller.stop() }
+    LifecycleResumeEffect(can) {
+        val started = source.isSupported && can != null
+        if (started) can?.let { controller.start(it) }
+        onPauseOrDispose { if (started) controller.stop() }
     }
 
     NfcOutcomeDispatcher(state = state, onSuccess = onSuccess, onError = onError)
@@ -264,10 +267,10 @@ fun NfcScanContent(
                     ) {
                         Text(
                             text =
-                                if (completed) {
-                                    stringResource(Res.string.nfc_title_done)
-                                } else {
-                                    stringResource(Res.string.nfc_title)
+                                when {
+                                    !supported -> stringResource(Res.string.nfc_title_unsupported)
+                                    completed -> stringResource(Res.string.nfc_title_done)
+                                    else -> stringResource(Res.string.nfc_title)
                                 },
                             color = c.white,
                             style = BrandTheme.typography.headlineLarge,
@@ -477,3 +480,24 @@ private fun NfcVisual(
         }
     }
 }
+
+@Preview
+@Composable
+private fun NfcScanWaitingPreview() =
+    PreviewBrandTheme {
+        NfcScanContent(state = NfcScanUiState.WaitingForCard, supported = true, onBack = {}, onClose = {})
+    }
+
+@Preview
+@Composable
+private fun NfcScanReadingPreview() =
+    PreviewBrandTheme {
+        NfcScanContent(state = NfcScanUiState.Reading(42), supported = true, onBack = {}, onClose = {})
+    }
+
+@Preview
+@Composable
+private fun NfcScanUnsupportedPreview() =
+    PreviewBrandTheme {
+        NfcScanContent(state = NfcScanUiState.WaitingForCard, supported = false, onBack = {}, onClose = {})
+    }

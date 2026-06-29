@@ -34,7 +34,7 @@ class NfcCheckInController(
     private var consumed = false
 
     fun start(can: String) {
-        if (started) return
+        if (started || consumed) return
         started = true
         source.start(
             can = can,
@@ -79,5 +79,8 @@ class NfcCheckInController(
         }
     }
 
-    fun stop() = source.stop()
+    fun stop() {
+        started = false
+        source.stop()
+    }
 }

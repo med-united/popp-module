@@ -125,4 +125,45 @@ class NfcCheckInControllerTest {
             assertEquals(1, runs)
             assertEquals(NfcScanUiState.Succeeded("jwt", "pn"), controller.state.value)
         }
+
+    @Test
+    fun re_arms_after_stop_until_a_card_is_consumed() =
+        runTest {
+            var startCount = 0
+            var captured: ((EgkApduChannel) -> Unit)? = null
+            val source =
+                object : EgkChannelSource {
+                    override val isSupported: Boolean = true
+
+                    override fun start(
+                        can: String,
+                        onCard: (EgkApduChannel) -> Unit,
+                        onError: (PoppSdkError) -> Unit,
+                    ) {
+                        startCount += 1
+                        captured = onCard
+                    }
+
+                    override fun stop() = Unit
+                }
+            val runner = CheckInRunner { _, _ -> EgkCheckInResult.Success("jwt", "pn") }
+            val controller = NfcCheckInController(source, runner, scope = backgroundScope)
+
+            controller.start("123456")
+            controller.start("123456")
+            assertEquals(1, startCount)
+
+            controller.stop()
+            controller.start("123456")
+            assertEquals(2, startCount)
+
+            captured!!(FakeEgkApduChannel())
+            runCurrent()
+            advanceTimeBy(2.seconds)
+            runCurrent()
+
+            controller.stop()
+            controller.start("123456")
+            assertEquals(2, startCount)
+        }
 }

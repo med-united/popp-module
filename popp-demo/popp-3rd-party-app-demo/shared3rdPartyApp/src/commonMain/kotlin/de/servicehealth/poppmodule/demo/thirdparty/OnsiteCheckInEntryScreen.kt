@@ -34,9 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.servicehealth.poppmodule.demo.thirdparty.Institution
-import de.servicehealth.poppmodule.demo.thirdparty.icon
-import de.servicehealth.poppmodule.demo.thirdparty.label
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_empty_hint

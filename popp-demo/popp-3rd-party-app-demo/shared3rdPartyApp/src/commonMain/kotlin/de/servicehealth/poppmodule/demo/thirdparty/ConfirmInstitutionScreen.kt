@@ -41,9 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.servicehealth.poppmodule.demo.thirdparty.icon
-import de.servicehealth.poppmodule.demo.thirdparty.label
-import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_back
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_choose_other

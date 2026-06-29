@@ -48,4 +48,16 @@
     <string name="camera_permission_open_settings">Einstellungen öffnen</string>
 
     <string name="qr_scanner_ios_placeholder">Kamera-Scanner folgt auf iOS</string>
+
+    <string name="institution_search_header">VOR-ORT-CHECK-IN</string>
+    <string name="institution_search_back">Zurück</string>
+    <string name="institution_search_title">Einrichtung suchen</string>
+    <string name="institution_search_field_placeholder">Apotheke oder Praxis suchen…</string>
+    <string name="institution_search_clear">Löschen</string>
+    <string name="institution_search_empty_hint">Tippen Sie z.&#160;B. „Apotheke", „Markt"\noder einen Praxisnamen, um\nEinrichtungen zu finden.</string>
+    <string name="institution_search_no_results">Keine Einrichtung gefunden.</string>
+    <plurals name="search_result_count">
+        <item quantity="one">%1$d Ergebnis</item>
+        <item quantity="other">%1$d Ergebnisse</item>
+    </plurals>
 </resources>

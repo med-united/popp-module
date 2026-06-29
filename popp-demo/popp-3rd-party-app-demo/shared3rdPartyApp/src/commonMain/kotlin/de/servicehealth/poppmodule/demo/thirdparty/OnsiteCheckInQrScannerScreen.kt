@@ -154,7 +154,6 @@ private fun QrScannerHeader(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(58.dp)
                 .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

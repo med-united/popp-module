@@ -1,4 +1,4 @@
-package de.servicehealth.poppmodule.demo
+package de.servicehealth.poppmodule.demo.thirdparty
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,16 +44,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.servicehealth.poppmodule.demo.generated.resources.Res
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_back
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_clear
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_empty_hint
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_field_placeholder
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_header
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_no_results
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_results_one
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_results_other
-import de.servicehealth.poppmodule.demo.generated.resources.institution_search_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_back
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_clear
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_empty_hint
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_field_placeholder
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_header
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_no_results
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_title
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.search_result_count
 import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandField
@@ -61,7 +60,9 @@ import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 // ── Data model ──────────────────────────────────────────────────────────────
@@ -242,12 +243,7 @@ fun InstitutionSearchScreen(
 
                 results.isNotEmpty() -> {
                     Text(
-                        text =
-                            if (results.size == 1) {
-                                stringResource(Res.string.institution_search_results_one, results.size)
-                            } else {
-                                stringResource(Res.string.institution_search_results_other, results.size)
-                            },
+                        text = pluralStringResource(Res.plurals.search_result_count, results.size, results.size),
                         color = c.neutral700,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -394,7 +390,7 @@ fun InstitutionType.icon(): ImageVector =
 @Preview
 @Composable
 private fun InstitutionSearchScreen_EmptyPreview() {
-    InstitutionSearchScreen(onClose = {})
+    PreviewBrandTheme { InstitutionSearchScreen(onClose = {}) }
 }
 
 @Preview

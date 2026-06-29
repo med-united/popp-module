@@ -14,6 +14,10 @@ import androidx.navigation.navArgument
 import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
+import de.servicehealth.poppmodule.demo.thirdparty.InstitutionSearchScreen
+import de.servicehealth.poppmodule.demo.thirdparty.icon
+import de.servicehealth.poppmodule.demo.thirdparty.label
+import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.LeiData
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
@@ -72,8 +76,8 @@ fun App(poppSdk: PoppSdk) {
                         onSearchClick = { nav.navigate(Routes.INSTITUTION_SEARCH) },
                         onQrScanClick = { nav.navigate(Routes.CHECK_IN_QR) },
                         favorites = mockInstitutions.filter { it.id in favoriteIds },
-                        onFavoriteClick = { name, address, category ->
-                            nav.navigate(Routes.confirmInstitution(name, address, category))
+                        onFavoriteClick = { id, name, address, category ->
+                            nav.navigate(Routes.confirmInstitution(id, name, address, category))
                         },
                     )
                 }
@@ -84,6 +88,7 @@ fun App(poppSdk: PoppSdk) {
                         onInstitutionSelected = { institution ->
                             nav.navigate(
                                 Routes.confirmInstitution(
+                                    institution.id,
                                     institution.name,
                                     institution.address,
                                     institution.type.label,
@@ -104,6 +109,10 @@ fun App(poppSdk: PoppSdk) {
                     route = Routes.CONFIRM_INSTITUTION_ROUTE,
                     arguments =
                         listOf(
+                            navArgument(Routes.ARG_INSTITUTION_ID) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
                             navArgument(Routes.ARG_NAME) {
                                 type = NavType.StringType
                                 nullable = true
@@ -118,11 +127,11 @@ fun App(poppSdk: PoppSdk) {
                             },
                         ),
                 ) { entry ->
+                    val institutionId = entry.arguments?.getString(Routes.ARG_INSTITUTION_ID)
                     val name = entry.arguments?.getString(Routes.ARG_NAME) ?: stubLeiData.name
                     val address = entry.arguments?.getString(Routes.ARG_ADDRESS) ?: stubLeiData.address
                     val category = entry.arguments?.getString(Routes.ARG_CATEGORY) ?: stubLeiData.institutionType
-                    // Resolve back to the mock Institution so favorites can be tracked by id.
-                    val institution = mockInstitutions.find { it.name == name } ?: mockInstitutions.first()
+                    val institution = institutionId?.let { id -> mockInstitutions.find { it.id == id } } ?: mockInstitutions.first()
                     ConfirmInstitutionScreen(
                         leiData =
                             LeiData(

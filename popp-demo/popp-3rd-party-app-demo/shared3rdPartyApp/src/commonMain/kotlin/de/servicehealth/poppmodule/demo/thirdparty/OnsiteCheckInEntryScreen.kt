@@ -34,10 +34,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import de.servicehealth.poppmodule.demo.Institution
-import de.servicehealth.poppmodule.demo.icon
-import de.servicehealth.poppmodule.demo.label
+import de.servicehealth.poppmodule.demo.thirdparty.Institution
+import de.servicehealth.poppmodule.demo.thirdparty.icon
+import de.servicehealth.poppmodule.demo.thirdparty.label
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_empty_hint
@@ -61,7 +60,7 @@ fun OnsiteCheckInEntryScreen(
     onSearchClick: () -> Unit,
     onQrScanClick: () -> Unit,
     favorites: List<Institution> = emptyList(),
-    onFavoriteClick: (name: String, address: String, category: String) -> Unit = { _, _, _ -> },
+    onFavoriteClick: (id: String, name: String, address: String, category: String) -> Unit = { _, _, _, _ -> },
 ) {
     val c = BrandTheme.colors
 
@@ -82,7 +81,8 @@ fun OnsiteCheckInEntryScreen(
                     .padding(top = 18.dp),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(36.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
             ) {
                 BrandProgressDots(stepCount = 4, currentStep = 0)
@@ -93,7 +93,7 @@ fun OnsiteCheckInEntryScreen(
             Text(
                 text = stringResource(Res.string.checkin_entry_question),
                 color = c.ink,
-                style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
+                style = BrandTheme.typography.displaySmall,
             )
 
             Spacer(Modifier.height(8.dp))
@@ -194,7 +194,7 @@ private fun ActionCard(
 @Composable
 private fun FavoritesSection(
     favorites: List<Institution>,
-    onFavoriteClick: (String, String, String) -> Unit,
+    onFavoriteClick: (String, String, String, String) -> Unit,
 ) {
     val c = BrandTheme.colors
 
@@ -248,6 +248,7 @@ private fun FavoritesSection(
             Column {
                 favorites.forEachIndexed { index, institution ->
                     FavoriteRow(
+                        id = institution.id,
                         icon = institution.type.icon(),
                         title = institution.name,
                         subtitle = institution.address,
@@ -266,11 +267,12 @@ private fun FavoritesSection(
 
 @Composable
 private fun FavoriteRow(
+    id: String,
     icon: ImageVector,
     title: String,
     subtitle: String,
     category: String,
-    onClick: (String, String, String) -> Unit,
+    onClick: (String, String, String, String) -> Unit,
 ) {
     val c = BrandTheme.colors
 
@@ -278,7 +280,7 @@ private fun FavoriteRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable { onClick(title, subtitle, category) }
+                .clickable { onClick(id, title, subtitle, category) }
                 .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -41,9 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.servicehealth.poppmodule.demo.icon
-import de.servicehealth.poppmodule.demo.label
-import de.servicehealth.poppmodule.demo.mockInstitutions
+import de.servicehealth.poppmodule.demo.thirdparty.icon
+import de.servicehealth.poppmodule.demo.thirdparty.label
+import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_back
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_choose_other
@@ -64,11 +64,9 @@ import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
 import de.servicehealth.poppmodule.theme.BrandTheme
+import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import org.jetbrains.compose.resources.stringResource
 
-// ---------------------------------------------------------------------------
-// Data model - stubbed for now, to be replaced with real VZD lookup data
-// ---------------------------------------------------------------------------
 data class LeiData(
     // e.g. "APOTHEKE"
     val institutionType: String,
@@ -125,112 +123,110 @@ fun ConfirmInstitutionScreen(
     onChooseOther: () -> Unit,
     onClose: () -> Unit,
 ) {
-    BrandTheme {
-        val c = BrandTheme.colors
+    val c = BrandTheme.colors
 
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(c.white)
+                .safeContentPadding(),
+    ) {
+        // Top bar
+        BrandScreenHeader(
+            title = stringResource(Res.string.confirm_institution_header),
+            onClose = onClose,
+        )
+
+        // Scrollable body
         Column(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .background(c.white)
-                    .safeContentPadding(),
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp),
         ) {
-            // Top bar
-            BrandScreenHeader(
-                title = stringResource(Res.string.confirm_institution_header),
-                onClose = onClose,
+            // AC4: back button + progress dots
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                BrandBackButton(
+                    label = stringResource(Res.string.confirm_institution_back),
+                    onClick = onBack,
+                )
+                Spacer(Modifier.weight(1f))
+                BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
+            }
+
+            Spacer(Modifier.height(22.dp))
+
+            // AC1: title
+            Text(
+                text = stringResource(Res.string.confirm_institution_title),
+                color = c.ink,
+                style = BrandTheme.typography.displaySmall,
             )
 
-            // Scrollable body
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 18.dp),
-            ) {
-                // AC4: back button + progress dots
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    BrandBackButton(
-                        label = stringResource(Res.string.confirm_institution_back),
-                        onClick = onBack,
+            Spacer(Modifier.height(8.dp))
+
+            // AC1: subtitle
+            Text(
+                text = stringResource(Res.string.confirm_institution_subtitle),
+                color = c.neutral700,
+                style = BrandTheme.typography.bodyMedium,
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // AC2: LEI card
+            LeiCard(data = leiData)
+
+            Spacer(Modifier.height(16.dp))
+
+            // AC5: favorites toggle - presented below institution details, before consent button
+            FavoriteToggleRow(isFavorite = isFavorite, onToggle = onToggleFavorite)
+
+            Spacer(Modifier.height(32.dp))
+        }
+
+        // AC3: action buttons - pinned to bottom
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            BrandButton(
+                text = stringResource(Res.string.confirm_institution_confirm_button),
+                onClick = onConfirm,
+                modifier = Modifier.fillMaxWidth(),
+                variant = BrandButtonVariant.Primary,
+                size = BrandButtonSize.Lg,
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        contentDescription = null,
+                        tint = c.white,
+                        modifier = Modifier.size(20.dp),
                     )
-                    Spacer(Modifier.weight(1f))
-                    BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
-                }
+                },
+            )
 
-                Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(16.dp))
 
-                // AC1: title
-                Text(
-                    text = stringResource(Res.string.confirm_institution_title),
-                    color = c.ink,
-                    style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                // AC1: subtitle
-                Text(
-                    text = stringResource(Res.string.confirm_institution_subtitle),
-                    color = c.neutral700,
-                    style = BrandTheme.typography.bodyMedium,
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                // AC2: LEI card
-                LeiCard(data = leiData)
-
-                Spacer(Modifier.height(16.dp))
-
-                // AC5: favorites toggle - presented below institution details, before consent button
-                FavoriteToggleRow(isFavorite = isFavorite, onToggle = onToggleFavorite)
-
-                Spacer(Modifier.height(32.dp))
-            }
-
-            // AC3: action buttons - pinned to bottom
-            Column(
+            Text(
+                text = stringResource(Res.string.confirm_institution_choose_other),
+                color = c.neutral700,
+                style = BrandTheme.typography.labelLarge,
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .padding(bottom = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                BrandButton(
-                    text = stringResource(Res.string.confirm_institution_confirm_button),
-                    onClick = onConfirm,
-                    modifier = Modifier.fillMaxWidth(),
-                    variant = BrandButtonVariant.Primary,
-                    size = BrandButtonSize.Lg,
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = null,
-                            tint = c.white,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    },
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = stringResource(Res.string.confirm_institution_choose_other),
-                    color = c.neutral700,
-                    style = BrandTheme.typography.labelLarge,
-                    modifier =
-                        Modifier
-                            .clickable(onClick = onChooseOther)
-                            .padding(vertical = 13.dp),
-                )
-            }
+                        .clickable(onClick = onChooseOther)
+                        .padding(vertical = 13.dp),
+            )
         }
     }
 }
@@ -365,10 +361,6 @@ private fun LeiDetailRow(
     }
 }
 
-// ---------------------------------------------------------------------------
-// AC5: favorites toggle
-// ---------------------------------------------------------------------------
-
 @Composable
 private fun FavoriteToggleRow(
     isFavorite: Boolean,
@@ -451,7 +443,7 @@ private fun FavoriteToggleRow(
 @Preview
 @Composable
 private fun LeiDetailRowPreview() {
-    BrandTheme {
+    PreviewBrandTheme {
         LeiDetailRow(
             icon = Icons.Rounded.LocationOn,
             label = "ADRESSE",

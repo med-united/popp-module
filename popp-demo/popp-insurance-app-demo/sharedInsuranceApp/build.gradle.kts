@@ -26,6 +26,10 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }
+
+        withHostTest {
+            isIncludeAndroidResources = true
+        }
     }
 
     sourceSets {
@@ -41,6 +45,11 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.compose.ui)
             implementation(libs.compose.uiToolingPreview)
+
+            implementation(libs.ktor.client.core)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }

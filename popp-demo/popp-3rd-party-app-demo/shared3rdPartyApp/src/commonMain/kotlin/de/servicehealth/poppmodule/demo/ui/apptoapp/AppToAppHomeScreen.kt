@@ -32,12 +32,12 @@ import de.servicehealth.poppmodule.demo.thirdparty.rememberAppLauncher
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.PreviewBrandTheme
+import io.ktor.http.URLBuilder
 import kotlinx.coroutines.launch
 
 private const val DEMO_PAR_ENDPOINT = "https://idp.demo.gematik.de/par"
-private const val DEMO_AUTH_ENDPOINT = "https://idp.demo.gematik.de/auth"
+private const val DEMO_AUTH_ENDPOINT = "https://idp.insurance.popp.demo/app-to-app/auth"
 private const val DEMO_CLIENT_ID = "demo-3rd-party-app"
-private const val DEMO_REDIRECT_URI = "myapp://app-to-app/callback"
 
 /** The App-zu-App home screen that initiates the PAR flow. */
 @Composable
@@ -49,6 +49,7 @@ fun AppToAppHomeScreen(scenarioId: String?) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var requestUri by remember { mutableStateOf<String?>(null) }
+    var pendingState by remember { mutableStateOf<String?>(null) }
     var showFallbackDialog by remember { mutableStateOf(false) }
     val parClient = remember { OidcParClient() }
 
@@ -78,13 +79,16 @@ fun AppToAppHomeScreen(scenarioId: String?) {
                     textAlign = TextAlign.Center,
                 )
                 val uri = requestUri
+                val currentState = pendingState
                 Button(onClick = {
-                    if (uri != null) {
+                    if (uri != null && currentState != null) {
                         coroutineScope.launch {
                             val safeUrl =
-                                io.ktor.http.URLBuilder(DEMO_AUTH_ENDPOINT).apply {
+                                URLBuilder(DEMO_AUTH_ENDPOINT).apply {
                                     parameters.append("client_id", DEMO_CLIENT_ID)
                                     parameters.append("request_uri", uri)
+                                    parameters.append("state", currentState)
+                                    parameters.append("redirect_uri", appLauncher.redirectUri)
                                 }.buildString()
 
                             val success = appLauncher.openUrl(safeUrl)
@@ -107,10 +111,13 @@ fun AppToAppHomeScreen(scenarioId: String?) {
                                     parClient.pushAuthorizationRequest(
                                         parEndpoint = DEMO_PAR_ENDPOINT,
                                         clientId = DEMO_CLIENT_ID,
-                                        redirectUri = DEMO_REDIRECT_URI,
+                                        redirectUri = appLauncher.redirectUri,
                                     )
                                 when (result) {
-                                    is ParResult.Success -> requestUri = result.requestUri
+                                    is ParResult.Success -> {
+                                        requestUri = result.requestUri
+                                        pendingState = result.state
+                                    }
                                     is ParResult.Error -> errorMessage = result.message
                                 }
                             } finally {

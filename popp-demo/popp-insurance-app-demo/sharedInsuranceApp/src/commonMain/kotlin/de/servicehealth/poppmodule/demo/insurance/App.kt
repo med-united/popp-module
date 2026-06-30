@@ -38,8 +38,8 @@ fun App(
                         AppToAppSession.clearRequest()
                         dispatcher.openUrl(returnUrl)
                     },
-                    title = { Text("App2App Check-in Request") },
-                    text = { Text("Third-party app (${request.clientId}) is requesting a check-in.") },
+                    title = { Text("App-zu-App Check-in Anfrage") },
+                    text = { Text("Die Drittanbieter App '${request.clientId}' hat um einen Check-In gebeten.") },
                     confirmButton = {
                         Button(onClick = {
                             val authCode = "mock_auth_code_12345"
@@ -47,7 +47,7 @@ fun App(
                             AppToAppSession.clearRequest()
                             dispatcher.openUrl(returnUrl)
                         }) {
-                            Text("Simulate Success")
+                            Text("Simuliere Erfolg")
                         }
                     },
                     dismissButton = {
@@ -56,7 +56,7 @@ fun App(
                             AppToAppSession.clearRequest()
                             dispatcher.openUrl(returnUrl)
                         }) {
-                            Text("Cancel / Reject")
+                            Text("Ablehnen")
                         }
                     },
                 )

@@ -8,10 +8,11 @@ import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 
 sealed class ParResult {
-    data class Success(val requestUri: String, val expiresIn: Int) : ParResult()
+    data class Success(val requestUri: String, val expiresIn: Int, val state: String) : ParResult()
 
     data class Error(val message: String) : ParResult()
 }
@@ -37,8 +38,14 @@ class OidcParClient {
         return try {
             val codeVerifier = PkceGenerator.generateCodeVerifier()
             val codeChallenge = PkceGenerator.generateCodeChallenge(codeVerifier)
+            val state = PkceGenerator.generateCodeVerifier()
 
-            OidcSessionStore.storeVerifier(codeVerifier)
+            OidcSessionStore.store(codeVerifier, state)
+
+            if (parEndpoint.contains("idp.demo.gematik.de")) {
+                delay(800)
+                return ParResult.Success("urn:uuid:mock-request-uri", 300, state)
+            }
 
             val response =
                 httpClient.submitForm(
@@ -51,6 +58,7 @@ class OidcParClient {
                             append("code_challenge", codeChallenge)
                             append("code_challenge_method", "S256")
                             append("redirect_uri", redirectUri)
+                            append("state", state)
                         },
                 )
 
@@ -62,7 +70,7 @@ class OidcParClient {
                         if (e is CancellationException) throw e
                         return ParResult.Error("Unexpected response format: ${e.message}")
                     }
-                ParResult.Success(parResponse.requestUri, parResponse.expiresIn)
+                ParResult.Success(parResponse.requestUri, parResponse.expiresIn, state)
             } else {
                 val errorResponse: ParErrorResponse =
                     try {
@@ -96,6 +104,12 @@ class OidcParClient {
             OidcSessionStore.codeVerifier.value
                 ?: return ParResult.Error("No code_verifier in session — PAR flow was not started")
 
+        if (tokenEndpoint.contains("idp.demo.gematik.de")) {
+            delay(800)
+            OidcSessionStore.clear()
+            return ParResult.Success("token_exchange_ok", 0, "")
+        }
+
         return try {
             val response =
                 httpClient.submitForm(
@@ -112,7 +126,7 @@ class OidcParClient {
 
             if (response.status.isSuccess()) {
                 OidcSessionStore.clear()
-                ParResult.Success("token_exchange_ok", 0)
+                ParResult.Success("token_exchange_ok", 0, "")
             } else {
                 val errorResponse: ParErrorResponse =
                     try {

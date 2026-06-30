@@ -60,4 +60,10 @@
         <item quantity="one">%1$d Ergebnis</item>
         <item quantity="other">%1$d Ergebnisse</item>
     </plurals>
+
+    <string name="callback_error_prefix">Check-in abgebrochen oder fehlgeschlagen:</string>
+    <string name="callback_return_launcher">Zurück zur Startseite</string>
+    <string name="callback_validating">Rückruf wird validiert...</string>
+    <string name="callback_invalid_params">Ungültiger Rückruf (Parameter fehlen)</string>
+    <string name="callback_state_mismatch">Sicherheitsfehler: State-Parameter stimmt nicht überein.</string>
 </resources>

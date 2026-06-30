@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material3.Icon
@@ -57,6 +56,8 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_s
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_searching
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_scanner_title
 import de.servicehealth.poppmodule.sdk.qr.ScanResult
+import de.servicehealth.poppmodule.theme.BrandBackButton
+import de.servicehealth.poppmodule.theme.BrandBackButtonVariant
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
@@ -67,6 +68,7 @@ import org.jetbrains.compose.resources.stringResource
 fun OnsiteCheckInQrScannerScreen(
     onBack: () -> Unit,
     onClose: () -> Unit,
+    onSuccess: () -> Unit = {},
 ) {
     val c = BrandTheme.colors
     var scanResult by remember { mutableStateOf<ScanResult?>(null) }
@@ -152,34 +154,14 @@ private fun QrScannerHeader(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(58.dp)
                 .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier =
-                Modifier
-                    .clip(CircleShape)
-                    .background(c.white.copy(alpha = 0.16f))
-                    .clickable(onClick = onBack)
-                    .padding(horizontal = 14.dp, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowBackIosNew,
-                contentDescription = stringResource(Res.string.checkin_scanner_back),
-                tint = c.white,
-                modifier = Modifier.size(16.dp),
-            )
-
-            Spacer(Modifier.width(7.dp))
-
-            Text(
-                text = stringResource(Res.string.checkin_scanner_back),
-                color = c.white,
-                style = BrandTheme.typography.labelLarge,
-            )
-        }
+        BrandBackButton(
+            label = stringResource(Res.string.checkin_scanner_back),
+            onClick = onBack,
+            variant = BrandBackButtonVariant.OnDark,
+        )
 
         Spacer(Modifier.weight(1f))
 

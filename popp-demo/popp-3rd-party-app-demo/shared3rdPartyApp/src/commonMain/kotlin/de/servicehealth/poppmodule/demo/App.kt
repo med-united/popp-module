@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import de.servicehealth.poppmodule.demo.model.IntegrationMode
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 import de.servicehealth.poppmodule.demo.thirdparty.InstitutionSearchScreen
@@ -38,7 +39,12 @@ fun App(poppSdk: PoppSdk) {
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {
                     PoppLauncherScreen(
-                        onStartDemo = { _, _ -> nav.navigate(Routes.CHECK_IN_ENTRY) },
+                        onStartDemo = { scenarioId, mode ->
+                            when (mode) {
+                                IntegrationMode.INTEGRATED -> nav.navigate(Routes.CHECK_IN_ENTRY)
+                                IntegrationMode.APP_TO_APP -> nav.navigate(Routes.appToAppHome(scenarioId))
+                            }
+                        },
                     )
                 }
                 composable(

@@ -253,7 +253,7 @@ internal fun paceAuthTokenMac(
     publicKey: ByteArray,
     protocolID: String,
 ): ByteArray =
-    CMac(AESEngine(), MAX).apply {
+    CMac(AESEngine.newInstance(), MAX).apply {
         init(KeyParameter(macKey))
 
         val authToken = paceAuthToken(publicKey, protocolID)

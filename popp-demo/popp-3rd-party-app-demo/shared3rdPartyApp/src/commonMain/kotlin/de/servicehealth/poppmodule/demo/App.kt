@@ -222,7 +222,7 @@ fun App(
                                     favoriteIds + institution.id
                                 }
                         },
-                        onConfirm = { /* TODO: navigate to auth flow */ },
+                        onConfirm = { nav.navigate(Routes.CHECK_IN_CAN) },
                         onBack = { nav.popBackStack() },
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },

@@ -48,7 +48,6 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_s
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_headline
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_location
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_proof_hint
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_proof_label
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_success_time_label
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandButtonSize
@@ -62,7 +61,6 @@ fun OnsiteCheckInSuccessScreen(
     onClose: () -> Unit,
     institutionName: String = "Apotheke am Markt",
     institutionCategory: String = "Apotheke",
-    proofId: String = "PoPP–MAR–7F2A9C",
     proofEpochSeconds: Long? = null,
 ) {
     val c = BrandTheme.colors
@@ -142,7 +140,6 @@ fun OnsiteCheckInSuccessScreen(
             ProofCard(
                 institutionName = institutionName,
                 institutionCategory = institutionCategory,
-                proofId = proofId,
                 proofTime = proofEpochSeconds?.let { formatProofTime(it) } ?: "Heute · 9:41 Uhr",
                 scale = scale,
             )
@@ -194,7 +191,6 @@ fun OnsiteCheckInSuccessScreen(
 private fun ProofCard(
     institutionName: String,
     institutionCategory: String,
-    proofId: String,
     proofTime: String,
     scale: Float,
 ) {
@@ -264,13 +260,6 @@ private fun ProofCard(
             ProofRow(
                 label = stringResource(Res.string.checkin_success_time_label),
                 value = proofTime,
-            )
-
-            Spacer(Modifier.height(s(8.dp)))
-
-            ProofRow(
-                label = stringResource(Res.string.checkin_success_proof_label),
-                value = proofId,
             )
         }
     }

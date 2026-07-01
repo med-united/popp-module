@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -47,6 +46,7 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.can_conti
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.can_subtitle
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.can_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_header
+import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandButton
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
@@ -82,15 +82,11 @@ fun CanInputScreen(
         }
     }
 
-    // Fresh entry: persist + auto-advance once the 6th digit is typed.
-    // NOTE: `navigated` must NOT be a key here. It is written inside the effect, so keying
-    // on it would cancel this coroutine mid-`delay` before `onComplete()` runs. The inner
-    // `!navigated` check still guards against re-entry.
     LaunchedEffect(state.isComplete, prefilled) {
         if (state.isComplete && !prefilled && !navigated) {
-            navigated = true
             canStore.save(state.digits)
             delay(AUTO_ADVANCE_DELAY_MS)
+            navigated = true
             onComplete()
         }
     }
@@ -112,31 +108,13 @@ fun CanInputScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
-                    .padding(top = 14.dp),
+                    .padding(top = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier =
-                    Modifier
-                        .clip(CircleShape)
-                        .background(c.mist)
-                        .clickable(onClick = onBack)
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.ArrowBackIosNew,
-                    contentDescription = stringResource(Res.string.can_back),
-                    tint = c.neutral700,
-                    modifier = Modifier.size(15.dp),
-                )
-                Spacer(Modifier.width(7.dp))
-                Text(
-                    text = stringResource(Res.string.can_back),
-                    color = c.neutral700,
-                    style = BrandTheme.typography.labelLarge,
-                )
-            }
+            BrandBackButton(
+                label = stringResource(Res.string.can_back),
+                onClick = onBack,
+            )
 
             Spacer(Modifier.weight(1f))
 
@@ -149,7 +127,7 @@ fun CanInputScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 12.dp)
                     .padding(top = 18.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

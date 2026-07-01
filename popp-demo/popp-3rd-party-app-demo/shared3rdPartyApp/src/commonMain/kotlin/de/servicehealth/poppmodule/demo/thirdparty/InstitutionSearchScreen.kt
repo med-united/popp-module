@@ -22,10 +22,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.LocalPharmacy
-import androidx.compose.material.icons.rounded.MedicalServices
+import androidx.compose.material.icons.outlined.LocalPharmacy
+import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material.icons.rounded.StarBorder
-import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -139,7 +139,7 @@ fun InstitutionSearchScreen(
                 Modifier
                     .fillMaxSize()
                     .imePadding()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 12.dp),
         ) {
             Spacer(Modifier.height(24.dp))
 
@@ -364,9 +364,9 @@ val InstitutionType.label: String
 
 fun InstitutionType.icon(): ImageVector =
     when (this) {
-        InstitutionType.PHARMACY -> Icons.Rounded.LocalPharmacy
-        InstitutionType.PRACTICE -> Icons.Rounded.MedicalServices
-        InstitutionType.ONLINE -> Icons.Rounded.Videocam
+        InstitutionType.PHARMACY -> Icons.Outlined.LocalPharmacy
+        InstitutionType.PRACTICE -> Icons.Outlined.MedicalServices
+        InstitutionType.ONLINE -> Icons.Outlined.Videocam
     }
 
 @Preview

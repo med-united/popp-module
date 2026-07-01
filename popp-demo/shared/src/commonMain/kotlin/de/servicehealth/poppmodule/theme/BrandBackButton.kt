@@ -22,11 +22,6 @@ import androidx.compose.ui.unit.dp
 
 enum class BrandBackButtonVariant { OnLight, OnDark }
 
-/**
- * The "Zurück" back button used across every check-in step. [BrandBackButtonVariant.OnLight]
- * (white screens) is plain violet text/icon with no background; [BrandBackButtonVariant.OnDark]
- * (the QR scanner's camera view) keeps the white pill for contrast against the camera feed.
- */
 @Composable
 fun BrandBackButton(
     label: String,
@@ -37,18 +32,19 @@ fun BrandBackButton(
     val c = BrandTheme.colors
     val content = if (variant == BrandBackButtonVariant.OnDark) c.white else c.violet
 
-    val pillModifier =
+    val styledModifier =
         if (variant == BrandBackButtonVariant.OnDark) {
-            modifier.clip(CircleShape).background(c.white.copy(alpha = 0.16f))
-        } else {
             modifier
+                .clip(CircleShape)
+                .background(c.white.copy(alpha = 0.16f))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 14.dp, vertical = 9.dp)
+        } else {
+            modifier.clickable(onClick = onClick)
         }
 
     Row(
-        modifier =
-            pillModifier
-                .clickable(onClick = onClick)
-                .padding(horizontal = 14.dp, vertical = 9.dp),
+        modifier = styledModifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

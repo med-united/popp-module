@@ -21,9 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.outlined.LocalHospital
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.LocalHospital
-import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
@@ -65,18 +65,13 @@ import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import org.jetbrains.compose.resources.stringResource
 
 data class LeiData(
-    // e.g. "APOTHEKE"
     val institutionType: String,
-    val institutionTypeIcon: ImageVector = Icons.Rounded.LocalHospital,
-    // e.g. "Apotheke am Markt"
+    val institutionTypeIcon: ImageVector = Icons.Outlined.LocalHospital,
     val name: String,
-    // e.g. "Marktplatz 3, 52062 Aachen"
     val address: String,
-    // e.g. "Mo-Fr 8:00-18:30 Sa 9:00-13:00"
     val openingHours: String,
 )
 
-// Stub - replace with real VZD result once POPPM-116 is implemented
 val stubLeiData =
     mockInstitutions.first().let { institution ->
         LeiData(
@@ -87,10 +82,6 @@ val stubLeiData =
             openingHours = "Mo-Fr 8:00-18:30 · Sa 9:00-13:00",
         )
     }
-
-// ---------------------------------------------------------------------------
-// Screen
-// ---------------------------------------------------------------------------
 
 /**
  * A3 - "Einrichtung bestaetigen"
@@ -129,13 +120,11 @@ fun ConfirmInstitutionScreen(
                 .background(c.white)
                 .safeContentPadding(),
     ) {
-        // Top bar
         BrandScreenHeader(
             title = stringResource(Res.string.confirm_institution_header),
             onClose = onClose,
         )
 
-        // Scrollable body
         Column(
             modifier =
                 Modifier
@@ -144,7 +133,6 @@ fun ConfirmInstitutionScreen(
                     .padding(horizontal = 12.dp)
                     .padding(top = 18.dp),
         ) {
-            // AC4: back button + progress dots
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -157,9 +145,8 @@ fun ConfirmInstitutionScreen(
                 BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
             }
 
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // AC1: title
             Text(
                 text = stringResource(Res.string.confirm_institution_title),
                 color = c.ink,
@@ -168,7 +155,6 @@ fun ConfirmInstitutionScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // AC1: subtitle
             Text(
                 text = stringResource(Res.string.confirm_institution_subtitle),
                 color = c.neutral700,
@@ -177,18 +163,15 @@ fun ConfirmInstitutionScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // AC2: LEI card
             LeiCard(data = leiData)
 
             Spacer(Modifier.height(16.dp))
 
-            // AC5: favorites toggle - presented below institution details, before consent button
             FavoriteToggleRow(isFavorite = isFavorite, onToggle = onToggleFavorite)
 
             Spacer(Modifier.height(32.dp))
         }
 
-        // AC3: action buttons - pinned to bottom
         Column(
             modifier =
                 Modifier
@@ -228,10 +211,6 @@ fun ConfirmInstitutionScreen(
     }
 }
 
-// ---------------------------------------------------------------------------
-// AC2: LEI card
-// ---------------------------------------------------------------------------
-
 @Composable
 private fun LeiCard(data: LeiData) {
     val c = BrandTheme.colors
@@ -241,7 +220,6 @@ private fun LeiCard(data: LeiData) {
         padding = PaddingValues(0.dp),
     ) {
         Column {
-            // Purple gradient header: institution type badge + name
             Box(
                 modifier =
                     Modifier
@@ -256,7 +234,6 @@ private fun LeiCard(data: LeiData) {
                         .padding(horizontal = 20.dp, vertical = 20.dp),
             ) {
                 Column {
-                    // Institution type badge
                     Row(
                         modifier =
                             Modifier
@@ -283,7 +260,6 @@ private fun LeiCard(data: LeiData) {
 
                     Spacer(Modifier.height(12.dp))
 
-                    // Institution name
                     Text(
                         text = data.name,
                         color = Color.White,
@@ -293,13 +269,12 @@ private fun LeiCard(data: LeiData) {
                 }
             }
 
-            // Address + opening hours
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 LeiDetailRow(
-                    icon = Icons.Rounded.LocationOn,
+                    icon = Icons.Outlined.LocationOn,
                     label = stringResource(Res.string.confirm_institution_label_address),
                     value = data.address,
                 )
@@ -442,7 +417,7 @@ private fun FavoriteToggleRow(
 private fun LeiDetailRowPreview() {
     PreviewBrandTheme {
         LeiDetailRow(
-            icon = Icons.Rounded.LocationOn,
+            icon = Icons.Outlined.LocationOn,
             label = "ADRESSE",
             value = "Marktplatz 3, 52062 Aachen",
         )

@@ -13,6 +13,18 @@
     <string name="mode_app2app_desc">Die Demo-App überträgt die Authentifizierung an die Versicherungs-App.</string>
     <string name="start_demo_button">Starte die Demo</string>
 
+    <string name="confirm_institution_header">VOR-ORT-CHECK-IN</string>
+    <string name="confirm_institution_back">Zurück</string>
+    <string name="confirm_institution_title">Einrichtung bestätigen</string>
+    <string name="confirm_institution_subtitle">Bitte prüfen Sie die Einrichtung, bei der Sie einchecken.</string>
+    <string name="confirm_institution_confirm_button">Bestätigen &amp; anmelden</string>
+    <string name="confirm_institution_choose_other">Andere Einrichtung wählen</string>
+    <string name="confirm_institution_label_address">ADRESSE</string>
+    <string name="confirm_institution_label_hours">ÖFFNUNGSZEITEN</string>
+    <string name="confirm_institution_favorite_add">Zu Favoriten hinzufügen</string>
+    <string name="confirm_institution_favorite_added">Zu Favoriten hinzugefügt</string>
+    <string name="confirm_institution_favorite_hint">Beim nächsten Mal schneller einchecken</string>
+
     <string name="checkin_entry_header">VOR-ORT-CHECK-IN</string>
     <string name="checkin_entry_question">Wo möchten Sie\neinchecken?</string>
     <string name="checkin_entry_subtitle">Wählen Sie die Einrichtung (LEI), bei der Sie sich vor Ort anmelden.</string>
@@ -22,6 +34,7 @@
     <string name="checkin_entry_qr_subtitle">Code vor Ort scannen</string>
     <string name="checkin_entry_favorites">FAVORITEN</string>
     <string name="checkin_entry_favorites_count">2 gespeichert</string>
+    <string name="checkin_entry_favorites_empty_hint">Noch keine Favoriten gespeichert</string>
 
     <string name="checkin_scanner_title">QR-Code scannen</string>
     <string name="checkin_scanner_instruction">Richten Sie die Kamera auf den Check-in-\nCode der Einrichtung.</string>
@@ -37,6 +50,18 @@
     <string name="camera_permission_open_settings">Einstellungen öffnen</string>
 
     <string name="qr_scanner_ios_placeholder">Kamera-Scanner folgt auf iOS</string>
+
+    <string name="institution_search_header">VOR-ORT-CHECK-IN</string>
+    <string name="institution_search_back">Zurück</string>
+    <string name="institution_search_title">Einrichtung suchen</string>
+    <string name="institution_search_field_placeholder">Apotheke oder Praxis suchen…</string>
+    <string name="institution_search_clear">Löschen</string>
+    <string name="institution_search_empty_hint">Tippen Sie z.&#160;B. „Apotheke", „Markt"\noder einen Praxisnamen, um\nEinrichtungen zu finden.</string>
+    <string name="institution_search_no_results">Keine Einrichtung gefunden.</string>
+    <plurals name="search_result_count">
+        <item quantity="one">%1$d Ergebnis</item>
+        <item quantity="other">%1$d Ergebnisse</item>
+    </plurals>
 
     <string name="can_title">Zugangsnummer eingeben</string>
     <string name="can_subtitle">Geben Sie die 6-stellige CAN (Card Access Number) ein. Sie sichert die NFC-Verbindung zu Ihrer Karte.</string>

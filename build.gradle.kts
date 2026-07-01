@@ -14,7 +14,7 @@ allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         filter {
-            exclude { element -> element.file.path.contains("/build/generated/") }
+            exclude { element -> element.file.path.replace('\\', '/').contains("/build/generated/") }
         }
     }
 }

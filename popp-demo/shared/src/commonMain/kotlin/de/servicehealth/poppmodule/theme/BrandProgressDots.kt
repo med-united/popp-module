@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -34,22 +33,12 @@ fun BrandProgressDots(
     ) {
         repeat(stepCount) { index ->
             if (index > 0) Spacer(Modifier.width(7.dp))
-            if (index == currentStep) {
-                Box(
-                    Modifier
-                        .width(32.dp)
-                        .height(5.dp)
-                        .clip(CircleShape)
-                        .background(active),
-                )
-            } else {
-                Box(
-                    Modifier
-                        .size(width = 10.dp, height = 5.dp)
-                        .clip(CircleShape)
-                        .background(inactive),
-                )
-            }
+            Box(
+                Modifier
+                    .size(width = if (index == currentStep) 32.dp else 10.dp, height = 5.dp)
+                    .clip(CircleShape)
+                    .background(if (index <= currentStep) active else inactive),
+            )
         }
     }
 }

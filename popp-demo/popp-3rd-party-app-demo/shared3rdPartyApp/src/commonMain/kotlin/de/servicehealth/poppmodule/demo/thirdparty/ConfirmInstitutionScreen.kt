@@ -145,7 +145,7 @@ fun ConfirmInstitutionScreen(
                 BrandProgressDots(stepCount = totalSteps, currentStep = currentStep)
             }
 
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(24.dp))
 
             Text(
                 text = stringResource(Res.string.confirm_institution_title),

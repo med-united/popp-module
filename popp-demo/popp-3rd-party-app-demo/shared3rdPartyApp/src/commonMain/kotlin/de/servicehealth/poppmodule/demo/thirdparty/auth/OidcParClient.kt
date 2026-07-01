@@ -68,6 +68,7 @@ class OidcParClient {
                         response.body()
                     } catch (e: Exception) {
                         if (e is CancellationException) throw e
+                        OidcSessionStore.clear()
                         return ParResult.Error("Unexpected response format: ${e.message}")
                     }
                 ParResult.Success(parResponse.requestUri, parResponse.expiresIn, state)
@@ -80,11 +81,13 @@ class OidcParClient {
                         ParErrorResponse("unknown_error", response.status.description)
                     }
                 val description = errorResponse.errorDescription?.let { " - $it" } ?: ""
+                OidcSessionStore.clear()
                 ParResult.Error("PAR failed: ${errorResponse.error}$description")
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            OidcSessionStore.clear()
             ParResult.Error("Network error: ${e.message}")
         }
     }

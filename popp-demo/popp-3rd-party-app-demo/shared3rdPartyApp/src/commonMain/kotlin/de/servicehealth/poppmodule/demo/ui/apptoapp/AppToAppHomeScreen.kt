@@ -36,7 +36,7 @@ import io.ktor.http.URLBuilder
 import kotlinx.coroutines.launch
 
 private const val DEMO_PAR_ENDPOINT = "https://idp.demo.gematik.de/par"
-private const val DEMO_AUTH_ENDPOINT = "https://idp.insurance.popp.demo/app-to-app/auth"
+private const val DEMO_AUTH_ENDPOINT = "https://popp.service-health.de/app-to-app/auth"
 private const val DEMO_CLIENT_ID = "demo-3rd-party-app"
 
 /** The App-zu-App home screen that initiates the PAR flow. */

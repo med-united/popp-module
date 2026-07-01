@@ -45,7 +45,7 @@ fun App(poppSdk: PoppSdk) {
 
             LaunchedEffect(Unit) {
                 DeepLinkManager.deepLinks.collect { url ->
-                    if (url.startsWith("https://demo.popp.de/callback") || url.startsWith("popp-3rdparty://callback")) {
+                    if (url.startsWith("https://popp.service-health.de/callback") || url.startsWith("popp-3rdparty://callback")) {
                         val parsed = Url(url)
                         val code = parsed.parameters["code"]
                         val state = parsed.parameters["state"]
@@ -64,6 +64,7 @@ fun App(poppSdk: PoppSdk) {
                                     append(parts.joinToString("&"))
                                 }
                             }
+                        DeepLinkManager.clearReplay()
                         nav.navigate(route)
                     }
                 }
@@ -199,8 +200,8 @@ fun App(poppSdk: PoppSdk) {
                     route = "${Routes.POPP_CALLBACK}?${Routes.ARG_CODE}={${Routes.ARG_CODE}}&${Routes.ARG_STATE}={${Routes.ARG_STATE}}&${Routes.ARG_ERROR}={${Routes.ARG_ERROR}}",
                     deepLinks =
                         listOf(
-                            navDeepLink { uriPattern = "https://demo.popp.de/callback?code={code}&state={state}" },
-                            navDeepLink { uriPattern = "https://demo.popp.de/callback?error={error}&state={state}" },
+                            navDeepLink { uriPattern = "https://popp.service-health.de/callback?code={code}&state={state}" },
+                            navDeepLink { uriPattern = "https://popp.service-health.de/callback?error={error}&state={state}" },
                         ),
                     arguments =
                         listOf(

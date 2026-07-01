@@ -13,7 +13,7 @@ actual fun rememberAppLauncher(): AppLauncher {
     val context = LocalContext.current
     return remember(context) {
         object : AppLauncher {
-            override val redirectUri = "https://demo.popp.de/callback"
+            override val redirectUri = "https://popp.service-health.de/callback"
 
             override suspend fun openUrl(url: String): Boolean {
                 return try {

@@ -139,7 +139,7 @@ fun InstitutionSearchScreen(
                 Modifier
                     .fillMaxSize()
                     .imePadding()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 12.dp),
         ) {
             Spacer(Modifier.height(24.dp))
 

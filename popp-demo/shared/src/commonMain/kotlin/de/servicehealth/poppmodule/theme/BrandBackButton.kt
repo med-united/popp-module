@@ -32,18 +32,19 @@ fun BrandBackButton(
     val c = BrandTheme.colors
     val content = if (variant == BrandBackButtonVariant.OnDark) c.white else c.violet
 
-    val pillModifier =
+    val styledModifier =
         if (variant == BrandBackButtonVariant.OnDark) {
-            modifier.clip(CircleShape).background(c.white.copy(alpha = 0.16f))
-        } else {
             modifier
+                .clip(CircleShape)
+                .background(c.white.copy(alpha = 0.16f))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 14.dp, vertical = 9.dp)
+        } else {
+            modifier.clickable(onClick = onClick)
         }
 
     Row(
-        modifier =
-            pillModifier
-                .clickable(onClick = onClick)
-                .padding(horizontal = 14.dp, vertical = 9.dp),
+        modifier = styledModifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

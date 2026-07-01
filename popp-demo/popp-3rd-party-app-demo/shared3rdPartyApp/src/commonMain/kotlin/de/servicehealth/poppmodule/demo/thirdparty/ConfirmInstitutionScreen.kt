@@ -21,9 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.outlined.LocalHospital
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.LocalHospital
-import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
@@ -66,7 +66,7 @@ import org.jetbrains.compose.resources.stringResource
 
 data class LeiData(
     val institutionType: String,
-    val institutionTypeIcon: ImageVector = Icons.Rounded.LocalHospital,
+    val institutionTypeIcon: ImageVector = Icons.Outlined.LocalHospital,
     val name: String,
     val address: String,
     val openingHours: String,
@@ -274,7 +274,7 @@ private fun LeiCard(data: LeiData) {
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 LeiDetailRow(
-                    icon = Icons.Rounded.LocationOn,
+                    icon = Icons.Outlined.LocationOn,
                     label = stringResource(Res.string.confirm_institution_label_address),
                     value = data.address,
                 )
@@ -417,7 +417,7 @@ private fun FavoriteToggleRow(
 private fun LeiDetailRowPreview() {
     PreviewBrandTheme {
         LeiDetailRow(
-            icon = Icons.Rounded.LocationOn,
+            icon = Icons.Outlined.LocationOn,
             label = "ADRESSE",
             value = "Marktplatz 3, 52062 Aachen",
         )

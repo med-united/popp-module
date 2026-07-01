@@ -16,11 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.LocalPharmacy
 import androidx.compose.material.icons.outlined.MedicalServices
@@ -41,28 +39,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_back
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_clear
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_empty_hint
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_field_placeholder
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_header
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_no_results
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.institution_search_title
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.search_result_count
 import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandCard
-import de.servicehealth.poppmodule.theme.BrandField
 import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandScreenHeader
-import de.servicehealth.poppmodule.theme.BrandSpinner
+import de.servicehealth.poppmodule.theme.BrandSearchBody
+import de.servicehealth.poppmodule.theme.BrandSearchTexts
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 enum class InstitutionType { PHARMACY, PRACTICE, ONLINE }
@@ -151,47 +147,19 @@ fun InstitutionSearchScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            BrandField(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = stringResource(Res.string.institution_search_field_placeholder),
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = if (query.isNotEmpty()) c.violet else c.silver,
-                        modifier = Modifier.size(20.dp),
-                    )
-                },
-                trailingIcon =
-                    if (query.isNotEmpty()) {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(Res.string.institution_search_clear),
-                                tint = c.silver,
-                                modifier =
-                                    Modifier
-                                        .size(18.dp)
-                                        .clickable { query = "" },
-                            )
-                        }
-                    } else {
-                        null
-                    },
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            when {
-                isLoading -> {
-                    Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
-                        BrandSpinner(color = c.violet)
-                    }
-                }
-
-                query.isBlank() -> {
+            BrandSearchBody(
+                query = query,
+                onQueryChange = { query = it },
+                texts =
+                    BrandSearchTexts(
+                        placeholder = stringResource(Res.string.institution_search_field_placeholder),
+                        noResultsText = stringResource(Res.string.institution_search_no_results),
+                    ),
+                isLoading = isLoading,
+                hasSearched = hasSearched,
+                resultsCount = results.size,
+                errorMessage = errorMessage,
+                emptyContent = {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -207,59 +175,30 @@ fun InstitutionSearchScreen(
                             text = stringResource(Res.string.institution_search_empty_hint),
                             color = c.neutral700,
                             style = MaterialTheme.typography.bodyMedium,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            textAlign = TextAlign.Center,
                         )
                     }
-                }
-
-                hasSearched && results.isEmpty() -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null,
-                            tint = c.silver,
-                            modifier = Modifier.size(48.dp),
-                        )
-                        Text(
-                            text = stringResource(Res.string.institution_search_no_results),
-                            color = c.neutral700,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                }
-
-                results.isNotEmpty() -> {
-                    Text(
-                        text = pluralStringResource(Res.plurals.search_result_count, results.size, results.size),
-                        color = c.neutral700,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    LazyColumn {
-                        item {
-                            BrandCard(padding = PaddingValues(0.dp)) {
-                                Column {
-                                    results.forEachIndexed { index, institution ->
-                                        InstitutionRow(
-                                            institution = institution,
-                                            isFavorite = institution.id in favoriteIds,
-                                            onClick = { onInstitutionSelected(institution) },
-                                        )
-                                        if (index != results.lastIndex) {
-                                            HorizontalDivider(color = c.mist)
-                                        }
+                },
+                itemsContent = {
+                    item {
+                        BrandCard(padding = PaddingValues(0.dp)) {
+                            Column {
+                                results.forEachIndexed { index, institution ->
+                                    InstitutionRow(
+                                        institution = institution,
+                                        isFavorite = institution.id in favoriteIds,
+                                        onClick = { onInstitutionSelected(institution) },
+                                    )
+                                    if (index != results.lastIndex) {
+                                        HorizontalDivider(color = c.mist)
                                     }
                                 }
                             }
                         }
-                        item { Spacer(Modifier.height(24.dp)) }
                     }
-                }
-            }
+                    item { Spacer(Modifier.height(24.dp)) }
+                },
+            )
         }
     }
 }

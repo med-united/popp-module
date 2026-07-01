@@ -1,7 +1,6 @@
 package de.servicehealth.poppmodule.demo
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +41,7 @@ import de.servicehealth.poppmodule.demo.generated.resources.insurance_selection_
 import de.servicehealth.poppmodule.demo.generated.resources.insurance_selection_title
 import de.servicehealth.poppmodule.sdk.federation.FederationIdp
 import de.servicehealth.poppmodule.sdk.federation.FederationMasterClient
+import de.servicehealth.poppmodule.theme.BrandBackButton
 import de.servicehealth.poppmodule.theme.BrandCard
 import de.servicehealth.poppmodule.theme.BrandCardListPosition
 import de.servicehealth.poppmodule.theme.BrandProgressDots
@@ -53,8 +51,6 @@ import de.servicehealth.poppmodule.theme.BrandSearchTexts
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.PreviewBrandTheme
 import org.jetbrains.compose.resources.stringResource
-
-// ── Screen ───────────────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun InsuranceSelectionScreen(
@@ -113,20 +109,9 @@ fun InsuranceSelectionScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(Res.string.insurance_selection_back),
-                    tint = c.violet,
-                    modifier =
-                        Modifier
-                            .size(24.dp)
-                            .clickable { onBack() },
-                )
-                Text(
-                    text = stringResource(Res.string.insurance_selection_back),
-                    color = c.violet,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.clickable { onBack() },
+                BrandBackButton(
+                    label = stringResource(Res.string.insurance_selection_back),
+                    onClick = onBack,
                 )
                 Spacer(Modifier.weight(1f))
                 BrandProgressDots(stepCount = 4, currentStep = 0)
@@ -138,20 +123,20 @@ fun InsuranceSelectionScreen(
                 Modifier
                     .fillMaxSize()
                     .imePadding()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 12.dp),
         ) {
             Spacer(Modifier.height(24.dp))
 
             Text(
                 text = stringResource(Res.string.insurance_selection_title),
                 color = c.ink,
-                style = MaterialTheme.typography.displaySmall,
+                style = BrandTheme.typography.displaySmall,
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 text = stringResource(Res.string.insurance_selection_subtitle),
-                color = c.ink,
-                style = MaterialTheme.typography.bodyLarge,
+                color = c.neutral700,
+                style = BrandTheme.typography.bodyMedium,
             )
 
             Spacer(Modifier.height(16.dp))
@@ -186,8 +171,6 @@ fun InsuranceSelectionScreen(
     }
 }
 
-// ── Row item ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun InsuranceRow(
     insurance: FederationIdp,
@@ -198,6 +181,7 @@ private fun InsuranceRow(
     BrandCard(
         onClick = onClick,
         listPosition = listPosition,
+        flat = true,
         padding = PaddingValues(horizontal = 6.dp, vertical = 13.dp),
     ) {
         Row(
@@ -226,7 +210,7 @@ private fun InsuranceRow(
                 Text(
                     text = insurance.name,
                     color = c.ink,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = BrandTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -241,8 +225,6 @@ private fun InsuranceRow(
         }
     }
 }
-
-// ── Previews ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 private val previewInsurances =
     listOf(

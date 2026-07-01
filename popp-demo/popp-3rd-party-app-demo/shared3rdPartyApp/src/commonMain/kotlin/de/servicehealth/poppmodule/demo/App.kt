@@ -18,20 +18,34 @@ import de.servicehealth.poppmodule.demo.thirdparty.InstitutionSearchScreen
 import de.servicehealth.poppmodule.demo.thirdparty.LeiData
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInSuccessScreen
+import de.servicehealth.poppmodule.demo.thirdparty.can.CanInputScreen
+import de.servicehealth.poppmodule.demo.thirdparty.can.CanStore
+import de.servicehealth.poppmodule.demo.thirdparty.can.InMemoryCanStore
+import de.servicehealth.poppmodule.demo.thirdparty.can.LocalCanStore
 import de.servicehealth.poppmodule.demo.thirdparty.icon
 import de.servicehealth.poppmodule.demo.thirdparty.label
 import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
+import de.servicehealth.poppmodule.demo.thirdparty.nfc.ErrorPlaceholderScreen
+import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanScreen
 import de.servicehealth.poppmodule.demo.thirdparty.stubLeiData
 import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
 import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
+import de.servicehealth.poppmodule.sdk.egk.parsePoppTokenClaims
 import de.servicehealth.poppmodule.theme.BrandTheme
 
 @Composable
-fun App(poppSdk: PoppSdk) {
+fun App(
+    poppSdk: PoppSdk = PoppSdk(),
+    canStore: CanStore = InMemoryCanStore(),
+) {
     BrandTheme {
-        CompositionLocalProvider(LocalPoppSdk provides poppSdk) {
+        CompositionLocalProvider(
+            LocalPoppSdk provides poppSdk,
+            LocalCanStore provides canStore,
+        ) {
             val nav = rememberNavController()
             // In-memory for now — persisting to device storage is a separate step (POPPM-116 follow-up).
             var favoriteIds by remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -102,7 +116,65 @@ fun App(poppSdk: PoppSdk) {
                     OnsiteCheckInQrScannerScreen(
                         onBack = { nav.popBackStack() },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
-                        onSuccess = { nav.navigate(Routes.CONFIRM_INSTITUTION) },
+                        onProceed = { nav.navigate(Routes.CHECK_IN_CAN) },
+                    )
+                }
+                composable(Routes.CHECK_IN_CAN) {
+                    CanInputScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onComplete = { nav.navigate(Routes.CHECK_IN_NFC) },
+                    )
+                }
+                composable(Routes.CHECK_IN_NFC) {
+                    NfcScanScreen(
+                        onBack = { nav.popBackStack() },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onSuccess = { poppToken, _ ->
+                            val proofTime = parsePoppTokenClaims(poppToken)?.patientProofTimeEpochSeconds
+                            nav.navigate(Routes.checkInSuccess(proofTime)) {
+                                popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
+                            }
+                        },
+                        onError = { reason, _ ->
+                            nav.navigate(Routes.checkInError(reason.name)) {
+                                popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
+                            }
+                        },
+                    )
+                }
+                composable(
+                    route = Routes.CHECK_IN_SUCCESS_ROUTE,
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_PROOF_TIME) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
+                ) { entry ->
+                    val proofTime =
+                        entry.arguments
+                            ?.read { getStringOrNull(Routes.ARG_PROOF_TIME) }
+                            ?.toLongOrNull()
+                    OnsiteCheckInSuccessScreen(
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        proofEpochSeconds = proofTime,
+                    )
+                }
+                composable(
+                    route = "${Routes.CHECK_IN_ERROR}?${Routes.ARG_FAILURE}={${Routes.ARG_FAILURE}}",
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_FAILURE) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
+                ) { entry ->
+                    ErrorPlaceholderScreen(
+                        failure = entry.arguments?.read { getStringOrNull(Routes.ARG_FAILURE) },
+                        onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }
                 composable(
@@ -150,7 +222,7 @@ fun App(poppSdk: PoppSdk) {
                                     favoriteIds + institution.id
                                 }
                         },
-                        onConfirm = { /* TODO: navigate to auth flow */ },
+                        onConfirm = { nav.navigate(Routes.CHECK_IN_CAN) },
                         onBack = { nav.popBackStack() },
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },

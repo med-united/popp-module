@@ -78,7 +78,7 @@ fun OnsiteCheckInEntryScreen(
                     .padding(top = 18.dp),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().height(36.dp),
+                modifier = Modifier.fillMaxWidth().height(20.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
             ) {

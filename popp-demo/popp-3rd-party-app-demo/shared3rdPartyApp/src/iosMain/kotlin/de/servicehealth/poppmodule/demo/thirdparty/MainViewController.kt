@@ -3,6 +3,7 @@ package de.servicehealth.poppmodule.demo.thirdparty
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import de.servicehealth.poppmodule.demo.App
+import de.servicehealth.poppmodule.demo.navigation.DeepLinkManager
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.sdk.PoppSdkContext
 
@@ -16,3 +17,7 @@ fun MainViewController(fqdn: String) =
 
         App(poppSdk = poppSdk)
     }
+
+fun handleDeepLink(url: String) {
+    DeepLinkManager.handleDeepLink(url)
+}

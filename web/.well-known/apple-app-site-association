@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "YX6NS7XNPL.de.servicehealth.poppmodule.demo.insuranceYX6NS7XNPL",
+        "paths": ["/auth", "/app-to-app/*"]
+      }
+    ]
+  }
+}

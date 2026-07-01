@@ -6,43 +6,166 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.LocalPoppSdk
+import de.servicehealth.poppmodule.demo.thirdparty.auth.OidcParClient
+import de.servicehealth.poppmodule.demo.thirdparty.auth.ParResult
+import de.servicehealth.poppmodule.demo.thirdparty.rememberAppLauncher
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.PreviewBrandTheme
+import io.ktor.http.URLBuilder
+import kotlinx.coroutines.launch
 
-/** Placeholder for the App-zu-App home. Replaced by the real screen in its own ticket. */
+private const val DEMO_PAR_ENDPOINT = "https://idp.demo.gematik.de/par"
+private const val DEMO_AUTH_ENDPOINT = "https://idp.insurance.popp.demo/app-to-app/auth"
+private const val DEMO_CLIENT_ID = "demo-3rd-party-app"
+
+/** The App-zu-App home screen that initiates the PAR flow. */
 @Composable
 fun AppToAppHomeScreen(scenarioId: String?) {
-    val sdk = LocalPoppSdk.current
     val c = BrandTheme.colors
+    val coroutineScope = rememberCoroutineScope()
+    val appLauncher = rememberAppLauncher()
+
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var requestUri by remember { mutableStateOf<String?>(null) }
+    var pendingState by remember { mutableStateOf<String?>(null) }
+    var showFallbackDialog by remember { mutableStateOf(false) }
+    val parClient = remember { OidcParClient() }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            parClient.close()
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize().background(c.mist).padding(24.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "App-to-App — ${scenarioId ?: "?"} (placeholder)",
+                text = "App-zu-App — ${scenarioId ?: "?"}",
                 color = c.ink,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
             )
-            Text(
-                text = sdk.platformInfo(),
-                color = c.neutral700,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-            )
+
+            if (requestUri != null) {
+                Text(
+                    text = "Erfolg! request_uri:\n$requestUri",
+                    color = c.violet,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
+                val uri = requestUri
+                val currentState = pendingState
+                Button(onClick = {
+                    if (uri != null && currentState != null) {
+                        coroutineScope.launch {
+                            val safeUrl =
+                                URLBuilder(DEMO_AUTH_ENDPOINT).apply {
+                                    parameters.append("client_id", DEMO_CLIENT_ID)
+                                    parameters.append("request_uri", uri)
+                                    parameters.append("state", currentState)
+                                    parameters.append("redirect_uri", appLauncher.redirectUri)
+                                }.buildString()
+
+                            val success = appLauncher.openUrl(safeUrl)
+                            if (!success) {
+                                showFallbackDialog = true
+                            }
+                        }
+                    }
+                }) {
+                    Text("Zur Krankenkassen-App wechseln")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            isLoading = true
+                            errorMessage = null
+                            try {
+                                val result =
+                                    parClient.pushAuthorizationRequest(
+                                        parEndpoint = DEMO_PAR_ENDPOINT,
+                                        clientId = DEMO_CLIENT_ID,
+                                        redirectUri = appLauncher.redirectUri,
+                                    )
+                                when (result) {
+                                    is ParResult.Success -> {
+                                        requestUri = result.requestUri
+                                        pendingState = result.state
+                                    }
+                                    is ParResult.Error -> errorMessage = result.message
+                                }
+                            } finally {
+                                isLoading = false
+                            }
+                        }
+                    },
+                    enabled = !isLoading,
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = c.white, modifier = Modifier.padding(end = 8.dp))
+                    }
+                    Text("App-zu-App-Flow starten")
+                }
+
+                if (errorMessage != null) {
+                    Text(
+                        text = "Fehler: $errorMessage",
+                        color = c.danger,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
         }
+    }
+
+    if (showFallbackDialog) {
+        AlertDialog(
+            onDismissRequest = { showFallbackDialog = false },
+            title = {
+                Text("App nicht installiert", color = c.ink)
+            },
+            text = {
+                Text(
+                    "Ihre Krankenkassen-App konnte nicht gefunden werden. Bitte stellen Sie sicher, dass diese installiert ist, und versuchen Sie es erneut.",
+                    color = c.neutral700,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showFallbackDialog = false }) {
+                    Text("OK", color = c.violet)
+                }
+            },
+            containerColor = c.white,
+            titleContentColor = c.ink,
+            textContentColor = c.neutral700,
+        )
     }
 }
 

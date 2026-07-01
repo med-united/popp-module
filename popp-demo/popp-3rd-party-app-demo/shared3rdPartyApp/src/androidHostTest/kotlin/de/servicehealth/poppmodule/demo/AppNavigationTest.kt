@@ -27,12 +27,12 @@ class AppNavigationTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun appToAppModeStartOpensCheckInEntry() =
+    fun appToAppModeStartOpensAppToAppHome() =
         runComposeUiTest {
             setContent { App(PoppSdk()) }
             onNodeWithText("Online-Apotheke").performScrollTo().performClick()
             onNodeWithText("App-zu-App").performScrollTo().performClick() // switch mode
             onNodeWithText("Starte die Demo").performClick()
-            onNodeWithText("VOR-ORT-CHECK-IN").assertExists()
+            onNodeWithText("App-zu-App — online_pharmacy").assertExists()
         }
 }

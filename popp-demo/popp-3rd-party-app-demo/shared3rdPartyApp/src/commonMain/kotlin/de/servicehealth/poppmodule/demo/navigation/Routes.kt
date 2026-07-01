@@ -9,6 +9,12 @@ object Routes {
     const val ARG_SCENARIO = "scenario"
     const val INSTITUTION_SEARCH = "institution_search"
     const val CONFIRM_INSTITUTION = "confirm_institution"
+    const val POPP_CALLBACK = "popp_callback"
+
+    // Args for callback
+    const val ARG_CODE = "code"
+    const val ARG_STATE = "state"
+    const val ARG_ERROR = "error"
 
     // Args for confirm institution screen
     const val ARG_INSTITUTION_ID = "institution_id"

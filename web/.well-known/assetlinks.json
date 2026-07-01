@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "de.servicehealth.poppmodule.demo.insurance",
+      "sha256_cert_fingerprints": [
+        "14:6D:E8:86:14:6D:E8:86:14:6D:E8:86:14:6D:E8:86:14:6D:E8:86:14:6D:E8:86:14:6D:E8:86:14:6D:E8:86"
+      ]
+    }
+  }
+]

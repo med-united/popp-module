@@ -10,4 +10,8 @@ object DeepLinkManager {
     fun handleDeepLink(url: String) {
         _deepLinks.tryEmit(url)
     }
+
+    fun clearReplay() {
+        _deepLinks.resetReplayCache()
+    }
 }

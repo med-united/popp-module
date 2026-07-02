@@ -13,6 +13,7 @@ object Routes {
     const val CHECK_IN_SUCCESS = "check_in_success"
     const val CHECK_IN_ERROR = "check_in_error"
     const val ARG_FAILURE = "failure"
+    const val ARG_CODE = "code"
     const val ARG_PROOF_TIME = "proofTime"
 
     const val CONFIRM_INSTITUTION = "confirm_institution"
@@ -25,13 +26,19 @@ object Routes {
 
     const val CHECK_IN_SUCCESS_ROUTE = "$CHECK_IN_SUCCESS?$ARG_PROOF_TIME={$ARG_PROOF_TIME}"
 
+    const val CHECK_IN_ERROR_ROUTE =
+        "$CHECK_IN_ERROR?$ARG_FAILURE={$ARG_FAILURE}&$ARG_CODE={$ARG_CODE}"
+
     const val CONFIRM_INSTITUTION_ROUTE =
         "$CONFIRM_INSTITUTION?$ARG_INSTITUTION_ID={$ARG_INSTITUTION_ID}&$ARG_NAME={$ARG_NAME}&$ARG_ADDRESS={$ARG_ADDRESS}&$ARG_CATEGORY={$ARG_CATEGORY}"
 
     fun checkInSuccess(proofTimeEpochSeconds: Long?) =
         "$CHECK_IN_SUCCESS?$ARG_PROOF_TIME=${proofTimeEpochSeconds ?: ""}"
 
-    fun checkInError(failure: String) = "$CHECK_IN_ERROR?$ARG_FAILURE=$failure"
+    fun checkInError(
+        failure: String,
+        code: String? = null,
+    ) = "$CHECK_IN_ERROR?$ARG_FAILURE=$failure&$ARG_CODE=${code ?: ""}"
 
     fun confirmInstitution(
         institutionId: String,

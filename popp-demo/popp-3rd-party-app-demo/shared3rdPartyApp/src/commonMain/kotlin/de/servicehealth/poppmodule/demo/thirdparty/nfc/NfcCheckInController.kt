@@ -72,7 +72,7 @@ class NfcCheckInController(
                         }
 
                         is EgkCheckInResult.Failed ->
-                            NfcScanUiState.Failed(NfcScanFailure.SERVER_REJECTED, result.detail)
+                            NfcScanUiState.Failed(NfcScanFailure.SERVER_REJECTED, result.code)
                     }
                 } catch (e: CancellationException) {
                     throw e

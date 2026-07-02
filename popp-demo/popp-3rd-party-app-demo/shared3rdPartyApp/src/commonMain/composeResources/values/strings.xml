@@ -97,6 +97,23 @@
     <string name="checkin_success_time_label">Zeitpunkt</string>
     <string name="checkin_success_proof_label">Nachweis-ID</string>
     <string name="checkin_success_done">Fertig</string>
-    <string name="checkin_error_title">Karte lesen fehlgeschlagen</string>
-    <string name="checkin_error_subtitle">Anwesenheit konnte nicht nachgewiesen werden</string>
+
+    <string name="checkin_error_wrong_can_title">Falsche CAN</string>
+    <string name="checkin_error_wrong_can_message">Die eingegebene Zugangsnummer (CAN) passt nicht zu dieser Karte. Bitte überprüfen Sie die CAN.</string>
+    <string name="checkin_error_card_lost_title">Verbindung unterbrochen</string>
+    <string name="checkin_error_card_lost_message">Die Karte wurde zu früh entfernt. Halten Sie sie ruhig an die Rückseite des Geräts und versuchen Sie es erneut.</string>
+    <string name="checkin_error_secure_channel_title">Sichere Verbindung fehlgeschlagen</string>
+    <string name="checkin_error_secure_channel_message">Die gesicherte Verbindung zur Karte konnte nicht aufgebaut werden. Bitte versuchen Sie es erneut.</string>
+    <string name="checkin_error_network_title">Keine Internetverbindung</string>
+    <string name="checkin_error_network_message">Der PoPP-Dienst ist nicht erreichbar. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="checkin_error_server_title">Karte nicht akzeptiert</string>
+    <string name="checkin_error_server_message">Der PoPP-Dienst hat diese Karte abgelehnt. Bitte wenden Sie sich an die Einrichtung.</string>
+    <string name="checkin_error_protocol_title">Unerwartete Antwort</string>
+    <string name="checkin_error_protocol_message">Der Dienst hat unerwartet geantwortet. Bitte versuchen Sie es erneut.</string>
+    <string name="checkin_error_unknown_title">Etwas ist schiefgelaufen</string>
+    <string name="checkin_error_unknown_message">Beim Lesen der Karte ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="checkin_error_code_label">Fehlercode</string>
+    <string name="checkin_error_action_retry">Erneut versuchen</string>
+    <string name="checkin_error_action_can">CAN erneut eingeben</string>
+    <string name="checkin_error_action_close">Schließen</string>
 </resources>

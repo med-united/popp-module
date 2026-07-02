@@ -1,0 +1,40 @@
+name: Visual Snapshots
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate snapshots
+        run: ./gradlew recordSnapshots
+
+      - name: Upload snapshot images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-images
+          retention-days: 30
+          path: |
+            popp-demo/shared/build/outputs/roborazzi/
+            popp-demo/popp-3rd-party-app-demo/shared3rdPartyApp/build/outputs/roborazzi/

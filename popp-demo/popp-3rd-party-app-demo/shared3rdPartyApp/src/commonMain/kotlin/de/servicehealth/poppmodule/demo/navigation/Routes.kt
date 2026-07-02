@@ -1,5 +1,7 @@
 package de.servicehealth.poppmodule.demo.navigation
 
+import io.ktor.http.encodeURLParameter
+
 object Routes {
     const val LAUNCHER = "popp_launcher"
     const val INTEGRATED_HOME = "integrated_home"
@@ -38,7 +40,7 @@ object Routes {
     fun checkInError(
         failure: String,
         code: String? = null,
-    ) = "$CHECK_IN_ERROR?$ARG_FAILURE=$failure&$ARG_CODE=${code ?: ""}"
+    ) = "$CHECK_IN_ERROR?$ARG_FAILURE=$failure&$ARG_CODE=${encode(code ?: "")}"
 
     fun confirmInstitution(
         institutionId: String,
@@ -52,5 +54,5 @@ object Routes {
 
     fun appToAppHome(scenario: String) = "$APP_TO_APP_HOME?$ARG_SCENARIO=$scenario"
 
-    private fun encode(s: String) = s.replace(" ", "%20").replace(",", "%2C")
+    private fun encode(s: String) = s.encodeURLParameter()
 }

@@ -48,6 +48,7 @@ data class BrandColors(
     val white: Color = Color(0xFFFFFFFF),
     val success: Color = Color(0xFF1F8A5B),
     val successBg: Color = Color(0xFFE4F3EC),
+    val success700: Color = Color(0xFF064B2D),
     val warning: Color = Color(0xFFC98A12),
     val warningBg: Color = Color(0xFFFBF0D8),
     val danger: Color = Color(0xFFD23B3B),

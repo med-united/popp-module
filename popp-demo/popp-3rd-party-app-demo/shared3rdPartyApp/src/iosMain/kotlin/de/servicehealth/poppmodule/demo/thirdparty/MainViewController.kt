@@ -4,6 +4,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import de.servicehealth.poppmodule.demo.App
 import de.servicehealth.poppmodule.demo.navigation.DeepLinkManager
+import de.servicehealth.poppmodule.demo.thirdparty.can.createSecureCanStore
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.sdk.PoppSdkContext
 
@@ -15,7 +16,7 @@ fun MainViewController(fqdn: String) =
                 PoppSdk(context = PoppSdkContext()).also { it.init(fqdn) }
             }
 
-        App(poppSdk = poppSdk)
+        App(poppSdk = poppSdk, canStore = createSecureCanStore())
     }
 
 fun handleDeepLink(url: String) {

@@ -37,3 +37,21 @@ kover {
         }
     }
 }
+
+tasks.register("recordSnapshots") {
+    group = "roborazzi"
+    description = "Record Roborazzi snapshot baselines in both demo modules"
+    dependsOn(
+        ":popp-demo:shared:testAndroidHostTest",
+        ":popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest",
+    )
+}
+
+tasks.register("verifySnapshots") {
+    group = "roborazzi"
+    description = "Verify Roborazzi snapshots against recorded baselines in both demo modules"
+    dependsOn(
+        ":popp-demo:shared:testAndroidHostTest",
+        ":popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest",
+    )
+}

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,16 +63,24 @@ import de.servicehealth.poppmodule.theme.BrandProgressDots
 import de.servicehealth.poppmodule.theme.BrandSpinner
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.PreviewBrandTheme
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun OnsiteCheckInQrScannerScreen(
     onBack: () -> Unit,
     onClose: () -> Unit,
-    onSuccess: () -> Unit = {},
+    onProceed: () -> Unit = {},
 ) {
     val c = BrandTheme.colors
     var scanResult by remember { mutableStateOf<ScanResult?>(null) }
+
+    LaunchedEffect(scanResult) {
+        if (scanResult is ScanResult.Valid) {
+            delay(900)
+            onProceed()
+        }
+    }
 
     Column(
         modifier =

@@ -81,7 +81,7 @@ internal class MacObject(
         secureMessagingSSC: ByteArray,
         kMac: ByteArray,
     ): CMac =
-        CMac(AESEngine()).apply {
+        CMac(AESEngine.newInstance()).apply {
             init(KeyParameter(kMac))
             update(secureMessagingSSC, 0, secureMessagingSSC.size)
         }

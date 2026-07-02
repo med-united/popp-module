@@ -82,4 +82,22 @@ dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
     add("androidHostTestImplementation", libs.robolectric)
     add("androidHostTestImplementation", libs.compose.ui.test.manifest)
+    add("androidHostTestImplementation", libs.roborazzi.core)
+    add("androidHostTestImplementation", libs.roborazzi.compose)
+}
+
+// Mode control — read at configuration time (configuration-cache safe)
+tasks.withType<Test>().configureEach {
+    val requestedTasks = gradle.startParameter.taskNames
+    val mode =
+        when {
+            requestedTasks.any { it.contains("recordSnapshots") } -> "record"
+            requestedTasks.any { it.contains("verifySnapshots") } -> "verify"
+            else -> project.findProperty("roborazziMode")?.toString()
+        }
+    when (mode) {
+        "record" -> systemProperty("roborazzi.test.record", "true")
+        "verify" -> systemProperty("roborazzi.test.verify", "true")
+        else -> systemProperty("roborazzi.test.compare", "true")
+    }
 }

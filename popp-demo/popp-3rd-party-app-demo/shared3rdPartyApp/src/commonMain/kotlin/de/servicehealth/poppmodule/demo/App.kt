@@ -221,10 +221,10 @@ fun App(
                             },
                         ),
                 ) { entry ->
-                    val institutionId = entry.arguments?.getString(Routes.ARG_INSTITUTION_ID)
-                    val name = entry.arguments?.getString(Routes.ARG_NAME) ?: stubLeiData.name
-                    val address = entry.arguments?.getString(Routes.ARG_ADDRESS) ?: stubLeiData.address
-                    val category = entry.arguments?.getString(Routes.ARG_CATEGORY) ?: stubLeiData.institutionType
+                    val institutionId = entry.arguments?.read { getStringOrNull(Routes.ARG_INSTITUTION_ID) }
+                    val name = entry.arguments?.read { getStringOrNull(Routes.ARG_NAME) } ?: stubLeiData.name
+                    val address = entry.arguments?.read { getStringOrNull(Routes.ARG_ADDRESS) } ?: stubLeiData.address
+                    val category = entry.arguments?.read { getStringOrNull(Routes.ARG_CATEGORY) } ?: stubLeiData.institutionType
                     val institution = institutionId?.let { id -> mockInstitutions.find { it.id == id } } ?: mockInstitutions.first()
                     ConfirmInstitutionScreen(
                         leiData =

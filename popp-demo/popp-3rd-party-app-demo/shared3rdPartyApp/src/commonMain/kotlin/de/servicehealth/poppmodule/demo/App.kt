@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.model.IntegrationMode
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
@@ -207,7 +208,11 @@ fun App(
                     )
                 }
                 composable(Routes.INSURANCE_SELECTION) {
-                    InsuranceSelectionScreen({ nav.popBackStack() }, onBack = { nav.popBackStack() }, applicationTitle = stringResource(Res.string.application_title))
+                    InsuranceSelectionScreen(
+                        onClose = { nav.popBackStack() },
+                        onBack = { nav.popBackStack() },
+                        applicationTitle = stringResource(Res.string.application_title),
+                    )
                 }
             }
         }

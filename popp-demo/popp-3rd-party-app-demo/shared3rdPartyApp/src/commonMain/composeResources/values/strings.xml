@@ -13,7 +13,8 @@
     <string name="mode_app2app_desc">Die Demo-App überträgt die Authentifizierung an die Versicherungs-App.</string>
     <string name="start_demo_button">Starte die Demo</string>
 
-    <string name="confirm_institution_header">VOR-ORT-CHECK-IN</string>
+    <string name="application_title">VOR-ORT-CHECK-IN</string>
+
     <string name="confirm_institution_back">Zurück</string>
     <string name="confirm_institution_title">Einrichtung bestätigen</string>
     <string name="confirm_institution_subtitle">Bitte prüfen Sie die Einrichtung, bei der Sie einchecken.</string>
@@ -55,13 +56,8 @@
     <string name="institution_search_back">Zurück</string>
     <string name="institution_search_title">Einrichtung suchen</string>
     <string name="institution_search_field_placeholder">Apotheke oder Praxis suchen…</string>
-    <string name="institution_search_clear">Löschen</string>
     <string name="institution_search_empty_hint">Tippen Sie z.&#160;B. „Apotheke", „Markt"\noder einen Praxisnamen, um\nEinrichtungen zu finden.</string>
     <string name="institution_search_no_results">Keine Einrichtung gefunden.</string>
-    <plurals name="search_result_count">
-        <item quantity="one">%1$d Ergebnis</item>
-        <item quantity="other">%1$d Ergebnisse</item>
-    </plurals>
 
     <string name="can_title">Zugangsnummer eingeben</string>
     <string name="can_subtitle">Geben Sie die 6-stellige CAN (Card Access Number) ein. Sie sichert die NFC-Verbindung zu Ihrer Karte.</string>

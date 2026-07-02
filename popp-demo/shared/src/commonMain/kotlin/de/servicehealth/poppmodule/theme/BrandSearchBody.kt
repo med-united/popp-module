@@ -21,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import de.servicehealth.poppmodule.demo.generated.resources.Res
+import de.servicehealth.poppmodule.demo.generated.resources.search_result_count
+import org.jetbrains.compose.resources.pluralStringResource
 
 data class BrandSearchTexts(
     val placeholder: String,
@@ -103,7 +106,7 @@ fun BrandSearchBody(
 
             resultsCount > 0 -> {
                 Text(
-                    text = "$resultsCount Ergebnis${if (resultsCount != 1) "se" else ""}",
+                    text = pluralStringResource(Res.plurals.search_result_count, resultsCount, resultsCount),
                     color = c.neutral700,
                     style = MaterialTheme.typography.bodySmall,
                 )

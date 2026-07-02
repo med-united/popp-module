@@ -29,6 +29,7 @@ fun BrandCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     raised: Boolean = false,
+    flat: Boolean = false,
     selected: Boolean = false,
     padding: PaddingValues = PaddingValues(18.dp),
     listPosition: BrandCardListPosition = BrandCardListPosition.Standalone,
@@ -47,8 +48,9 @@ fun BrandCard(
     val pressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed && onClick != null) 0.985f else 1f, label = "brand-card-scale")
     val elevation =
-        when (listPosition) {
-            BrandCardListPosition.Standalone -> if (raised) 12.dp else 3.dp
+        when {
+            flat -> 0.dp
+            listPosition == BrandCardListPosition.Standalone -> if (raised) 12.dp else 3.dp
             else -> 0.dp
         }
 

@@ -207,7 +207,11 @@ fun App(
                     )
                 }
                 composable(Routes.INSURANCE_SELECTION) {
-                    InsuranceSelectionScreen({ nav.popBackStack() }, onBack = { nav.popBackStack() }, applicationTitle = stringResource(Res.string.application_title))
+                    InsuranceSelectionScreen(
+                        onClose = { nav.popBackStack() },
+                        onBack = { nav.popBackStack() },
+                        applicationTitle = stringResource(Res.string.application_title),
+                    )
                 }
             }
         }

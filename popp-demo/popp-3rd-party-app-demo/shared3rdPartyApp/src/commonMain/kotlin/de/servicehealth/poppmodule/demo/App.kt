@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import de.servicehealth.poppmodule.demo.model.IntegrationMode
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 import de.servicehealth.poppmodule.demo.thirdparty.InstitutionSearchScreen
@@ -23,18 +24,19 @@ import de.servicehealth.poppmodule.demo.thirdparty.can.CanInputScreen
 import de.servicehealth.poppmodule.demo.thirdparty.can.CanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.InMemoryCanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.LocalCanStore
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.application_title
 import de.servicehealth.poppmodule.demo.thirdparty.icon
 import de.servicehealth.poppmodule.demo.thirdparty.label
 import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.ErrorPlaceholderScreen
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanScreen
 import de.servicehealth.poppmodule.demo.thirdparty.stubLeiData
-import de.servicehealth.poppmodule.demo.ui.apptoapp.AppToAppHomeScreen
-import de.servicehealth.poppmodule.demo.ui.integrated.IntegratedHomeScreen
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.sdk.egk.parsePoppTokenClaims
 import de.servicehealth.poppmodule.theme.BrandTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun App(
@@ -52,36 +54,12 @@ fun App(
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {
                     PoppLauncherScreen(
-                        onStartDemo = { _, _ -> nav.navigate(Routes.CHECK_IN_ENTRY) },
-                    )
-                }
-                composable(
-                    route = "${Routes.INTEGRATED_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments =
-                        listOf(
-                            navArgument(Routes.ARG_SCENARIO) {
-                                type = NavType.StringType
-                                nullable = true
-                            },
-                        ),
-                ) { entry ->
-                    IntegratedHomeScreen(
-                        scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
-                        onNavigateToSearch = { nav.navigate(Routes.INSTITUTION_SEARCH) },
-                    )
-                }
-                composable(
-                    route = "${Routes.APP_TO_APP_HOME}?${Routes.ARG_SCENARIO}={${Routes.ARG_SCENARIO}}",
-                    arguments =
-                        listOf(
-                            navArgument(Routes.ARG_SCENARIO) {
-                                type = NavType.StringType
-                                nullable = true
-                            },
-                        ),
-                ) { entry ->
-                    AppToAppHomeScreen(
-                        scenarioId = entry.arguments?.read { getStringOrNull(Routes.ARG_SCENARIO) },
+                        onStartDemo = { _, mode ->
+                            when (mode) {
+                                IntegrationMode.INTEGRATED -> nav.navigate(Routes.CHECK_IN_ENTRY)
+                                IntegrationMode.APP_TO_APP -> nav.navigate(Routes.INSURANCE_SELECTION)
+                            }
+                        },
                     )
                 }
                 composable(Routes.CHECK_IN_ENTRY) {
@@ -110,6 +88,7 @@ fun App(
                             )
                         },
                         favoriteIds = favoriteIds,
+                        applicationTitle = stringResource(Res.string.application_title),
                     )
                 }
                 composable(Routes.CHECK_IN_QR) {
@@ -226,6 +205,13 @@ fun App(
                         onBack = { nav.popBackStack() },
                         onChooseOther = { nav.popBackStack(Routes.CHECK_IN_ENTRY, inclusive = false) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                    )
+                }
+                composable(Routes.INSURANCE_SELECTION) {
+                    InsuranceSelectionScreen(
+                        onClose = { nav.popBackStack() },
+                        onBack = { nav.popBackStack() },
+                        applicationTitle = stringResource(Res.string.application_title),
                     )
                 }
             }

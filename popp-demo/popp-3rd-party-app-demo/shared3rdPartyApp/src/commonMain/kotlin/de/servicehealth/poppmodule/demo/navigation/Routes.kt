@@ -2,14 +2,13 @@ package de.servicehealth.poppmodule.demo.navigation
 
 object Routes {
     const val LAUNCHER = "popp_launcher"
-    const val INTEGRATED_HOME = "integrated_home"
-    const val APP_TO_APP_HOME = "app_to_app_home"
     const val CHECK_IN_ENTRY = "check_in_entry"
     const val CHECK_IN_QR = "check_in_qr"
     const val CHECK_IN_CAN = "check_in_can"
     const val CHECK_IN_NFC = "check_in_nfc"
     const val ARG_SCENARIO = "scenario"
     const val INSTITUTION_SEARCH = "institution_search"
+    const val INSURANCE_SELECTION = "insurance_selection"
     const val CHECK_IN_SUCCESS = "check_in_success"
     const val CHECK_IN_ERROR = "check_in_error"
     const val ARG_FAILURE = "failure"
@@ -40,10 +39,6 @@ object Routes {
         category: String,
     ) =
         "$CONFIRM_INSTITUTION?$ARG_INSTITUTION_ID=${encode(institutionId)}&$ARG_NAME=${encode(name)}&$ARG_ADDRESS=${encode(address)}&$ARG_CATEGORY=${encode(category)}"
-
-    fun integratedHome(scenario: String) = "$INTEGRATED_HOME?$ARG_SCENARIO=$scenario"
-
-    fun appToAppHome(scenario: String) = "$APP_TO_APP_HOME?$ARG_SCENARIO=$scenario"
 
     private fun encode(s: String) = s.replace(" ", "%20").replace(",", "%2C")
 }

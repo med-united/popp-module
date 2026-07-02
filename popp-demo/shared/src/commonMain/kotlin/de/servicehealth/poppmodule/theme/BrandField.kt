@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -20,11 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun BrandField(
@@ -49,10 +47,11 @@ fun BrandField(
         modifier =
             modifier
                 .then(focusedHalo)
+                .heightIn(min = 52.dp)
                 .clip(shape)
                 .background(c.white)
                 .border(1.5.dp, borderColor, shape)
-                .padding(horizontal = 15.dp, vertical = 13.dp),
+                .padding(horizontal = 15.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -62,12 +61,7 @@ fun BrandField(
                 Text(
                     text = placeholder,
                     color = c.silver,
-                    style =
-                        TextStyle(
-                            fontFamily = bodyFamily,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                        ),
+                    style = BrandTheme.typography.bodyLarge,
                 )
             }
             BasicTextField(
@@ -78,13 +72,7 @@ fun BrandField(
                 readOnly = readOnly,
                 interactionSource = interactionSource,
                 cursorBrush = SolidColor(c.violet),
-                textStyle =
-                    TextStyle(
-                        fontFamily = bodyFamily,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = c.ink,
-                    ),
+                textStyle = BrandTheme.typography.bodyLarge.copy(color = c.ink),
             )
         }
         trailingIcon?.invoke()

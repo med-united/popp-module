@@ -1,0 +1,11 @@
+<resources>
+    <string name="insurance_selection_back">Zurück</string>
+    <string name="insurance_selection_title">Bitte wählen Sie Ihre Versicherung</string>
+    <string name="insurance_selection_subtitle">Sie werden ausschließlich in die App Ihrer Versicherung weitergeleitet, um sich zu authentifizieren.</string>
+    <string name="insurance_selection_entity_name">Versicherung</string>
+
+    <plurals name="search_result_count">
+        <item quantity="one">%1$d Ergebnis</item>
+        <item quantity="other">%1$d Ergebnisse</item>
+    </plurals>
+</resources>

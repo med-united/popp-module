@@ -18,27 +18,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.LocalHospital
-import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.application_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_count
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_empty_hint
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_subtitle
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_question
@@ -57,7 +56,8 @@ fun OnsiteCheckInEntryScreen(
     onClose: () -> Unit,
     onSearchClick: () -> Unit,
     onQrScanClick: () -> Unit,
-    onFavoriteClick: (String) -> Unit = {},
+    favorites: List<Institution> = emptyList(),
+    onFavoriteClick: (id: String, name: String, address: String, category: String) -> Unit = { _, _, _, _ -> },
 ) {
     val c = BrandTheme.colors
 
@@ -78,7 +78,8 @@ fun OnsiteCheckInEntryScreen(
                     .padding(top = 18.dp),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
             ) {
                 BrandProgressDots(stepCount = 4, currentStep = 0)
@@ -89,7 +90,7 @@ fun OnsiteCheckInEntryScreen(
             Text(
                 text = stringResource(Res.string.checkin_entry_question),
                 color = c.ink,
-                style = BrandTheme.typography.displayMedium.copy(fontSize = 32.sp),
+                style = BrandTheme.typography.displaySmall,
             )
 
             Spacer(Modifier.height(8.dp))
@@ -125,7 +126,7 @@ fun OnsiteCheckInEntryScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            FavoritesSection(onFavoriteClick = onFavoriteClick)
+            FavoritesSection(favorites = favorites, onFavoriteClick = onFavoriteClick)
         }
     }
 }
@@ -189,7 +190,8 @@ private fun ActionCard(
 
 @Composable
 private fun FavoritesSection(
-    onFavoriteClick: (String) -> Unit,
+    favorites: List<Institution>,
+    onFavoriteClick: (String, String, String, String) -> Unit,
 ) {
     val c = BrandTheme.colors
 
@@ -214,7 +216,7 @@ private fun FavoritesSection(
         Spacer(Modifier.width(5.dp))
 
         Text(
-            text = stringResource(Res.string.checkin_entry_favorites_count),
+            text = "${favorites.size} gespeichert",
             color = c.neutral700,
             style = BrandTheme.typography.bodySmall,
         )
@@ -222,31 +224,40 @@ private fun FavoritesSection(
 
     Spacer(Modifier.height(10.dp))
 
-    BrandCard(
-        raised = true,
-        padding = PaddingValues(0.dp),
-    ) {
-        Column {
-            FavoriteRow(
-                id = "pharmacy",
-                icon = Icons.Rounded.LocalHospital,
-                title = "Apotheke am Markt",
-                subtitle = "Marktplatz 3, 52062 Aachen",
-                onClick = onFavoriteClick,
+    if (favorites.isEmpty()) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = 48.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = stringResource(Res.string.checkin_entry_favorites_empty_hint),
+                color = c.neutral700,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
             )
+        }
+    } else {
+        BrandCard(
+            raised = true,
+            padding = PaddingValues(0.dp),
+        ) {
+            Column {
+                favorites.forEachIndexed { index, institution ->
+                    FavoriteRow(
+                        id = institution.id,
+                        icon = institution.type.icon(),
+                        title = institution.name,
+                        subtitle = institution.address,
+                        category = institution.type.label,
+                        onClick = onFavoriteClick,
+                    )
 
-            HorizontalDivider(
-                modifier = Modifier.padding(start = 72.dp),
-                color = c.mist,
-            )
-
-            FavoriteRow(
-                id = "doctor",
-                icon = Icons.Rounded.MedicalServices,
-                title = "Hausarztpraxis Dr. Brandt",
-                subtitle = "Theaterstraße 18, 52062 Aachen",
-                onClick = onFavoriteClick,
-            )
+                    if (index != favorites.lastIndex) {
+                        HorizontalDivider(color = c.mist)
+                    }
+                }
+            }
         }
     }
 }
@@ -257,7 +268,8 @@ private fun FavoriteRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    onClick: (String) -> Unit,
+    category: String,
+    onClick: (String, String, String, String) -> Unit,
 ) {
     val c = BrandTheme.colors
 
@@ -265,7 +277,7 @@ private fun FavoriteRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable { onClick(id) }
+                .clickable { onClick(id, title, subtitle, category) }
                 .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

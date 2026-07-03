@@ -61,7 +61,7 @@ class OnsiteCheckInErrorScreenTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun server_rejected_shows_code_and_primary_closes() =
+    fun server_rejected_hides_code_and_primary_closes() =
         runComposeUiTest {
             var closed = false
             setContent {
@@ -75,7 +75,8 @@ class OnsiteCheckInErrorScreenTest {
                     )
                 }
             }
-            onNodeWithTag("error_code").assertIsDisplayed()
+            // Error-code row is temporarily commented out (server returns a placeholder "errorCode"
+            onNodeWithTag("error_code").assertDoesNotExist()
             onNodeWithTag("error_primary").performClick()
             assertTrue(closed, "SERVER_REJECTED primary should close (not retry the same card)")
         }

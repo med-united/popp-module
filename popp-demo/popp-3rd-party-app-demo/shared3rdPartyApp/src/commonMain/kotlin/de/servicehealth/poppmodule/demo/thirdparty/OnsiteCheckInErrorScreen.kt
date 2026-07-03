@@ -33,7 +33,6 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_error_action_can
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_error_action_close
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_error_action_retry
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_error_code_label
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcErrorRecovery
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanFailure
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.toErrorUi
@@ -131,16 +130,18 @@ fun OnsiteCheckInErrorScreen(
                 textAlign = TextAlign.Center,
             )
 
-            if (code != null) {
-                Spacer(Modifier.height(s(18.dp)))
-                Text(
-                    text = "${stringResource(Res.string.checkin_error_code_label)} · $code",
-                    color = c.white.copy(alpha = 0.7f),
-                    style = BrandTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.testTag("error_code"),
-                )
-            }
+            // Error-code row temporarily disabled: the PoPP-Service currently returns the literal
+            // placeholder "errorCode" instead of a meaningful code, therefore we comment it for now (POPPM-160)
+            // if (code != null) {
+            //     Spacer(Modifier.height(s(18.dp)))
+            //     Text(
+            //         text = "${stringResource(Res.string.checkin_error_code_label)} · $code",
+            //         color = c.white.copy(alpha = 0.7f),
+            //         style = BrandTheme.typography.bodySmall,
+            //         textAlign = TextAlign.Center,
+            //         modifier = Modifier.testTag("error_code"),
+            //     )
+            // }
 
             Spacer(Modifier.weight(1f))
 

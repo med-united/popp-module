@@ -53,20 +53,33 @@ val xcodeArchiveIos3rdPartyApp by tasks.registering(Exec::class) {
         val provisioningSpecifier =
             System.getenv("IOS_PROVISIONING_PROFILE_SPECIFIER")
                 ?: error("IOS_PROVISIONING_PROFILE_SPECIFIER env var is required for manual signing")
+        // Falls back to the static Config.xcconfig values (MARKETING_VERSION=1.0,
+        // CURRENT_PROJECT_VERSION=1) for local/manual archives outside CI.
+        val releaseVersionName = System.getenv("RELEASE_VERSION_NAME")
+        val releaseVersionCode = System.getenv("RELEASE_VERSION_CODE")
         commandLine(
-            "xcodebuild", "archive",
-            "-project", "iosApp.xcodeproj",
-            "-scheme", "iosApp",
-            "-configuration", "Release",
-            "-archivePath", archivePath.get().asFile.absolutePath,
-            "-destination", "generic/platform=iOS",
-            "CODE_SIGN_STYLE=Manual",
-            "CODE_SIGN_IDENTITY=Apple Distribution",
-            "PROVISIONING_PROFILE_SPECIFIER=$provisioningSpecifier",
-            "DEVELOPMENT_TEAM=YX6NS7XNPL",
-            // Release builds use a clean, registered bundle ID — Config.xcconfig's $(TEAM_ID)
-            // suffix is a local-dev-only convention to dodge automatic-signing collisions.
-            "PRODUCT_BUNDLE_IDENTIFIER=de.servicehealth.poppmodule.demo.thirdparty",
+            buildList {
+                addAll(
+                    listOf(
+                        "xcodebuild", "archive",
+                        "-project", "iosApp.xcodeproj",
+                        "-scheme", "iosApp",
+                        "-configuration", "Release",
+                        "-archivePath", archivePath.get().asFile.absolutePath,
+                        "-destination", "generic/platform=iOS",
+                        "CODE_SIGN_STYLE=Manual",
+                        "CODE_SIGN_IDENTITY=Apple Distribution",
+                        "PROVISIONING_PROFILE_SPECIFIER=$provisioningSpecifier",
+                        "DEVELOPMENT_TEAM=YX6NS7XNPL",
+                        // Release builds use a clean, registered bundle ID — Config.xcconfig's
+                        // $(TEAM_ID) suffix is a local-dev-only convention to dodge
+                        // automatic-signing collisions.
+                        "PRODUCT_BUNDLE_IDENTIFIER=de.servicehealth.poppmodule.demo.thirdparty",
+                    ),
+                )
+                if (releaseVersionName != null) add("MARKETING_VERSION=$releaseVersionName")
+                if (releaseVersionCode != null) add("CURRENT_PROJECT_VERSION=$releaseVersionCode")
+            },
         )
     }
 }

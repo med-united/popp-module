@@ -6,12 +6,12 @@ import kotlin.test.assertEquals
 
 class RoutesTest {
     @Test
-    fun integratedHomeAppendsScenarioArgument() {
-        assertEquals("integrated_home?scenario=online_pharmacy", Routes.integratedHome("online_pharmacy"))
+    fun launcherRouteHasExpectedValue() {
+        assertEquals("popp_launcher", Routes.LAUNCHER)
     }
 
     @Test
-    fun appToAppHomeAppendsScenarioArgument() {
-        assertEquals("app_to_app_home?scenario=telemedicine", Routes.appToAppHome("telemedicine"))
+    fun insuranceSelectionRouteHasExpectedValue() {
+        assertEquals("insurance_selection", Routes.INSURANCE_SELECTION)
     }
 }

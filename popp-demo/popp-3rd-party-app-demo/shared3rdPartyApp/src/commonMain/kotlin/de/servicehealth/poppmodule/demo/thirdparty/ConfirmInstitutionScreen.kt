@@ -42,13 +42,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.application_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_back
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_choose_other
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_confirm_button
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_favorite_add
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_favorite_added
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_favorite_hint
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_header
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_address
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_label_hours
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.confirm_institution_subtitle
@@ -121,7 +121,7 @@ fun ConfirmInstitutionScreen(
                 .safeContentPadding(),
     ) {
         BrandScreenHeader(
-            title = stringResource(Res.string.confirm_institution_header),
+            title = stringResource(Res.string.application_title),
             onClose = onClose,
         )
 

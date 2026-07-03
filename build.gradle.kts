@@ -73,7 +73,7 @@ val xcodeArchiveIos3rdPartyApp by tasks.registering(Exec::class) {
 
 val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
     group = "ios release"
-    description = "Exports a .ipa from the archive built by xcodeArchiveIos3rdPartyApp (export only, no upload)."
+    description = "Exports the archive built by xcodeArchiveIos3rdPartyApp and uploads it to App Store Connect."
     dependsOn(xcodeArchiveIos3rdPartyApp)
     notCompatibleWithConfigurationCache("shells out to xcodebuild")
     workingDir(ios3rdPartyAppDir)
@@ -89,6 +89,15 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
         val provisioningSpecifier =
             System.getenv("IOS_PROVISIONING_PROFILE_SPECIFIER")
                 ?: error("IOS_PROVISIONING_PROFILE_SPECIFIER env var is required to export a signed archive")
+        val apiKeyPath =
+            System.getenv("APP_STORE_CONNECT_API_KEY_PATH")
+                ?: error("APP_STORE_CONNECT_API_KEY_PATH env var is required to upload to App Store Connect")
+        val apiKeyId =
+            System.getenv("APP_STORE_CONNECT_KEY_ID")
+                ?: error("APP_STORE_CONNECT_KEY_ID env var is required to upload to App Store Connect")
+        val apiKeyIssuerId =
+            System.getenv("APP_STORE_CONNECT_ISSUER_ID")
+                ?: error("APP_STORE_CONNECT_ISSUER_ID env var is required to upload to App Store Connect")
         val plistFile = generatedExportOptionsPlist.get().asFile
         plistFile.parentFile.mkdirs()
         plistFile.writeText(
@@ -99,6 +108,8 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
             <dict>
                 <key>method</key>
                 <string>app-store-connect</string>
+                <key>destination</key>
+                <string>upload</string>
                 <key>teamID</key>
                 <string>YX6NS7XNPL</string>
                 <key>signingStyle</key>
@@ -123,6 +134,12 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
             exportPath.get().asFile.absolutePath,
             "-exportOptionsPlist",
             plistFile.absolutePath,
+            "-authenticationKeyPath",
+            apiKeyPath,
+            "-authenticationKeyID",
+            apiKeyId,
+            "-authenticationKeyIssuerID",
+            apiKeyIssuerId,
         )
     }
 }

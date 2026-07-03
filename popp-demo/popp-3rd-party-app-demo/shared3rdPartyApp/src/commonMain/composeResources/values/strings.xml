@@ -104,7 +104,7 @@
     <string name="checkin_error_card_lost_message">Die Karte wurde zu früh entfernt. Halten Sie sie ruhig an die Rückseite des Geräts und versuchen Sie es erneut.</string>
     <string name="checkin_error_secure_channel_title">Sichere Verbindung fehlgeschlagen</string>
     <string name="checkin_error_secure_channel_message">Die gesicherte Verbindung zur Karte konnte nicht aufgebaut werden. Bitte versuchen Sie es erneut.</string>
-    <string name="checkin_error_network_title">Keine Internetverbindung</string>
+    <string name="checkin_error_network_title">Keine Verbindung</string>
     <string name="checkin_error_network_message">Der PoPP-Dienst ist nicht erreichbar. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
     <string name="checkin_error_server_title">Karte nicht akzeptiert</string>
     <string name="checkin_error_server_message">Der PoPP-Dienst hat diese Karte abgelehnt. Bitte wenden Sie sich an die Einrichtung.</string>

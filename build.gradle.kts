@@ -79,9 +79,41 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
     workingDir(ios3rdPartyAppDir)
     val archivePath = iosReleaseBuildDir.map { it.dir("iosApp.xcarchive") }
     val exportPath = iosReleaseBuildDir.map { it.dir("export") }
+    val generatedExportOptionsPlist = iosReleaseBuildDir.map { it.file("exportOptions.plist") }
     inputs.dir(archivePath)
     outputs.dir(exportPath)
     doFirst {
+        // xcodebuild -exportArchive doesn't reuse the PROVISIONING_PROFILE_SPECIFIER passed at
+        // archive time — with manual signing it needs its own explicit bundle-id -> profile-name
+        // mapping, so the plist is generated here instead of using a static committed file.
+        val provisioningSpecifier =
+            System.getenv("IOS_PROVISIONING_PROFILE_SPECIFIER")
+                ?: error("IOS_PROVISIONING_PROFILE_SPECIFIER env var is required to export a signed archive")
+        val plistFile = generatedExportOptionsPlist.get().asFile
+        plistFile.parentFile.mkdirs()
+        plistFile.writeText(
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+                <key>method</key>
+                <string>app-store-connect</string>
+                <key>teamID</key>
+                <string>YX6NS7XNPL</string>
+                <key>signingStyle</key>
+                <string>manual</string>
+                <key>uploadSymbols</key>
+                <false/>
+                <key>provisioningProfiles</key>
+                <dict>
+                    <key>de.servicehealth.poppmodule.demo.thirdparty</key>
+                    <string>$provisioningSpecifier</string>
+                </dict>
+            </dict>
+            </plist>
+            """.trimIndent(),
+        )
         commandLine(
             "xcodebuild",
             "-exportArchive",
@@ -90,7 +122,7 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
             "-exportPath",
             exportPath.get().asFile.absolutePath,
             "-exportOptionsPlist",
-            "exportOptions.plist",
+            plistFile.absolutePath,
         )
     }
 }

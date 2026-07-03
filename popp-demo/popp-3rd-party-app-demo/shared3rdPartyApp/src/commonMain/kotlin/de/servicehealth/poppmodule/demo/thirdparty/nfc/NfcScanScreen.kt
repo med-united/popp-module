@@ -238,22 +238,24 @@ fun NfcScanContent(
                     modifier = Modifier.align(Alignment.Center),
                 )
 
-                Box(
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterEnd)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(c.white.copy(alpha = 0.16f))
-                            .clickable(onClick = onClose),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = stringResource(Res.string.checkin_scanner_close),
-                        tint = c.white,
-                        modifier = Modifier.size(22.dp),
-                    )
+                if (!completed) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd)
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(c.white.copy(alpha = 0.16f))
+                                .clickable(onClick = onClose),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = stringResource(Res.string.checkin_scanner_close),
+                            tint = c.white,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
                 }
             }
 

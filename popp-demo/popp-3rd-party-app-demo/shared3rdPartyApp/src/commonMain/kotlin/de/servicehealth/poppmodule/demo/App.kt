@@ -192,7 +192,7 @@ fun App(
                         code = code,
                         onRetry = {
                             nav.navigate(Routes.CHECK_IN_NFC) {
-                                popUpTo(Routes.CHECK_IN_ERROR) { inclusive = true }
+                                popUpTo(Routes.CHECK_IN_ERROR_ROUTE) { inclusive = true }
                             }
                         },
                         onReenterCan = { nav.popBackStack(Routes.CHECK_IN_CAN, inclusive = false) },

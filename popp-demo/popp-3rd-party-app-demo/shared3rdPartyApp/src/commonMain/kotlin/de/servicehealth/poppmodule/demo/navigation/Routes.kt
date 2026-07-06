@@ -20,7 +20,6 @@ object Routes {
     const val POPP_CALLBACK = "popp_callback"
 
     // Args for callback
-    const val ARG_CODE = "code"
     const val ARG_STATE = "state"
     const val ARG_ERROR = "error"
 

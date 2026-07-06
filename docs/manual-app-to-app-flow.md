@@ -132,3 +132,10 @@ adb shell pm set-app-links --package de.servicehealth.poppmodule.demo.thirdparty
 - **The App Links workaround is per-device and per-install.** A production deployment
   would serve real `assetlinks.json` files at both `idp.insurance.popp.demo` and
   `demo.popp.de` so Android verifies automatically.
+- **The fingerprints in `web/*/assetlinks.json` are debug-only.** The current fingerprint
+  (`34:7B:11:1B:…`) comes from the local debug keystore. Apps distributed via Google Play
+  are re-signed by Google (Play App Signing), so the fingerprint changes. The production
+  fingerprint is available in Play Console → your app → **Setup → App integrity → App
+  signing key certificate → SHA-256 certificate fingerprint**. Both fingerprints can
+  coexist in the `sha256_cert_fingerprints` array to support debug and release builds
+  simultaneously.

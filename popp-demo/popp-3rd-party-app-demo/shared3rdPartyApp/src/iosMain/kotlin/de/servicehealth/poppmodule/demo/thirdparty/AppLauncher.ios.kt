@@ -11,7 +11,7 @@ import kotlin.coroutines.resume
 actual fun rememberAppLauncher(): AppLauncher {
     return remember {
         object : AppLauncher {
-            override val redirectUri = "popp-3rdparty://callback"
+            override val redirectUri = "https://popp.service-health.de/callback"
 
             override suspend fun openUrl(url: String): Boolean =
                 suspendCancellableCoroutine { cont ->

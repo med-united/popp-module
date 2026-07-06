@@ -5,7 +5,7 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" android:host="demo.popp.de" />
+            <data android:scheme="https" android:host="popp.service-health.de" />
         </intent>
     </queries>
 
@@ -29,7 +29,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="idp.insurance.popp.demo" android:pathPrefix="/app-to-app/auth" />
+                <data android:scheme="https" android:host="popp.service-health.de" android:pathPrefix="/app-to-app/auth" />
             </intent-filter>
         </activity>
     </application>

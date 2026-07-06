@@ -15,7 +15,7 @@ class AppToAppSessionTest {
 
     @Test
     fun testValidDeepLinkIsParsedCorrectly() {
-        val validUrl = "https://idp.insurance.popp.demo/app-to-app/auth?client_id=demo-3rd-party-app&state=random_state_xyz&redirect_uri=app%3A%2F%2Fcallback"
+        val validUrl = "https://popp.service-health.de/app-to-app/auth?client_id=demo-3rd-party-app&state=random_state_xyz&redirect_uri=app%3A%2F%2Fcallback"
 
         val result = AppToAppSession.handleDeepLink(validUrl)
 
@@ -29,7 +29,7 @@ class AppToAppSessionTest {
 
     @Test
     fun testInvalidUrlPathIsRejected() {
-        val invalidUrl = "https://idp.insurance.popp.demo/wrong-path?client_id=demo&state=123&redirect_uri=app://callback"
+        val invalidUrl = "https://popp.service-health.de/wrong-path?client_id=demo&state=123&redirect_uri=app://callback"
 
         val result = AppToAppSession.handleDeepLink(invalidUrl)
 
@@ -39,7 +39,7 @@ class AppToAppSessionTest {
 
     @Test
     fun testMissingParametersAreRejected() {
-        val missingRedirectUri = "https://idp.insurance.popp.demo/app-to-app/auth?client_id=demo-3rd-party-app&state=123"
+        val missingRedirectUri = "https://popp.service-health.de/app-to-app/auth?client_id=demo-3rd-party-app&state=123"
 
         val result = AppToAppSession.handleDeepLink(missingRedirectUri)
 
@@ -49,7 +49,7 @@ class AppToAppSessionTest {
 
     @Test
     fun testClearRequestRemovesState() {
-        val validUrl = "https://idp.insurance.popp.demo/app-to-app/auth?client_id=demo-3rd-party-app&state=123&redirect_uri=test"
+        val validUrl = "https://popp.service-health.de/app-to-app/auth?client_id=demo-3rd-party-app&state=123&redirect_uri=test"
         AppToAppSession.handleDeepLink(validUrl)
 
         AppToAppSession.clearRequest()

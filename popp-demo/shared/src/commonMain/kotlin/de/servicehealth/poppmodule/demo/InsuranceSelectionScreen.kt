@@ -158,7 +158,7 @@ fun InsuranceSelectionScreen(
                     query = query,
                     onQueryChange = { query = it },
                     texts = BrandSearchTexts.forEntity(stringResource(Res.string.insurance_selection_entity_name)),
-                    isLoading = isLoading,
+                    isLoading = isLoading && results.isEmpty(),
                     hasSearched = hasSearched,
                     resultsCount = results.size,
                     errorMessage = if (results.isNotEmpty()) null else errorMessage,

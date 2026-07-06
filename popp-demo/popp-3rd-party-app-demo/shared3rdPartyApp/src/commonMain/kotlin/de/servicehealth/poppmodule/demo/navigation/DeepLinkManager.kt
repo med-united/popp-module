@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 object DeepLinkManager {
-    private val _deepLinks = MutableSharedFlow<String>(replay = 1)
+    private val _deepLinks = MutableSharedFlow<String>(replay = 0)
     val deepLinks = _deepLinks.asSharedFlow()
 
     fun handleDeepLink(url: String) {

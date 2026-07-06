@@ -12,7 +12,9 @@
     <string name="mode_app2app_title">App-zu-App</string>
     <string name="mode_app2app_desc">Die Demo-App überträgt die Authentifizierung an die Versicherungs-App.</string>
     <string name="start_demo_button">Starte die Demo</string>
-    <string name="confirm_institution_header">VOR-ORT-CHECK-IN</string>
+
+    <string name="application_title">VOR-ORT-CHECK-IN</string>
+
     <string name="confirm_institution_back">Zurück</string>
     <string name="confirm_institution_title">Einrichtung bestätigen</string>
     <string name="confirm_institution_subtitle">Bitte prüfen Sie die Einrichtung, bei der Sie einchecken.</string>
@@ -32,6 +34,7 @@
     <string name="checkin_entry_qr_title">QR-Code\nscannen</string>
     <string name="checkin_entry_qr_subtitle">Code vor Ort scannen</string>
     <string name="checkin_entry_favorites">FAVORITEN</string>
+    <string name="checkin_entry_favorites_count">2 gespeichert</string>
     <string name="checkin_entry_favorites_empty_hint">Noch keine Favoriten gespeichert</string>
 
     <string name="checkin_scanner_title">QR-Code scannen</string>
@@ -53,13 +56,62 @@
     <string name="institution_search_back">Zurück</string>
     <string name="institution_search_title">Einrichtung suchen</string>
     <string name="institution_search_field_placeholder">Apotheke oder Praxis suchen…</string>
-    <string name="institution_search_clear">Löschen</string>
     <string name="institution_search_empty_hint">Tippen Sie z.&#160;B. „Apotheke", „Markt"\noder einen Praxisnamen, um\nEinrichtungen zu finden.</string>
     <string name="institution_search_no_results">Keine Einrichtung gefunden.</string>
-    <plurals name="search_result_count">
-        <item quantity="one">%1$d Ergebnis</item>
-        <item quantity="other">%1$d Ergebnisse</item>
-    </plurals>
+
+    <string name="can_title">Zugangsnummer eingeben</string>
+    <string name="can_subtitle">Geben Sie die 6-stellige CAN (Card Access Number) ein. Sie sichert die NFC-Verbindung zu Ihrer Karte.</string>
+    <string name="can_card_hint">Die CAN steht rechts oben auf der Kartenvorderseite.</string>
+    <string name="can_back">Zurück</string>
+    <string name="can_continue">Weiter</string>
+    <string name="can_change">Andere CAN eingeben</string>
+
+    <string name="egk_card_title">Gesundheitskarte</string>
+    <string name="egk_card_subtitle">Elektronische Gesundheitskarte · eGK</string>
+    <string name="egk_card_can_label">CAN</string>
+    <string name="egk_card_sample_name">LENA HOFMANN</string>
+    <string name="egk_card_sample_insurance">Versicherten-Nr. A123456789</string>
+
+    <string name="nfc_title">Gesundheitskarte anlegen</string>
+    <string name="nfc_title_done">Karte gelesen</string>
+    <string name="nfc_title_unsupported">NFC erforderlich</string>
+    <string name="nfc_waiting">Halten Sie Ihre eGK an die Rückseite des Gerätes und halten Sie sie ruhig.</string>
+    <string name="nfc_reading">Karte erkannt – bitte nicht bewegen. Daten werden sicher gelesen…</string>
+    <string name="nfc_secure_transfer">Sichere Übertragung · %1$d %</string>
+    <string name="nfc_active">Bereit · NFC Aktiv</string>
+    <string name="nfc_verified">Verifiziert</string>
+    <string name="nfc_success">Anwesenheit erfolgreich nachgewiesen.</string>
+    <string name="nfc_footer">Ende-zu-Ende verschlüsselt · CAN-gesichert</string>
+    <string name="nfc_unsupported">NFC ist nicht verfügbar. Bitte aktivieren Sie NFC in den Einstellungen, falls Ihr Gerät NFC unterstützt.</string>
+    <string name="checkin_success_title">Karte gelesen</string>
+    <string name="checkin_success_subtitle">Anwesenheit erfolgreich nachgewiesen</string>
+    <string name="checkin_success_badge">Verifiziert</string>
+    <string name="checkin_success_headline">EINGECHECKT</string>
+    <string name="checkin_success_location">Sie sind jetzt vor Ort bei %1$s angemeldet.</string>
+    <string name="checkin_success_proof_hint">Nachweis erbracht über das PoPP-Modul</string>
+    <string name="checkin_success_active">AKTIV</string>
+    <string name="checkin_success_time_label">Zeitpunkt</string>
+    <string name="checkin_success_proof_label">Nachweis-ID</string>
+    <string name="checkin_success_done">Fertig</string>
+
+    <string name="checkin_error_wrong_can_title">Falsche CAN</string>
+    <string name="checkin_error_wrong_can_message">Die eingegebene Zugangsnummer (CAN) passt nicht zu dieser Karte. Bitte überprüfen Sie die CAN.</string>
+    <string name="checkin_error_card_lost_title">Verbindung unterbrochen</string>
+    <string name="checkin_error_card_lost_message">Die Karte wurde zu früh entfernt. Halten Sie sie ruhig an die Rückseite des Geräts und versuchen Sie es erneut.</string>
+    <string name="checkin_error_secure_channel_title">Sichere Verbindung fehlgeschlagen</string>
+    <string name="checkin_error_secure_channel_message">Die gesicherte Verbindung zur Karte konnte nicht aufgebaut werden. Bitte versuchen Sie es erneut.</string>
+    <string name="checkin_error_network_title">Keine Verbindung</string>
+    <string name="checkin_error_network_message">Der PoPP-Dienst ist nicht erreichbar. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="checkin_error_server_title">Karte nicht akzeptiert</string>
+    <string name="checkin_error_server_message">Der PoPP-Dienst hat diese Karte abgelehnt. Bitte wenden Sie sich an die Einrichtung.</string>
+    <string name="checkin_error_protocol_title">Unerwartete Antwort</string>
+    <string name="checkin_error_protocol_message">Der Dienst hat unerwartet geantwortet. Bitte versuchen Sie es erneut.</string>
+    <string name="checkin_error_unknown_title">Etwas ist schiefgelaufen</string>
+    <string name="checkin_error_unknown_message">Beim Lesen der Karte ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="checkin_error_code_label">Fehlercode</string>
+    <string name="checkin_error_action_retry">Erneut versuchen</string>
+    <string name="checkin_error_action_can">CAN erneut eingeben</string>
+    <string name="checkin_error_action_close">Schließen</string>
 
     <string name="callback_error_prefix">Check-in abgebrochen oder fehlgeschlagen:</string>
     <string name="callback_return_launcher">Zurück zur Startseite</string>

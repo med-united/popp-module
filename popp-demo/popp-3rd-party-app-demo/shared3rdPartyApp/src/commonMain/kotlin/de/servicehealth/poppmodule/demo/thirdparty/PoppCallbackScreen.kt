@@ -45,12 +45,15 @@ fun PoppCallbackScreen(
 
     LaunchedEffect(code, state, error) {
         if (error != null) {
+            OidcSessionStore.clear()
             errorMessage = "$errorPrefix $error"
+            currentOnValidationFailed()
             return@LaunchedEffect
         }
 
         if (code == null || state == null) {
             errorMessage = invalidParamsMsg
+            currentOnValidationFailed()
             return@LaunchedEffect
         }
 
@@ -61,6 +64,7 @@ fun PoppCallbackScreen(
             return@LaunchedEffect
         }
 
+        OidcSessionStore.clear()
         currentOnSuccess(code)
     }
 

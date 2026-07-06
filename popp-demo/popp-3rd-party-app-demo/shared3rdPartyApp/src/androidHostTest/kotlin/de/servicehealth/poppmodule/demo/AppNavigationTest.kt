@@ -4,7 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -27,12 +27,12 @@ class AppNavigationTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun appToAppModeStartOpensAppToAppHome() =
+    fun appToAppModeStartOpensInsuranceSelection() =
         runComposeUiTest {
             setContent { App(PoppSdk()) }
             onNodeWithText("Online-Apotheke").performScrollTo().performClick()
             onNodeWithText("App-zu-App").performScrollTo().performClick() // switch mode
             onNodeWithText("Starte die Demo").performClick()
-            onNodeWithText("App-zu-App — online_pharmacy").assertExists()
+            onNodeWithText("POPP Demo Krankenkasse").assertExists()
         }
 }

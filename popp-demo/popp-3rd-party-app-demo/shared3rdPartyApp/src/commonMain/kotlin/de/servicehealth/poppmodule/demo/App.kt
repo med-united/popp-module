@@ -22,6 +22,7 @@ import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 import de.servicehealth.poppmodule.demo.thirdparty.InstitutionSearchScreen
 import de.servicehealth.poppmodule.demo.thirdparty.LeiData
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
+import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInErrorScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInSuccessScreen
 import de.servicehealth.poppmodule.demo.thirdparty.PoppCallbackScreen
@@ -36,7 +37,7 @@ import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.applicati
 import de.servicehealth.poppmodule.demo.thirdparty.icon
 import de.servicehealth.poppmodule.demo.thirdparty.label
 import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
-import de.servicehealth.poppmodule.demo.thirdparty.nfc.ErrorPlaceholderScreen
+import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanFailure
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanScreen
 import de.servicehealth.poppmodule.demo.thirdparty.rememberAppLauncher
 import de.servicehealth.poppmodule.demo.thirdparty.stubLeiData
@@ -157,8 +158,9 @@ fun App(
                                 popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
                             }
                         },
-                        onError = { reason, _ ->
-                            nav.navigate(Routes.checkInError(reason.name)) {
+                        onError = { reason, detail ->
+                            val code = detail?.takeIf { reason == NfcScanFailure.SERVER_REJECTED }
+                            nav.navigate(Routes.checkInError(reason.name, code)) {
                                 popUpTo(Routes.CHECK_IN_NFC) { inclusive = true }
                             }
                         },
@@ -184,17 +186,37 @@ fun App(
                     )
                 }
                 composable(
-                    route = "${Routes.CHECK_IN_ERROR}?${Routes.ARG_FAILURE}={${Routes.ARG_FAILURE}}",
+                    route = Routes.CHECK_IN_ERROR_ROUTE,
                     arguments =
                         listOf(
                             navArgument(Routes.ARG_FAILURE) {
                                 type = NavType.StringType
                                 nullable = true
                             },
+                            navArgument(Routes.ARG_CODE) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
                         ),
                 ) { entry ->
-                    ErrorPlaceholderScreen(
-                        failure = entry.arguments?.read { getStringOrNull(Routes.ARG_FAILURE) },
+                    val failure =
+                        entry.arguments
+                            ?.read { getStringOrNull(Routes.ARG_FAILURE) }
+                            ?.let { name -> runCatching { NfcScanFailure.valueOf(name) }.getOrNull() }
+                            ?: NfcScanFailure.UNKNOWN
+                    val code =
+                        entry.arguments
+                            ?.read { getStringOrNull(Routes.ARG_CODE) }
+                            ?.takeIf { it.isNotBlank() }
+                    OnsiteCheckInErrorScreen(
+                        failure = failure,
+                        code = code,
+                        onRetry = {
+                            nav.navigate(Routes.CHECK_IN_NFC) {
+                                popUpTo(Routes.CHECK_IN_ERROR_ROUTE) { inclusive = true }
+                            }
+                        },
+                        onReenterCan = { nav.popBackStack(Routes.CHECK_IN_CAN, inclusive = false) },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }
@@ -220,10 +242,10 @@ fun App(
                             },
                         ),
                 ) { entry ->
-                    val institutionId = entry.arguments?.getString(Routes.ARG_INSTITUTION_ID)
-                    val name = entry.arguments?.getString(Routes.ARG_NAME) ?: stubLeiData.name
-                    val address = entry.arguments?.getString(Routes.ARG_ADDRESS) ?: stubLeiData.address
-                    val category = entry.arguments?.getString(Routes.ARG_CATEGORY) ?: stubLeiData.institutionType
+                    val institutionId = entry.arguments?.read { getStringOrNull(Routes.ARG_INSTITUTION_ID) }
+                    val name = entry.arguments?.read { getStringOrNull(Routes.ARG_NAME) } ?: stubLeiData.name
+                    val address = entry.arguments?.read { getStringOrNull(Routes.ARG_ADDRESS) } ?: stubLeiData.address
+                    val category = entry.arguments?.read { getStringOrNull(Routes.ARG_CATEGORY) } ?: stubLeiData.institutionType
                     val institution = institutionId?.let { id -> mockInstitutions.find { it.id == id } } ?: mockInstitutions.first()
                     ConfirmInstitutionScreen(
                         leiData =

@@ -52,6 +52,8 @@ data class BrandColors(
     val warning: Color = Color(0xFFC98A12),
     val warningBg: Color = Color(0xFFFBF0D8),
     val danger: Color = Color(0xFFD23B3B),
+    val dangerBg: Color = Color(0xFFFBE6E6),
+    val danger700: Color = Color(0xFF6E1717),
 )
 
 @Composable

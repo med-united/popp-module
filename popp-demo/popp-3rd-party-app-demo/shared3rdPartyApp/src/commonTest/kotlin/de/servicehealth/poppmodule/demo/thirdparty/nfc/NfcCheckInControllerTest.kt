@@ -42,14 +42,14 @@ class NfcCheckInControllerTest {
     fun server_failure_maps_to_server_rejected() =
         runTest {
             val source = FakeEgkChannelSource()
-            val runner = CheckInRunner { _, _ -> EgkCheckInResult.Failed("errorCode", "UnknownCertificates") }
+            val runner = CheckInRunner { _, _ -> EgkCheckInResult.Failed("WarningUnknownCertificates", "Karte nicht registriert") }
             val controller = NfcCheckInController(source, runner, scope = backgroundScope)
 
             controller.start("123456")
             runCurrent()
 
             assertEquals(
-                NfcScanUiState.Failed(NfcScanFailure.SERVER_REJECTED, "UnknownCertificates"),
+                NfcScanUiState.Failed(NfcScanFailure.SERVER_REJECTED, "WarningUnknownCertificates"),
                 controller.state.value,
             )
         }

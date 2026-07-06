@@ -112,4 +112,10 @@
     <string name="checkin_error_action_retry">Erneut versuchen</string>
     <string name="checkin_error_action_can">CAN erneut eingeben</string>
     <string name="checkin_error_action_close">Schließen</string>
+
+    <string name="callback_error_prefix">Check-in abgebrochen oder fehlgeschlagen:</string>
+    <string name="callback_return_launcher">Zurück zur Startseite</string>
+    <string name="callback_validating">Rückruf wird validiert...</string>
+    <string name="callback_invalid_params">Ungültiger Rückruf (Parameter fehlen)</string>
+    <string name="callback_state_mismatch">Sicherheitsfehler: State-Parameter stimmt nicht überein.</string>
 </resources>

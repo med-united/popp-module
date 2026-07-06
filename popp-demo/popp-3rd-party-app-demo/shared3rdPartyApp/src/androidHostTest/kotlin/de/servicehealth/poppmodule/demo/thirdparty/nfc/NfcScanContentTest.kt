@@ -3,7 +3,7 @@ package de.servicehealth.poppmodule.demo.thirdparty.nfc
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import de.servicehealth.poppmodule.theme.BrandTheme
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

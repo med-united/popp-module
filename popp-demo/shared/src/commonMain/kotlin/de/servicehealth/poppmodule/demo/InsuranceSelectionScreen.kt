@@ -1,6 +1,7 @@
 package de.servicehealth.poppmodule.demo
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,17 +19,22 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +56,7 @@ import de.servicehealth.poppmodule.theme.BrandSearchBody
 import de.servicehealth.poppmodule.theme.BrandSearchTexts
 import de.servicehealth.poppmodule.theme.BrandTheme
 import de.servicehealth.poppmodule.theme.PreviewBrandTheme
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -57,21 +64,26 @@ fun InsuranceSelectionScreen(
     onClose: () -> Unit,
     onBack: () -> Unit = {},
     onInsuranceSelected: (FederationIdp) -> Unit = {},
+    onDemoInsuranceFlow: (suspend () -> Boolean)? = null,
     applicationTitle: String,
 ) {
     val c = BrandTheme.colors
+    val coroutineScope = rememberCoroutineScope()
     var query by remember { mutableStateOf("") }
-    var allInsurances by remember { mutableStateOf<List<FederationIdp>>(emptyList()) }
+    var allInsurances by remember { mutableStateOf<List<FederationIdp>>(listOf(demoInsurance)) }
     var isLoading by remember { mutableStateOf(false) }
     var hasSearched by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var appToAppLoading by remember { mutableStateOf(false) }
+    var appToAppError by remember { mutableStateOf<String?>(null) }
+    var showFallbackDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         isLoading = true
         errorMessage = null
         try {
             val client = FederationMasterClient(baseUrl = "https://app-ref.federationmaster.de")
-            allInsurances = client.fetchIdpList().sortedBy { it.name }
+            allInsurances = listOf(demoInsurance) + client.fetchIdpList().sortedBy { it.name }
             hasSearched = true
         } catch (e: Exception) {
             errorMessage = e.message
@@ -89,85 +101,155 @@ fun InsuranceSelectionScreen(
             }
         }
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(c.white)
-                .safeContentPadding(),
-    ) {
-        BrandScreenHeader(title = applicationTitle, onClose = onClose)
-
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 18.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                BrandBackButton(
-                    label = stringResource(Res.string.insurance_selection_back),
-                    onClick = onBack,
-                )
-                Spacer(Modifier.weight(1f))
-                BrandProgressDots(stepCount = 4, currentStep = 0)
-            }
-        }
-
+    Box(Modifier.fillMaxSize()) {
         Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .imePadding()
-                    .padding(horizontal = 12.dp),
+                    .background(c.white)
+                    .safeContentPadding(),
         ) {
-            Spacer(Modifier.height(24.dp))
+            BrandScreenHeader(title = applicationTitle, onClose = onClose)
 
-            Text(
-                text = stringResource(Res.string.insurance_selection_title),
-                color = c.ink,
-                style = BrandTheme.typography.displaySmall,
-            )
-            Spacer(Modifier.height(16.dp))
-            Text(
-                text = stringResource(Res.string.insurance_selection_subtitle),
-                color = c.neutral700,
-                style = BrandTheme.typography.bodyMedium,
-            )
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 18.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    BrandBackButton(
+                        label = stringResource(Res.string.insurance_selection_back),
+                        onClick = onBack,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    BrandProgressDots(stepCount = 4, currentStep = 0)
+                }
+            }
 
-            Spacer(Modifier.height(16.dp))
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .imePadding()
+                        .padding(horizontal = 12.dp),
+            ) {
+                Spacer(Modifier.height(24.dp))
 
-            BrandSearchBody(
-                query = query,
-                onQueryChange = { query = it },
-                texts = BrandSearchTexts.forEntity(stringResource(Res.string.insurance_selection_entity_name)),
-                isLoading = isLoading,
-                hasSearched = hasSearched,
-                resultsCount = results.size,
-                errorMessage = errorMessage,
-                emptyContent = null,
-                itemsContent = {
-                    itemsIndexed(results) { index, insurance ->
-                        val listPosition =
-                            when {
-                                results.size == 1 -> BrandCardListPosition.Standalone
-                                index == 0 -> BrandCardListPosition.First
-                                index == results.lastIndex -> BrandCardListPosition.Last
-                                else -> BrandCardListPosition.Middle
-                            }
-                        InsuranceRow(
-                            insurance = insurance,
-                            listPosition = listPosition,
-                            onClick = { onInsuranceSelected(insurance) },
-                        )
-                    }
-                },
-            )
+                Text(
+                    text = stringResource(Res.string.insurance_selection_title),
+                    color = c.ink,
+                    style = BrandTheme.typography.displaySmall,
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = stringResource(Res.string.insurance_selection_subtitle),
+                    color = c.neutral700,
+                    style = BrandTheme.typography.bodyMedium,
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                BrandSearchBody(
+                    query = query,
+                    onQueryChange = { query = it },
+                    texts = BrandSearchTexts.forEntity(stringResource(Res.string.insurance_selection_entity_name)),
+                    isLoading = isLoading && results.isEmpty(),
+                    hasSearched = hasSearched,
+                    resultsCount = results.size,
+                    errorMessage = if (results.isNotEmpty()) null else errorMessage,
+                    emptyContent = null,
+                    itemsContent = {
+                        itemsIndexed(results) { index, insurance ->
+                            val listPosition =
+                                when {
+                                    results.size == 1 -> BrandCardListPosition.Standalone
+                                    index == 0 -> BrandCardListPosition.First
+                                    index == results.lastIndex -> BrandCardListPosition.Last
+                                    else -> BrandCardListPosition.Middle
+                                }
+                            InsuranceRow(
+                                insurance = insurance,
+                                listPosition = listPosition,
+                                onClick = {
+                                    if (insurance.entityId == DEMO_INSURANCE_ENTITY_ID && onDemoInsuranceFlow != null) {
+                                        coroutineScope.launch {
+                                            appToAppLoading = true
+                                            appToAppError = null
+                                            try {
+                                                val opened = onDemoInsuranceFlow()
+                                                if (!opened) showFallbackDialog = true
+                                            } catch (e: Exception) {
+                                                appToAppError = e.message ?: "Unbekannter Fehler"
+                                            } finally {
+                                                appToAppLoading = false
+                                            }
+                                        }
+                                    } else if (onDemoInsuranceFlow != null) {
+                                        showFallbackDialog = true
+                                    } else {
+                                        onInsuranceSelected(insurance)
+                                    }
+                                },
+                            )
+                        }
+                    },
+                )
+            }
         }
+
+        if (appToAppLoading) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(c.ink.copy(alpha = 0.5f))
+                    .pointerInput(Unit) { detectTapGestures { } },
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = c.white)
+            }
+        }
+    }
+
+    if (appToAppError != null) {
+        AlertDialog(
+            onDismissRequest = { appToAppError = null },
+            title = { Text("Fehler", color = c.ink) },
+            text = { Text("Fehler: $appToAppError", color = c.neutral700) },
+            confirmButton = {
+                TextButton(onClick = { appToAppError = null }) {
+                    Text("OK", color = c.violet)
+                }
+            },
+            containerColor = c.white,
+            titleContentColor = c.ink,
+            textContentColor = c.neutral700,
+        )
+    }
+
+    if (showFallbackDialog) {
+        AlertDialog(
+            onDismissRequest = { showFallbackDialog = false },
+            title = { Text("App nicht installiert", color = c.ink) },
+            text = {
+                Text(
+                    "Ihre Krankenkassen-App konnte nicht gefunden werden. Bitte stellen Sie sicher, dass diese installiert ist, und versuchen Sie es erneut.",
+                    color = c.neutral700,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showFallbackDialog = false }) {
+                    Text("OK", color = c.violet)
+                }
+            },
+            containerColor = c.white,
+            titleContentColor = c.ink,
+            textContentColor = c.neutral700,
+        )
     }
 }
 
@@ -225,6 +307,9 @@ private fun InsuranceRow(
         }
     }
 }
+
+private const val DEMO_INSURANCE_ENTITY_ID = "de.servicehealth.poppmodule.demo.insurance"
+private val demoInsurance = FederationIdp(entityId = DEMO_INSURANCE_ENTITY_ID, name = "POPP Demo Krankenkasse")
 
 private val previewInsurances =
     listOf(

@@ -17,6 +17,11 @@ object Routes {
     const val ARG_PROOF_TIME = "proofTime"
 
     const val CONFIRM_INSTITUTION = "confirm_institution"
+    const val POPP_CALLBACK = "popp_callback"
+
+    // Args for callback
+    const val ARG_STATE = "state"
+    const val ARG_ERROR = "error"
 
     // Args for confirm institution screen
     const val ARG_INSTITUTION_ID = "institution_id"

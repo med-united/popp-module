@@ -2,6 +2,8 @@ package de.servicehealth.poppmodule.demo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,8 +13,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.savedstate.read
 import de.servicehealth.poppmodule.demo.model.IntegrationMode
+import de.servicehealth.poppmodule.demo.navigation.DeepLinkManager
 import de.servicehealth.poppmodule.demo.navigation.Routes
 import de.servicehealth.poppmodule.demo.thirdparty.ConfirmInstitutionScreen
 import de.servicehealth.poppmodule.demo.thirdparty.InstitutionSearchScreen
@@ -21,6 +25,9 @@ import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInEntryScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInErrorScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInQrScannerScreen
 import de.servicehealth.poppmodule.demo.thirdparty.OnsiteCheckInSuccessScreen
+import de.servicehealth.poppmodule.demo.thirdparty.PoppCallbackScreen
+import de.servicehealth.poppmodule.demo.thirdparty.auth.OidcParClient
+import de.servicehealth.poppmodule.demo.thirdparty.auth.ParResult
 import de.servicehealth.poppmodule.demo.thirdparty.can.CanInputScreen
 import de.servicehealth.poppmodule.demo.thirdparty.can.CanStore
 import de.servicehealth.poppmodule.demo.thirdparty.can.InMemoryCanStore
@@ -32,12 +39,20 @@ import de.servicehealth.poppmodule.demo.thirdparty.label
 import de.servicehealth.poppmodule.demo.thirdparty.mockInstitutions
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanFailure
 import de.servicehealth.poppmodule.demo.thirdparty.nfc.NfcScanScreen
+import de.servicehealth.poppmodule.demo.thirdparty.rememberAppLauncher
 import de.servicehealth.poppmodule.demo.thirdparty.stubLeiData
 import de.servicehealth.poppmodule.demo.ui.launcher.PoppLauncherScreen
 import de.servicehealth.poppmodule.sdk.PoppSdk
 import de.servicehealth.poppmodule.sdk.egk.parsePoppTokenClaims
 import de.servicehealth.poppmodule.theme.BrandTheme
+import io.ktor.http.URLBuilder
+import io.ktor.http.Url
+import io.ktor.http.encodeURLQueryComponent
 import org.jetbrains.compose.resources.stringResource
+
+private const val DEMO_PAR_ENDPOINT = "https://idp.demo.gematik.de/par"
+private const val DEMO_AUTH_ENDPOINT = "https://idp.insurance.popp.demo/app-to-app/auth"
+private const val DEMO_CLIENT_ID = "demo-3rd-party-app"
 
 @Composable
 fun App(
@@ -52,6 +67,34 @@ fun App(
             val nav = rememberNavController()
             // In-memory for now — persisting to device storage is a separate step (POPPM-116 follow-up).
             var favoriteIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+
+            LaunchedEffect(Unit) {
+                DeepLinkManager.deepLinks.collect { url ->
+                    if (url.startsWith("https://popp.service-health.de/callback") || url.startsWith("popp-3rdparty://callback")) {
+                        val parsed = Url(url)
+                        val code = parsed.parameters["code"]
+                        val state = parsed.parameters["state"]
+                        val error = parsed.parameters["error"]
+                        val route =
+                            buildString {
+                                append(Routes.POPP_CALLBACK)
+                                val parts =
+                                    listOfNotNull(
+                                        code?.let { "${Routes.ARG_CODE}=${it.encodeURLQueryComponent()}" },
+                                        state?.let { "${Routes.ARG_STATE}=${it.encodeURLQueryComponent()}" },
+                                        error?.let { "${Routes.ARG_ERROR}=${it.encodeURLQueryComponent()}" },
+                                    )
+                                if (parts.isNotEmpty()) {
+                                    append("?")
+                                    append(parts.joinToString("&"))
+                                }
+                            }
+                        DeepLinkManager.clearReplay()
+                        nav.navigate(route)
+                    }
+                }
+            }
+
             NavHost(navController = nav, startDestination = Routes.LAUNCHER) {
                 composable(Routes.LAUNCHER) {
                     PoppLauncherScreen(
@@ -229,11 +272,74 @@ fun App(
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
                     )
                 }
+                composable(
+                    route = "${Routes.POPP_CALLBACK}?${Routes.ARG_CODE}={${Routes.ARG_CODE}}&${Routes.ARG_STATE}={${Routes.ARG_STATE}}&${Routes.ARG_ERROR}={${Routes.ARG_ERROR}}",
+                    deepLinks =
+                        listOf(
+                            navDeepLink { uriPattern = "https://popp.service-health.de/callback?code={code}&state={state}" },
+                            navDeepLink { uriPattern = "https://popp.service-health.de/callback?error={error}&state={state}" },
+                        ),
+                    arguments =
+                        listOf(
+                            navArgument(Routes.ARG_CODE) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                            navArgument(Routes.ARG_STATE) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                            navArgument(Routes.ARG_ERROR) {
+                                type = NavType.StringType
+                                nullable = true
+                            },
+                        ),
+                ) { entry ->
+                    val code = entry.arguments?.getString(Routes.ARG_CODE)
+                    val state = entry.arguments?.getString(Routes.ARG_STATE)
+                    val error = entry.arguments?.getString(Routes.ARG_ERROR)
+
+                    PoppCallbackScreen(
+                        code = code,
+                        state = state,
+                        error = error,
+                        onValidationFailed = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
+                        onSuccess = { _ ->
+                            // TODO: integrate with PoppSdk to exchange code for token
+                            nav.popBackStack(Routes.LAUNCHER, inclusive = false)
+                        },
+                    )
+                }
                 composable(Routes.INSURANCE_SELECTION) {
+                    val appLauncher = rememberAppLauncher()
+                    val parClient = remember { OidcParClient() }
+                    DisposableEffect(Unit) { onDispose { parClient.close() } }
                     InsuranceSelectionScreen(
                         onClose = { nav.popBackStack() },
                         onBack = { nav.popBackStack() },
                         applicationTitle = stringResource(Res.string.application_title),
+                        onDemoInsuranceFlow = {
+                            when (
+                                val result =
+                                    parClient.pushAuthorizationRequest(
+                                        parEndpoint = DEMO_PAR_ENDPOINT,
+                                        clientId = DEMO_CLIENT_ID,
+                                        redirectUri = appLauncher.redirectUri,
+                                    )
+                            ) {
+                                is ParResult.Success -> {
+                                    val url =
+                                        URLBuilder(DEMO_AUTH_ENDPOINT).apply {
+                                            parameters.append("client_id", DEMO_CLIENT_ID)
+                                            parameters.append("request_uri", result.requestUri)
+                                            parameters.append("state", result.state)
+                                            parameters.append("redirect_uri", appLauncher.redirectUri)
+                                        }.buildString()
+                                    appLauncher.openUrl(url)
+                                }
+                                is ParResult.Error -> throw Exception(result.message)
+                            }
+                        },
                     )
                 }
             }

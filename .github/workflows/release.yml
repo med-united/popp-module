@@ -90,20 +90,6 @@ jobs:
           echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.keystore.jks" >> "$GITHUB_ENV"
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore.jks"
 
-      - name: TEMP DEBUG - verify secret lengths and keystore checksum (no secret values printed)
-        env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |
-          echo "ANDROID_KEYSTORE_PASSWORD length: ${#ANDROID_KEYSTORE_PASSWORD}"
-          echo "ANDROID_KEY_PASSWORD length: ${#ANDROID_KEY_PASSWORD}"
-          echo -n "ANDROID_KEYSTORE_PASSWORD SHA-256: "
-          printf '%s' "$ANDROID_KEYSTORE_PASSWORD" | shasum -a 256
-          echo -n "ANDROID_KEY_PASSWORD SHA-256: "
-          printf '%s' "$ANDROID_KEY_PASSWORD" | shasum -a 256
-          echo "Decoded keystore SHA-256:"
-          shasum -a 256 "$RUNNER_TEMP/release.keystore.jks"
-
       - name: Build signed release AAB (pu flavor)
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}

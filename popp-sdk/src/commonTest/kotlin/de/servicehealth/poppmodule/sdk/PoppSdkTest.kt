@@ -134,7 +134,7 @@ class PoppSdkEnsureEngineTest {
 class TokenProviderConfigTest {
     @Test
     fun egk_provider_constructs() {
-        val provider =
+        val provider: TokenProviderConfig =
             TokenProviderConfig.Egk(
                 provider = { "stub" },
             )
@@ -143,7 +143,7 @@ class TokenProviderConfigTest {
 
     @Test
     fun gesundheitsId_provider_constructs() {
-        val provider =
+        val provider: TokenProviderConfig =
             TokenProviderConfig.GesundheitsId(
                 provider = { "stub" },
             )

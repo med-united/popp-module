@@ -35,9 +35,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.Res
+import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.application_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_favorites_empty_hint
-import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_header
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_subtitle
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_qr_title
 import de.servicehealth.poppmodule.demo.thirdparty.generated.resources.checkin_entry_question
@@ -68,7 +68,7 @@ fun OnsiteCheckInEntryScreen(
                 .background(c.white)
                 .safeContentPadding(),
     ) {
-        BrandScreenHeader(title = stringResource(Res.string.checkin_entry_header), onClose = onClose)
+        BrandScreenHeader(title = stringResource(Res.string.application_title), onClose = onClose)
 
         Column(
             modifier =
@@ -78,7 +78,7 @@ fun OnsiteCheckInEntryScreen(
                     .padding(top = 18.dp),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().height(36.dp),
+                modifier = Modifier.fillMaxWidth().height(20.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
             ) {

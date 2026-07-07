@@ -1,0 +1,57 @@
+/*
+ * Copyright (Change Date see Readme), gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+ *
+ * Modified by the PoPP-Module project (POPPM-119) — see NOTICE.md at the repository root.
+ */
+
+package de.servicehealth.poppmodule.sdk.egk.nfc.internal
+
+import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.KeyDerivationFunction
+import de.servicehealth.poppmodule.sdk.egk.nfc.internal.exchange.KeyDerivationFunction.getAES128Key
+import org.bouncycastle.util.encoders.Hex
+import org.junit.Assert
+import kotlin.test.Test
+
+class KeyDerivationFunctionTest {
+    private val secretK: ByteArray =
+        Hex.decode("2ECA74E72CD6C1E0DA235093569984987C34A9F4D34E4E60FB0AD87B983CDC62")
+
+    @Test
+    fun shouldReturnValidAES128KeyModeEnc() {
+        val validAes128Key: ByteArray = Hex.decode("AB5541629D18E5F33EE2B13DBDCDBE84")
+        val aes128Key = getAES128Key(secretK, KeyDerivationFunction.Mode.ENC)
+        Assert.assertArrayEquals(aes128Key, validAes128Key)
+    }
+
+    @Test
+    fun shouldReturnValidAES128KeyModeMac() {
+        val validAes128Key: ByteArray = Hex.decode("E13D3757C7D9073794A3D7CA94B22D30")
+        val aes128Key = getAES128Key(secretK, KeyDerivationFunction.Mode.MAC)
+        Assert.assertArrayEquals(aes128Key, validAes128Key)
+    }
+
+    @Test
+    fun shouldReturnValidAES128KeyModePassword() {
+        val validAes128Key: ByteArray = Hex.decode("74C1F5E712B53BAAA3B02B182E0961B9")
+        val aes128Key = getAES128Key(secretK, KeyDerivationFunction.Mode.PASSWORD)
+        Assert.assertArrayEquals(aes128Key, validAes128Key)
+    }
+}

@@ -148,6 +148,32 @@ openssl s_client -connect popp-zeta-ingress:443 -showcerts \
 - If `-Dpopp.integration.fqdn` is omitted the test fails immediately with a clear message,
   so accidentally running with `-Pintegration` alone is safe.
 
+### Visual snapshot testing (Roborazzi)
+
+Composable previews are rendered to PNG images using [Roborazzi](https://github.com/takahirom/roborazzi) on top of Robolectric — no emulator required.
+
+- **`:popp-demo:shared`** — every `@Preview`-annotated function is captured automatically via `SharedPreviewScreenshotTest` (component-level, natural preview size).
+- **`:popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp`** — full screens are captured via `ScreenSnapshotTest` at 1080×2424 px (360 dp × xxhdpi).
+
+**Typical local workflow — capture before/after a UI change:**
+
+```bash
+# 1. Record baseline before making changes
+./gradlew recordSnapshots
+
+# 2. Make UI changes …
+
+# 3. Re-run in compare mode — diff PNGs written to build/outputs/roborazzi/ on any mismatch
+./gradlew :popp-demo:shared:testAndroidHostTest
+./gradlew :popp-demo:popp-3rd-party-app-demo:shared3rdPartyApp:testAndroidHostTest
+
+# 4. (Optional) Hard-fail the build if anything changed visually
+./gradlew verifySnapshots
+```
+
+PNG output lives under each module's `build/outputs/roborazzi/` (git-ignored).
+CI generates fresh snapshots on every push/PR via `.github/workflows/visual-snapshots.yml` and uploads them as the `snapshot-images` artifact (30-day retention) for visual review.
+
 ### Code coverage (Kover) & CI
 
 - Local aggregated report: `./gradlew :popp-sdk:testAndroidHostTest :popp-demo:shared:testAndroidHostTest :koverXmlReport :koverHtmlReport`

@@ -1,6 +1,7 @@
 package de.servicehealth.poppmodule.sdk.internal
 
 import de.servicehealth.poppmodule.sdk.PoppSdkConfig
+import de.servicehealth.poppmodule.sdk.egk.PoppServiceTransport
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 
 /**
@@ -17,6 +18,9 @@ internal interface ZetaEngine {
 
     /** Tests domain service access via ZETA client. */
     suspend fun hello(): String
+
+    /** A ZETA-routed PoPP-Service transport for the eGK scenario loop (targets the configured fqdn). */
+    fun scenarioTransport(): PoppServiceTransport
 }
 
 internal expect fun createZetaEngine(

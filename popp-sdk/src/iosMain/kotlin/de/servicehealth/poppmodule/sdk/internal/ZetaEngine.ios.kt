@@ -2,6 +2,7 @@ package de.servicehealth.poppmodule.sdk.internal
 
 import de.servicehealth.poppmodule.sdk.PoppSdkConfig
 import de.servicehealth.poppmodule.sdk.PoppSdkError
+import de.servicehealth.poppmodule.sdk.egk.PoppServiceTransport
 import de.servicehealth.poppmodule.sdk.storage.SecureStorage
 
 /**
@@ -15,6 +16,8 @@ private class UnsupportedZetaEngine : ZetaEngine {
     override suspend fun status(): String = "iOS: zeta-sdk not yet available"
 
     override suspend fun hello(): Nothing = unsupported()
+
+    override fun scenarioTransport(): PoppServiceTransport = unsupported()
 
     private fun unsupported(): Nothing = throw PoppSdkError.PlatformUnsupported(
         "ZETA SDK has no iOS variant yet (zeta-sdk 1.0.1 is Android/JVM only). " +

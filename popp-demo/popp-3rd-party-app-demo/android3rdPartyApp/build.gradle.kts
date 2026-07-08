@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.playPublisher)
 }
 
 // Populated only in CI (release.yml); local/dev builds fall back to unsigned + placeholder version.
@@ -13,6 +14,7 @@ val releaseKeyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
 val releaseKeyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
 val releaseVersionCode = providers.environmentVariable("RELEASE_VERSION_CODE").orNull?.toIntOrNull() ?: 1
 val releaseVersionName = providers.environmentVariable("RELEASE_VERSION_NAME").orNull ?: "1.0"
+val googlePlayServiceAccountJsonPath = providers.environmentVariable("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_PATH").orNull
 
 kotlin {
     compilerOptions {
@@ -102,4 +104,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+play {
+    // Only set in CI (release.yml); left unconfigured for local/dev builds so unrelated Gradle
+    // tasks don't require Play Store credentials to exist.
+    if (googlePlayServiceAccountJsonPath != null) {
+        serviceAccountCredentials.set(file(googlePlayServiceAccountJsonPath))
+    }
+    track.set("internal")
+    defaultToAppBundles.set(true)
 }

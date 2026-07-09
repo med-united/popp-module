@@ -96,7 +96,17 @@ fun App(
                     OnsiteCheckInQrScannerScreen(
                         onBack = { nav.popBackStack() },
                         onClose = { nav.popBackStack(Routes.LAUNCHER, inclusive = false) },
-                        onProceed = { nav.navigate(Routes.CHECK_IN_CAN) },
+                        onProceed = {
+                            val apotheke = mockInstitutions.first()
+                            nav.navigate(
+                                Routes.confirmInstitution(
+                                    apotheke.id,
+                                    apotheke.name,
+                                    apotheke.address,
+                                    apotheke.type.label,
+                                ),
+                            )
+                        },
                     )
                 }
                 composable(Routes.CHECK_IN_CAN) {

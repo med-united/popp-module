@@ -30,7 +30,7 @@ desugar = "2.1.5"
 camerax = "1.5.3"
 mlkit-barcode = "17.3.0"
 roborazzi = "1.64.0"
-composable-preview-scanner = "0.9.0"
+composable-preview-scanner = "0.9.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

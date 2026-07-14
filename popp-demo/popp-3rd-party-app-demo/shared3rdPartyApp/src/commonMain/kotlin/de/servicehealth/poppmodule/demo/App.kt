@@ -305,9 +305,9 @@ fun App(
                             },
                         ),
                 ) { entry ->
-                    val code = entry.arguments?.getString(Routes.ARG_CODE)
-                    val state = entry.arguments?.getString(Routes.ARG_STATE)
-                    val error = entry.arguments?.getString(Routes.ARG_ERROR)
+                    val code = entry.arguments?.read { getStringOrNull(Routes.ARG_CODE) }
+                    val state = entry.arguments?.read { getStringOrNull(Routes.ARG_STATE) }
+                    val error = entry.arguments?.read { getStringOrNull(Routes.ARG_ERROR) }
 
                     PoppCallbackScreen(
                         code = code,

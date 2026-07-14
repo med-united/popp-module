@@ -84,9 +84,46 @@ val xcodeArchiveIos3rdPartyApp by tasks.registering(Exec::class) {
     }
 }
 
+// xcodebuild -exportArchive doesn't reuse the PROVISIONING_PROFILE_SPECIFIER passed at archive
+// time — with manual signing it needs its own explicit bundle-id -> profile-name mapping, so the
+// plist is generated here instead of using a static committed file. Shared by both the plain
+// export task and the upload task below, which differ only in `destination`.
+fun writeIosExportOptionsPlist(
+    plistFile: File,
+    provisioningSpecifier: String,
+    destination: String,
+) {
+    plistFile.parentFile.mkdirs()
+    plistFile.writeText(
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>$destination</string>
+            <key>teamID</key>
+            <string>YX6NS7XNPL</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>uploadSymbols</key>
+            <false/>
+            <key>provisioningProfiles</key>
+            <dict>
+                <key>de.servicehealth.poppmodule.demo.thirdparty</key>
+                <string>$provisioningSpecifier</string>
+            </dict>
+        </dict>
+        </plist>
+        """.trimIndent(),
+    )
+}
+
 val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
     group = "ios release"
-    description = "Exports the archive built by xcodeArchiveIos3rdPartyApp and uploads it to App Store Connect."
+    description = "Exports a signed .ipa from the archive built by xcodeArchiveIos3rdPartyApp (export only, no upload)."
     dependsOn(xcodeArchiveIos3rdPartyApp)
     notCompatibleWithConfigurationCache("shells out to xcodebuild")
     workingDir(ios3rdPartyAppDir)
@@ -96,9 +133,37 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
     inputs.dir(archivePath)
     outputs.dir(exportPath)
     doFirst {
-        // xcodebuild -exportArchive doesn't reuse the PROVISIONING_PROFILE_SPECIFIER passed at
-        // archive time — with manual signing it needs its own explicit bundle-id -> profile-name
-        // mapping, so the plist is generated here instead of using a static committed file.
+        val provisioningSpecifier =
+            System.getenv("IOS_PROVISIONING_PROFILE_SPECIFIER")
+                ?: error("IOS_PROVISIONING_PROFILE_SPECIFIER env var is required to export a signed archive")
+        val plistFile = generatedExportOptionsPlist.get().asFile
+        writeIosExportOptionsPlist(plistFile, provisioningSpecifier, destination = "export")
+        commandLine(
+            "xcodebuild",
+            "-exportArchive",
+            "-archivePath",
+            archivePath.get().asFile.absolutePath,
+            "-exportPath",
+            exportPath.get().asFile.absolutePath,
+            "-exportOptionsPlist",
+            plistFile.absolutePath,
+        )
+    }
+}
+
+val xcodeUploadIpaIos3rdPartyApp by tasks.registering(Exec::class) {
+    group = "ios release"
+    description = "Uploads the .ipa exported by xcodeExportIpaIos3rdPartyApp to App Store Connect. " +
+        "Only meant to run on real tag releases, not manual workflow_dispatch runs."
+    dependsOn(xcodeExportIpaIos3rdPartyApp)
+    notCompatibleWithConfigurationCache("shells out to xcodebuild")
+    workingDir(ios3rdPartyAppDir)
+    val archivePath = iosReleaseBuildDir.map { it.dir("iosApp.xcarchive") }
+    val uploadPath = iosReleaseBuildDir.map { it.dir("upload") }
+    val generatedUploadOptionsPlist = iosReleaseBuildDir.map { it.file("uploadOptions.plist") }
+    inputs.dir(archivePath)
+    outputs.dir(uploadPath)
+    doFirst {
         val provisioningSpecifier =
             System.getenv("IOS_PROVISIONING_PROFILE_SPECIFIER")
                 ?: error("IOS_PROVISIONING_PROFILE_SPECIFIER env var is required to export a signed archive")
@@ -111,40 +176,15 @@ val xcodeExportIpaIos3rdPartyApp by tasks.registering(Exec::class) {
         val apiKeyIssuerId =
             System.getenv("APP_STORE_CONNECT_ISSUER_ID")
                 ?: error("APP_STORE_CONNECT_ISSUER_ID env var is required to upload to App Store Connect")
-        val plistFile = generatedExportOptionsPlist.get().asFile
-        plistFile.parentFile.mkdirs()
-        plistFile.writeText(
-            """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-            <plist version="1.0">
-            <dict>
-                <key>method</key>
-                <string>app-store-connect</string>
-                <key>destination</key>
-                <string>upload</string>
-                <key>teamID</key>
-                <string>YX6NS7XNPL</string>
-                <key>signingStyle</key>
-                <string>manual</string>
-                <key>uploadSymbols</key>
-                <false/>
-                <key>provisioningProfiles</key>
-                <dict>
-                    <key>de.servicehealth.poppmodule.demo.thirdparty</key>
-                    <string>$provisioningSpecifier</string>
-                </dict>
-            </dict>
-            </plist>
-            """.trimIndent(),
-        )
+        val plistFile = generatedUploadOptionsPlist.get().asFile
+        writeIosExportOptionsPlist(plistFile, provisioningSpecifier, destination = "upload")
         commandLine(
             "xcodebuild",
             "-exportArchive",
             "-archivePath",
             archivePath.get().asFile.absolutePath,
             "-exportPath",
-            exportPath.get().asFile.absolutePath,
+            uploadPath.get().asFile.absolutePath,
             "-exportOptionsPlist",
             plistFile.absolutePath,
             "-authenticationKeyPath",

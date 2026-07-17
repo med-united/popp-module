@@ -1,7 +1,7 @@
 [versions]
 agp = "9.0.1"
 bouncycastle = "1.84"
-coil3 = "3.1.0"
+coil3 = "3.5.0"
 robolectric = "4.16.1"
 android-compileSdk = "36"
 android-minSdk = "28"
